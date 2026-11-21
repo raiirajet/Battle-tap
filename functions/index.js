@@ -127,7 +127,7 @@ exports.submitRanked = callable(async (request) => {
     const snapshot = await sessionRef.get();
     if (!snapshot.exists || snapshot.data().uid !== uid ||
         snapshot.data().rulesVersion !== 2 || snapshot.data().status !== 'open' ||
-        !validateRankedV2(taps, snapshot.data().seed, fieldWidth, fieldHeight)) {
+        (taps.length > 0 && !validateRankedV2(taps, snapshot.data().seed, fieldWidth, fieldHeight))) {
       throw new HttpsError('invalid-argument', 'Ranked V2 target geometry verification failed.');
     }
   }
@@ -222,7 +222,7 @@ exports.sendChallenge = callable(async (request) => {
   const [a, b] = [uid, opponentId].sort();
   const [friendship, ranked] = await Promise.all([
     db.collection('friendships').doc(`${a}_${b}`).get(),
-    db.collection('rankedBest').doc(uid).get(),
+    db.collection('rankedBestV2').doc(uid).get(),
   ]);
   if (!friendship.exists || friendship.data().status !== 'accepted') {
     throw new HttpsError('permission-denied', 'Only accepted friends can be challenged.');
@@ -279,6 +279,7 @@ exports.deleteAccount = callable(async (request) => {
   // Store payment records may require legally mandated retention in production;
   // that policy must be implemented explicitly before enabling real purchases.
   await deleteMatching(db.collection('rankedWeekly').where('uid', '==', uid));
+  await deleteMatching(db.collection('rankedWeeklyV2').where('uid', '==', uid));
   await deleteMatching(db.collection('sessions').where('uid', '==', uid));
   await deleteMatching(db.collection('friendships').where('members', 'array-contains', uid));
   await deleteMatching(db.collection('challenges').where('challengerId', '==', uid));
@@ -289,6 +290,7 @@ exports.deleteAccount = callable(async (request) => {
   const batch = db.batch();
   batch.delete(db.collection('users').doc(uid));
   batch.delete(db.collection('rankedBest').doc(uid));
+  batch.delete(db.collection('rankedBestV2').doc(uid));
   batch.delete(db.collection('playerStatistics').doc(uid));
   batch.delete(db.collection('achievementProgress').doc(uid));
   if (user.exists && user.data().battleTag) {
