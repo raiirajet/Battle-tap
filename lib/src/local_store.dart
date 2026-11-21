@@ -6,7 +6,7 @@ import 'skins.dart';
 /// Practice-only storage. Never used as the source for global rankings.
 class PracticeStore extends ChangeNotifier {
   PracticeStore(this._prefs) {
-    rankedBest = _prefs.getInt('practice_ranked_best') ?? 0;
+    rankedBest = _prefs.getInt('practice_ranked_best_v2') ?? 0;
     huntBest = _prefs.getInt('practice_hunt_best') ?? 0;
     gamesPlayed = _prefs.getInt('practice_games') ?? 0;
     totalHits = _prefs.getInt('practice_hits') ?? 0;
@@ -69,7 +69,7 @@ class PracticeStore extends ChangeNotifier {
     if (result.mode == BattleMode.hunt && wasBest) huntBest = result.score;
     gamesPlayed++;
     totalHits += result.hits;
-    _prefs.setInt('practice_ranked_best', rankedBest);
+    _prefs.setInt('practice_ranked_best_v2', rankedBest);
     _prefs.setInt('practice_hunt_best', huntBest);
     _prefs.setInt('practice_games', gamesPlayed);
     _prefs.setInt('practice_hits', totalHits);
