@@ -1,0 +1,32 @@
+{
+  "name": "BattleTap – Tap Battle & Random Hunt",
+  "short_name": "BattleTap",
+  "description": "BattleTap: Schnell tippen, Rhythmus-Combos sammeln und den Zufalls-Button jagen.",
+  "start_url": "./",
+  "scope": "./",
+  "orientation": "portrait-primary",
+  "display": "standalone",
+  "background_color": "#090D16",
+  "theme_color": "#090D16",
+  "lang": "de",
+  "icons": [
+    {
+      "src": "icons/Icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/Icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/Icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

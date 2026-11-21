@@ -6,6 +6,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'battle_audio.dart';
 import 'local_store.dart';
+import 'skins.dart';
 import 'online.dart';
 import 'rules.dart';
 import 'ranked_v2.dart';
@@ -48,7 +49,21 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
   int _intro = BattleRules.introSeconds;
   late RoundScore _round;
   Offset _huntPosition = const Offset(.4, .4);
+  int _huntColorIndex = 0;
+  static const List<(Color, Color)> _huntPalette = [
+    (Color(0xFF145DBA), Color(0xFF6DE7FF)),
+    (Color(0xFF6D23C1), Color(0xFFE7ADFF)),
+    (Color(0xFFBE3826), Color(0xFFFFA25A)),
+    (Color(0xFF159E67), Color(0xFFACFF8C)),
+    (Color(0xFFC18C1B), Color(0xFFFFFF9A)),
+    (Color(0xFFC02285), Color(0xFFFFA4DE)),
+    (Color(0xFF0B8EAB), Color(0xFF8AF6EF)),
+  ];
   int _lastMoveMs = 0;
+  BattleSkin get _huntSkin {
+    final colors = _huntPalette[_huntColorIndex];
+    return widget.store.equipped.withColors(colors.$1, colors.$2);
+  }
   String? _sessionId;
   String? _error;
   bool _showGold = false;
@@ -86,6 +101,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
     _error = null;
     _lastMoveMs = 0;
     _huntPosition = const Offset(.42, .44);
+    _huntColorIndex = _rng.nextInt(_huntPalette.length);
     _showGold = false;
     _goldDisplayed = false;
     _newBest = false;
@@ -102,6 +118,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
         (_phase == _Phase.playing || _phase == _Phase.stop)) {
       _ticker.stop();
       _clock.stop();
+      widget.store.flushTapCount();
       if (mounted) setState(() { _phase = _Phase.failed;
         _error = 'Runde abgebrochen: Die App wurde unterbrochen. Ranked-Runden können nicht pausiert werden.'; });
     }
@@ -179,6 +196,9 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
       attempts++;
     } while ((next - _huntPosition).distance < .24 && attempts < 30);
     _huntPosition = next;
+    // Each relocation changes the appearance without altering the user's skin.
+    _huntColorIndex = (_huntColorIndex + 1 +
+        _rng.nextInt(_huntPalette.length - 1)) % _huntPalette.length;
     _lastMoveMs = nowMs;
   }
 
@@ -186,6 +206,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
     final fresh = _pointers.isEmpty;
     _pointers.add(event.pointer);
     if (!fresh || (_phase != _Phase.playing && _phase != _Phase.stop)) return;
+    widget.store.registerTap();
     final elapsed = _clock.elapsed;
     final nowMs = elapsed.inMilliseconds;
     final diameter = widget.mode == BattleMode.ranked
@@ -264,6 +285,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
           setState(() { _error = 'Der Server hat das Ergebnis nicht verifiziert.'; _phase = _Phase.failed; });
           return;
         }
+        widget.store.saveVerifiedRound(_round);
       } catch (e) {
         if (mounted) setState(() { _error = 'Ergebnis konnte nicht verifiziert werden: $e'; _phase = _Phase.failed; });
         return;
@@ -282,6 +304,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
   void dispose() {
     _introTimer?.cancel();
     _ticker.dispose();
+    widget.store.flushTapCount();
     unawaited(_audio.dispose());
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -340,7 +363,9 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
                 ))),
                 if (active && _phase == _Phase.playing)
                   Positioned(left: point.dx, top: point.dy,
-                    child: IgnorePointer(child: SkinButton(skin: widget.store.equipped,
+                    child: IgnorePointer(child: SkinButton(
+                      skin: widget.mode == BattleMode.hunt
+                          ? _huntSkin : widget.store.equipped,
                       size: diameter, animate: widget.mode != BattleMode.ranked &&
                           !widget.store.reducedEffects))),
                 if (_phase == _Phase.playing &&

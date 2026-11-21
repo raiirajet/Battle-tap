@@ -87,6 +87,21 @@ flutter run
 
 **Firebase deployment needed for actual online V2:** publishing the source and new APK alone does not deploy Cloud Functions, Firestore security rules or indexes. The new app requires the V2 backend for authenticated Ranked sessions. The default APK continues to run local practice without Firebase configuration.
 
+## BattleTap PWA, lifetime stats, free premium skins (November 2026)
+
+The web app is built from the **same Flutter screens and gameplay** as Android. On a wide desktop browser its canvas is capped at 560 logical pixels to keep the original mobile layout; on phones the app fills the screen.
+
+- **Random Hunt color shifting:** the visible tap target switches between seven high-contrast color combinations after every hit or automatic relocation. The selected skin's visual-effects family stays the same.
+- **Home statistics:** completed rounds overall, lifetime tap attempts (accepted fresh pointer-downs including misses), and weighted average successful hits per second for each of Random Hunt and Tap Battle. Totals persist using SharedPreferences (browser local storage in the PWA, app storage on Android). Earlier versions saved only completed practice hits, so those become the historical baseline for lifetime taps; separate per-mode averages start with this version.
+- **Shop:** four new permanently FREE, immediately equippable buttons: Aurora Flux and Ember Storm with Epic-style effects; Solar Halo and Night Nebula with Legend-style effects. All original paid skins are preserved, but transactions still require actual native store/receipt verification before enabling paid purchases.
+- **PWA:** manifest, original branded icon variants, standalone installation, an HTTPS service worker for shell and runtime asset caching, and a GitHub Actions deployment pipeline to GitHub Pages.
+- **Web publishing:** `https://raiirajet.github.io/Battle-tap/` when the Pages workflow has succeeded. GitHub Pages must permit Actions deployments; this workflow attempts automatic Pages enablement. If GitHub denies it, configure **Repository → Settings → Pages → Build and deployment → GitHub Actions**, then rerun `Build & deploy BattleTap PWA`.
+- **Online limits:** the repository ships without Firebase credentials. The PWA and default debug APK start in **LOCAL PRACTICE ONLY**. To enable real sign-in and verified ranked scores, set valid platform-specific Firebase configuration and deploy the compatible V2 Cloud Functions, Firestore rules and indexes. The two device/browser stores do not automatically sync each other's local statistics. No Firebase production settings are changed by the Pages workflow.
+
+Both Android and PWA can be rebuilt from `main` using their workflows:
+- `.github/workflows/android-apk.yml` (debug APK)
+- `.github/workflows/deploy-pwa.yml` (web / GitHub Pages)
+
 ## Arcade audio, combo feedback and optional permissions
 
 - Fourteen **original, locally generated** PCM WAV effects live under `assets/audio/`: eight progressively brighter tap sounds, countdown, start, stop, miss, combo and record.

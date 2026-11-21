@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:country_picker/country_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'game_page.dart';
@@ -24,6 +25,14 @@ class BattleTapApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
     debugShowCheckedModeBanner: false,
     title: 'BATTLE TAP',
+    builder: (context, child) => kIsWeb
+        ? ColoredBox(color: deep, child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 560),
+              child: child ?? const SizedBox.shrink(),
+            ),
+          ))
+        : child ?? const SizedBox.shrink(),
     theme: ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
@@ -188,18 +197,32 @@ class _PlayTab extends StatelessWidget {
       const Text('SPEED. SKILL. GLORY.', textAlign: TextAlign.center,
         style: TextStyle(color: Colors.white54, letterSpacing: 2)),
       const SizedBox(height: 24),
-      AnimatedBuilder(animation: store, builder: (_, __) => Row(children: [
-        Expanded(child: _Metric(label: 'LOCAL BEST', value: '${store.rankedBest}')),
-        const SizedBox(width: 12),
-        Expanded(child: _Metric(label: 'ROUNDS', value: '${store.gamesPlayed}')),
+      AnimatedBuilder(animation: store, builder: (_, __) => Column(children: [
+        Row(children: [
+          Expanded(child: _Metric(label: 'GAMES PLAYED', value: '${store.gamesPlayed}')),
+          const SizedBox(width: 12),
+          Expanded(child: _Metric(label: 'TOTAL TAPS', value: '${store.totalTaps}')),
+        ]),
+        const SizedBox(height: 12),
+        Row(children: [
+          Expanded(child: _Metric(label: 'HUNT Ø HITS/S',
+            value: store.huntAverageSpeed.toStringAsFixed(2))),
+          const SizedBox(width: 12),
+          Expanded(child: _Metric(label: 'BATTLE Ø HITS/S',
+            value: store.rankedAverageSpeed.toStringAsFixed(2))),
+        ]),
+        const SizedBox(height: 6),
+        const Text('Average speed from completed games since this update',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.white38, fontSize: 10)),
       ])),
       const SizedBox(height: 25),
-      _ModeCard(title: 'TAP BATTLE', subtitle: '30 SECONDS • FIXED 44% BUTTON',
+      _ModeCard(title: 'TAP BATTLE', subtitle: '30 SECONDS • ADAPTIVE BUTTON • MOVES EVERY 100',
         icon: Icons.ads_click, accent: gold,
         detail: online.enabled ? 'RANKED • GLOBAL LEADERBOARDS' : 'PRACTICE • RANKINGS OFFLINE',
         onTap: () => onPlay(BattleMode.ranked)),
       const SizedBox(height: 14),
-      _ModeCard(title: 'RANDOM HUNT', subtitle: '18–60 SECONDS • MOVING TARGET',
+      _ModeCard(title: 'RANDOM HUNT', subtitle: '18–60 SECONDS • MOVING, COLOR-CHANGING TARGET',
         icon: Icons.control_camera_rounded, accent: const Color(0xFF7DE0F8),
         detail: 'VISIBLE TIMER • −2 FOR LATE TAPS', onTap: () => onPlay(BattleMode.hunt)),
       const SizedBox(height: 24),
@@ -219,7 +242,8 @@ class _Metric extends StatelessWidget {
     decoration: BoxDecoration(color: panel, borderRadius: BorderRadius.circular(14)),
     child: Column(children: [Text(label, style: const TextStyle(color: Colors.white54, fontSize: 10,
       letterSpacing: 1.7)), const SizedBox(height: 5),
-      Text(value, style: const TextStyle(color: gold, fontSize: 28, fontWeight: FontWeight.w900))]),
+      FittedBox(fit: BoxFit.scaleDown,
+        child: Text(value, style: const TextStyle(color: gold, fontSize: 28, fontWeight: FontWeight.w900)))]),
   );
 }
 
@@ -336,10 +360,11 @@ class _ShopTab extends StatefulWidget {
 }
 
 class _ShopTabState extends State<_ShopTab> {
-  SkinRarity rarity = SkinRarity.normal;
+  SkinRarity rarity = SkinRarity.free;
   @override
   Widget build(BuildContext context) {
-    final selection = skins.where((skin) => skin.rarity == rarity).toList();
+    final selection = skins.where((skin) =>
+      rarity == SkinRarity.free ? skin.isFree : skin.rarity == rarity).toList();
     return Column(children: [
       const Padding(padding: EdgeInsets.all(20), child: Column(children: [
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -350,11 +375,20 @@ class _ShopTabState extends State<_ShopTab> {
         SizedBox(height: 4), Text('COSMETICS ONLY • NO PAY-TO-WIN',
           style: TextStyle(color: Colors.white54, fontSize: 11)),
       ])),
-      Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: SegmentedButton<SkinRarity>(
-        segments: const [ButtonSegment(value: SkinRarity.normal, label: Text('NORMAL')),
-          ButtonSegment(value: SkinRarity.epic, label: Text('EPIC')),
-          ButtonSegment(value: SkinRarity.legend, label: Text('LEGEND'))],
-        selected: {rarity}, onSelectionChanged: (v) => setState(() => rarity = v.first))),
+      SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Row(children: [
+          for (final tier in [SkinRarity.free, SkinRarity.normal,
+                              SkinRarity.epic, SkinRarity.legend])
+            Padding(padding: const EdgeInsets.only(right: 8),
+              child: ChoiceChip(
+                label: Text(tier.name.toUpperCase()),
+                selected: rarity == tier,
+                onSelected: (_) => setState(() => rarity = tier),
+              )),
+        ]),
+      ),
       const SizedBox(height: 12),
       Expanded(child: GridView.builder(padding: const EdgeInsets.all(14),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -370,7 +404,10 @@ class _ShopTabState extends State<_ShopTab> {
                 style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
               Text(skin.price, style: const TextStyle(color: gold, fontSize: 12)),
               const SizedBox(height: 4),
-              const Text('TAP TO PREVIEW', style: TextStyle(color: Colors.white38, fontSize: 9)),
+              Text(skin.isFree
+                    ? (widget.store.equippedSkinId == skin.id ? 'EQUIPPED' : 'TAP TO EQUIP')
+                    : 'TAP TO PREVIEW',
+                style: const TextStyle(color: Colors.white54, fontSize: 9)),
             ]))));
         })),
     ]);
@@ -389,10 +426,28 @@ class _ShopTabState extends State<_ShopTab> {
       const SizedBox(height: 10),
       Text(skin.price, style: const TextStyle(fontSize: 21, color: gold, fontWeight: FontWeight.bold)),
       const SizedBox(height: 12),
-      const Text('Purchases are locked until the native store products and server receipt verification are configured.',
-        style: TextStyle(color: Colors.white54), textAlign: TextAlign.center),
-      const SizedBox(height: 12),
-      const FilledButton(onPressed: null, child: Text('PURCHASE UNAVAILABLE')),
+      if (skin.isFree) ...[
+        const Text('Free forever · no account or payment required',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.white70)),
+        const SizedBox(height: 12),
+        FilledButton.icon(
+          icon: Icon(widget.store.equippedSkinId == skin.id
+              ? Icons.check_circle : Icons.check),
+          label: Text(widget.store.equippedSkinId == skin.id
+              ? 'EQUIPPED' : 'EQUIP FREE SKIN'),
+          onPressed: widget.store.equippedSkinId == skin.id ? null : () {
+            widget.store.equip(skin.id);
+            Navigator.of(context).pop();
+            if (mounted) setState(() {});
+          },
+        ),
+      ] else ...[
+        const Text('Purchases are locked until native store products and server receipt verification are configured.',
+          style: TextStyle(color: Colors.white54), textAlign: TextAlign.center),
+        const SizedBox(height: 12),
+        const FilledButton(onPressed: null, child: Text('PURCHASE UNAVAILABLE')),
+      ],
       const SizedBox(height: 20),
     ])));
 }
@@ -557,7 +612,7 @@ class _ProfileTabState extends State<_ProfileTab> {
         const SizedBox(height: 10),
         _Metric(label: 'LOCAL HUNT BEST', value: '${widget.store.huntBest}'),
         const SizedBox(height: 10),
-        _Metric(label: 'TOTAL TAPS ON DEVICE', value: '${widget.store.totalHits}'),
+        _Metric(label: 'TOTAL TAPS SINCE INSTALL', value: '${widget.store.totalTaps}'),
       ])),
       const SizedBox(height: 16),
       AnimatedBuilder(animation: widget.store, builder: (context, _) => Column(children: [

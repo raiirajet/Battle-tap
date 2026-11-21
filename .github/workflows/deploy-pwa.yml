@@ -1,0 +1,66 @@
+name: Build & deploy BattleTap PWA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/**'
+      - 'assets/**'
+      - 'web/**'
+      - 'pubspec.yaml'
+      - 'scripts/create_pwa_icons.py'
+      - '.github/workflows/deploy-pwa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Generate Flutter web scaffold
+        run: flutter create --platforms=web --project-name battle_tap --org ch.battletap .
+      - name: Install Flutter dependencies
+        run: flutter pub get
+      - name: Verify Flutter web support
+        run: flutter analyze --no-fatal-infos
+      - name: Test shared game logic
+        run: flutter test
+      - name: Generate PWA icons from Android launcher artwork
+        run: |
+          python3 -m pip install --quiet Pillow
+          python3 scripts/create_pwa_icons.py
+      - name: Build BattleTap web app
+        run: flutter build web --release --base-href /Battle-tap/ --pwa-strategy=none
+      - name: Preserve GitHub Pages paths
+        run: |
+          touch build/web/.nojekyll
+          test -f build/web/index.html
+          test -f build/web/sw.js
+          test -f build/web/manifest.json
+          test -f build/web/main.dart.js
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Upload PWA for GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

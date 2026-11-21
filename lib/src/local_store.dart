@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'rules.dart';
@@ -10,6 +11,15 @@ class PracticeStore extends ChangeNotifier {
     huntBest = _prefs.getInt('practice_hunt_best') ?? 0;
     gamesPlayed = _prefs.getInt('practice_games') ?? 0;
     totalHits = _prefs.getInt('practice_hits') ?? 0;
+    // Legacy versions stored only successful practice taps. Keep them as a
+    // baseline; count all new distinct touches (hits and misses) from now on.
+    totalTaps = _prefs.getInt('lifetime_total_taps') ?? totalHits;
+    rankedRounds = _prefs.getInt('stats_ranked_rounds') ?? 0;
+    huntRounds = _prefs.getInt('stats_hunt_rounds') ?? 0;
+    rankedCompletedHits = _prefs.getInt('stats_ranked_hits') ?? 0;
+    huntCompletedHits = _prefs.getInt('stats_hunt_hits') ?? 0;
+    rankedCompletedMs = _prefs.getInt('stats_ranked_ms') ?? 0;
+    huntCompletedMs = _prefs.getInt('stats_hunt_ms') ?? 0;
     equippedSkinId = _prefs.getString('equipped_skin') ?? 'standard';
     soundEnabled = _prefs.getBool('sound_enabled') ?? true;
     vibrationEnabled = _prefs.getBool('vibration_enabled') ?? true;
@@ -24,6 +34,21 @@ class PracticeStore extends ChangeNotifier {
   late int huntBest;
   late int gamesPlayed;
   late int totalHits;
+  late int totalTaps;
+  late int rankedRounds;
+  late int huntRounds;
+  late int rankedCompletedHits;
+  late int huntCompletedHits;
+  late int rankedCompletedMs;
+  late int huntCompletedMs;
+  Timer? _tapWriteTimer;
+
+  /// Average accepted hits per second, weighted by completed round duration.
+  double get rankedAverageSpeed => rankedCompletedMs == 0 ? 0 :
+      rankedCompletedHits * 1000 / rankedCompletedMs;
+  double get huntAverageSpeed => huntCompletedMs == 0 ? 0 :
+      huntCompletedHits * 1000 / huntCompletedMs;
+
   late String equippedSkinId;
   late bool soundEnabled;
   late bool vibrationEnabled;
@@ -61,27 +86,70 @@ class PracticeStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Lightweight counter: don't write SharedPreferences on every rapid tap.
+  void registerTap() {
+    totalTaps++;
+    _tapWriteTimer ??= Timer(const Duration(milliseconds: 650), flushTapCount);
+  }
+
+  void flushTapCount() {
+    _tapWriteTimer?.cancel();
+    _tapWriteTimer = null;
+    _prefs.setInt('lifetime_total_taps', totalTaps);
+  }
+
+  void _recordCompletedRound(RoundScore result) {
+    gamesPlayed++;
+    if (result.mode == BattleMode.ranked) {
+      rankedRounds++;
+      rankedCompletedHits += result.hits;
+      rankedCompletedMs += result.duration.inMilliseconds;
+      _prefs.setInt('stats_ranked_rounds', rankedRounds);
+      _prefs.setInt('stats_ranked_hits', rankedCompletedHits);
+      _prefs.setInt('stats_ranked_ms', rankedCompletedMs);
+    } else {
+      huntRounds++;
+      huntCompletedHits += result.hits;
+      huntCompletedMs += result.duration.inMilliseconds;
+      _prefs.setInt('stats_hunt_rounds', huntRounds);
+      _prefs.setInt('stats_hunt_hits', huntCompletedHits);
+      _prefs.setInt('stats_hunt_ms', huntCompletedMs);
+    }
+    flushTapCount();
+    _prefs.setInt('practice_games', gamesPlayed);
+    notifyListeners();
+  }
+
   bool savePracticeRound(RoundScore result) {
     final wasBest = result.mode == BattleMode.ranked
         ? result.score > rankedBest
         : result.score > huntBest;
     if (result.mode == BattleMode.ranked && wasBest) rankedBest = result.score;
     if (result.mode == BattleMode.hunt && wasBest) huntBest = result.score;
-    gamesPlayed++;
     totalHits += result.hits;
     _prefs.setInt('practice_ranked_best_v2', rankedBest);
     _prefs.setInt('practice_hunt_best', huntBest);
-    _prefs.setInt('practice_games', gamesPlayed);
     _prefs.setInt('practice_hits', totalHits);
-    notifyListeners();
+    _recordCompletedRound(result);
     return wasBest;
   }
 
+  /// Online ranked rounds count only after verified server acceptance.
+  void saveVerifiedRound(RoundScore result) => _recordCompletedRound(result);
+
   void equip(String id) {
-    if (id != 'standard') return; // Paid skins require verified ownership.
-    equippedSkinId = id;
+    final skin = skinById(id);
+    if (!skin.isFree) return; // Paid skins require verified purchase ownership.
+    if (equippedSkinId == id) return;
+    equippedSkinId = skin.id;
     _prefs.setString('equipped_skin', id);
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    flushTapCount();
+    super.dispose();
   }
 
   BattleSkin get equipped => skinById(equippedSkinId);

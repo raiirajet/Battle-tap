@@ -100,7 +100,7 @@ class _SkinAuraPainter extends CustomPainter {
     final radius = size.width * .48;
     final accent = skin.secondary;
     final r = math.Random(skin.style + 157);
-    final epic = skin.rarity == SkinRarity.epic;
+    final epic = skin.visualRarity == SkinRarity.epic;
     if (epic) {
       for (var i = 0; i < 2; i++) {
         final p = Paint()..color = accent.withValues(alpha: .5 - i * .12)
