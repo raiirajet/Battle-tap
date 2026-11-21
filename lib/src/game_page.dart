@@ -189,7 +189,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
     final elapsed = _clock.elapsed;
     final nowMs = elapsed.inMilliseconds;
     final diameter = widget.mode == BattleMode.ranked
-      ? fieldSize.width * RankedV2.diameterRatio(_recentHits, nowMs)
+      ? min(fieldSize.width * RankedV2.diameterRatio(_recentHits, nowMs), fieldSize.height * .90)
       : fieldSize.width * BattleRules.huntButtonWidthRatio;
     final center = widget.mode == BattleMode.ranked
       ? Offset((fieldSize.width - diameter) * _rankedTarget.position.x + diameter / 2,
@@ -320,7 +320,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
           Expanded(child: LayoutBuilder(builder: (context, constraints) {
             final fieldSize = Size(constraints.maxWidth, constraints.maxHeight);
             final diameter = widget.mode == BattleMode.ranked
-              ? fieldSize.width * RankedV2.diameterRatio(_recentHits, nowMs)
+              ? min(fieldSize.width * RankedV2.diameterRatio(_recentHits, nowMs), fieldSize.height * .90)
               : fieldSize.width * BattleRules.huntButtonWidthRatio;
             final point = widget.mode == BattleMode.ranked
               ? Offset((fieldSize.width - diameter) * _rankedTarget.position.x,
