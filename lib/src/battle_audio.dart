@@ -13,6 +13,8 @@ class BattleAudio {
   final PracticeStore store;
   final Map<String, AudioPool> _pools = {};
   bool _disposed = false;
+  final Stopwatch _tapClock = Stopwatch()..start();
+  int _lastPlayedMs = -100000;
   static const _cueNames = ['countdown', 'start', 'stop', 'miss', 'combo', 'record'];
 
   Future<void> preload() async {
@@ -24,8 +26,10 @@ class BattleAudio {
       try {
         final pool = await AudioPool.create(
           source: AssetSource('audio/$name.wav'),
-          minPlayers: name.startsWith('tap_') ? 2 : 1,
-          maxPlayers: name.startsWith('tap_') ? 5 : 2,
+          // Cap the concurrent native players: otherwise each rapid tap
+          // schedules too many platform-channel requests and drifts behind.
+          minPlayers: 1,
+          maxPlayers: name.startsWith('tap_') ? 2 : 1,
           playerMode: PlayerMode.lowLatency,
         );
         if (_disposed) {
@@ -44,6 +48,11 @@ class BattleAudio {
       hits: hits, combo: combo, hitsPerSecond: hitsPerSecond,
       adaptive: store.adaptiveAudioEnabled,
     );
+    final now = _tapClock.elapsedMilliseconds;
+    // 70 ms caps audio voices to ~14 per second, without dropping GAME hits.
+    // It prevents queued sounds from playing after the finger has moved on.
+    if (now - _lastPlayedMs < 70) return;
+    _lastPlayedMs = now;
     _play('tap_$tier', volume: 0.56);
   }
 
@@ -65,6 +74,7 @@ class BattleAudio {
 
   Future<void> dispose() async {
     _disposed = true;
+    _tapClock.stop();
     final pools = _pools.values.toList();
     _pools.clear();
     await Future.wait(pools.map((pool) => pool.dispose().catchError((Object _) {})));

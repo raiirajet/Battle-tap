@@ -8,7 +8,7 @@
 
 | Capability | State |
 |---|---|
-| TAP BATTLE: fixed centered button, 44% screen width, 30s, +1 per valid tap | Implemented locally |
+| TAP BATTLE: starts centered (44% width), shrinks at speed, teleports every 100 hits; 30s, +1 per valid hit | Implemented locally |
 | RANDOM HUNT: 18–60s random visible timer; repositions on hit and after 1s idle | Implemented locally |
 | RANDOM HUNT: 2s STOP phase, −2 per late tap | Implemented locally |
 | Touch handling: no continuous hold points; no overlapping pointer points | Implemented locally |
@@ -30,8 +30,8 @@
 | Rule | Value |
 |---|---|
 | TAP BATTLE length | 30.00 seconds |
-| Ranked button diameter | **44%** logical screen width |
-| Ranked button | Stationary, centered |
+| Ranked V2 target diameter | **44%** field width initially, shrinks to **11%** at high tapping speed |
+| Ranked V2 position | Centered initially; fresh seeded random location after every 100 successful hits |
 | Ranked tap score | +1 |
 | Random Hunt length | Uniformly sampled integer **18–60 seconds** |
 | Random Hunt timer | **Visible** |
@@ -41,7 +41,7 @@
 | Wrong tap | 0 |
 | Random Hunt late tap | **−2** each |
 | STOP reaction phase | **2 seconds** |
-| Public rankings | **TAP BATTLE only**, authenticated server-verified results |
+| Public rankings | **TAP BATTLE V2**, authenticated and isolated from V1 historical scores |
 
 The canonical values are in `lib/src/rules.dart`. Backend must agree on timing/version.
 
@@ -76,6 +76,16 @@ flutter pub get
 dart run flutter_launcher_icons
 flutter run
 ```
+
+## Ranked V2: rhythm combos, adaptive target and randomized locations
+
+- **Real rhythm combos:** five or more accurately and consistently timed consecutive hits are required to activate a combo. Misses, erratic tap intervals and moves reset it. Combo is purely audio/visual: each valid hit still scores +1.
+- **Adaptive hit target:** starts at 44% of playfield width, shrinks smoothly as tapping frequency increases, and reaches 11% (a quarter of its original diameter) at high speed. The hitbox for a tap depends only on earlier valid taps, never on the tap being scored.
+- **Different path each match:** every 100 accepted hits moves the button to a new location inside the playfield. Each online match uses a fresh server-provided seed; offline practice generates a fresh seed locally. Moves restart the rhythm and speed window.
+- **Score separation:** V2 scores use `rankedBestV2` and `rankedWeeklyV2`. Historic V1 records stay unchanged. The server checks V2 coordinates against the issued seed, the previous hit times, and the stage of the move counter.
+- **Lower latency:** Ranked targets no longer run decorative animation controllers; visual updates are capped at ~30fps, haptics are limited to ~8 per second and tap audio is limited to ~14 per second without throttling hits.
+
+**Firebase deployment needed for actual online V2:** publishing the source and new APK alone does not deploy Cloud Functions, Firestore security rules or indexes. The new app requires the V2 backend for authenticated Ranked sessions. The default APK continues to run local practice without Firebase configuration.
 
 ## Arcade audio, combo feedback and optional permissions
 

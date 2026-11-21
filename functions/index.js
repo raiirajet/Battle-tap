@@ -3,6 +3,7 @@
 const admin = require('firebase-admin');
 const {onCall, HttpsError} = require('firebase-functions/v2/https');
 const {randomInt} = require('crypto');
+const {validateRankedV2} = require('./ranked_v2');
 admin.initializeApp();
 const db = admin.firestore();
 const FieldValue = admin.firestore.FieldValue;
@@ -94,17 +95,19 @@ exports.startRanked = callable(async (request) => {
       throw new HttpsError('resource-exhausted', 'Please wait before starting another round.');
     }
   }
+  const rulesVersion = request.data && request.data.rulesVersion === 2 ? 2 : 1;
+  const seed = rulesVersion === 2 ? randomInt(1, 0x7fffffff) : null;
   const doc = db.collection('sessions').doc();
   await doc.create({uid, createdAt: FieldValue.serverTimestamp(), status: 'open',
-    rulesVersion: 1, mode: 'ranked', durationMs: 30000});
-  return {sessionId: doc.id, durationMs: 30000};
+    rulesVersion, seed, mode: 'ranked', durationMs: 30000});
+  return {sessionId: doc.id, seed, rulesVersion, durationMs: 30000};
 });
 
 exports.submitRanked = callable(async (request) => {
   const uid = requireUser(request);
-  const {sessionId, taps, rulesVersion} = request.data || {};
+  const {sessionId, taps, rulesVersion, fieldWidth, fieldHeight} = request.data || {};
   if (typeof sessionId !== 'string' || !/^[A-Za-z0-9]{10,32}$/.test(sessionId)
-      || rulesVersion !== 1 || !Array.isArray(taps) || taps.length > 600) {
+      || ![1, 2].includes(rulesVersion) || !Array.isArray(taps) || taps.length > 600) {
     throw new HttpsError('invalid-argument', 'Invalid session, rules version or tap sequence.');
   }
   let prior = -1;
@@ -113,17 +116,27 @@ exports.submitRanked = callable(async (request) => {
         typeof tap.x !== 'number' || typeof tap.y !== 'number' ||
         !Number.isFinite(tap.x) || !Number.isFinite(tap.y) ||
         tap.x < 0 || tap.x > 1 || tap.y < 0 || tap.y > 1 ||
-        Math.abs(tap.x - .5) > .31 || Math.abs(tap.y - .5) > .31 ||
+        (rulesVersion === 1 && (Math.abs(tap.x - .5) > .31 || Math.abs(tap.y - .5) > .31)) ||
         tap.ms - prior < 16) {
       throw new HttpsError('invalid-argument', 'Implausible or invalid touch sequence.');
     }
     prior = tap.ms;
   }
   const sessionRef = db.collection('sessions').doc(sessionId);
+  if (rulesVersion === 2) {
+    const snapshot = await sessionRef.get();
+    if (!snapshot.exists || snapshot.data().uid !== uid ||
+        snapshot.data().rulesVersion !== 2 || snapshot.data().status !== 'open' ||
+        !validateRankedV2(taps, snapshot.data().seed, fieldWidth, fieldHeight)) {
+      throw new HttpsError('invalid-argument', 'Ranked V2 target geometry verification failed.');
+    }
+  }
   const userRef = db.collection('users').doc(uid);
-  const bestRef = db.collection('rankedBest').doc(uid);
+  // Never compare new shrinking/moving-target scores to historical fixed-target scores.
+  const suffix = rulesVersion === 2 ? 'V2' : '';
+  const bestRef = db.collection(`rankedBest${suffix}`).doc(uid);
   const weekKey = verifiedWeek();
-  const weeklyRef = db.collection('rankedWeekly').doc(`${weekKey}_${uid}`);
+  const weeklyRef = db.collection(`rankedWeekly${suffix}`).doc(`${weekKey}_${uid}`);
   const score = taps.length; // NEVER accept a score supplied by the client.
   let newBest = false;
   await db.runTransaction(async (tx) => {
@@ -131,7 +144,7 @@ exports.submitRanked = callable(async (request) => {
       tx.get(sessionRef), tx.get(userRef), tx.get(bestRef), tx.get(weeklyRef)]);
     if (!sessionSnap.exists || !userSnap.exists) throw new HttpsError('not-found', 'Session not found.');
     const session = sessionSnap.data();
-    if (session.uid !== uid || session.status !== 'open' || session.rulesVersion !== 1 ||
+    if (session.uid !== uid || session.status !== 'open' || session.rulesVersion !== rulesVersion ||
         session.mode !== 'ranked') {
       throw new HttpsError('failed-precondition', 'Session already completed or does not belong to you.');
     }
@@ -231,7 +244,7 @@ exports.resolveChallenge = callable(async (request) => {
     throw new HttpsError('invalid-argument', 'Invalid challenge.');
   }
   const ref = db.collection('challenges').doc(challengeId);
-  const bestRef = db.collection('rankedBest').doc(uid);
+  const bestRef = db.collection('rankedBestV2').doc(uid);
   const result = await db.runTransaction(async (tx) => {
     const [challenge, best] = await Promise.all([tx.get(ref), tx.get(bestRef)]);
     if (!challenge.exists || challenge.data().challengedId !== uid || challenge.data().status !== 'open') {

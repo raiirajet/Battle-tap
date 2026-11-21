@@ -5,6 +5,12 @@ import 'package:firebase_core/firebase_core.dart';
 
 /// Firebase is intentionally NOT initialized with dummy credentials.
 /// Supply these values with --dart-define or a secure build pipeline.
+class RankedSession {
+  const RankedSession({required this.sessionId, required this.seed});
+  final String sessionId;
+  final int seed;
+}
+
 class OnlineService {
   OnlineService._(this.enabled);
   final bool enabled;
@@ -72,13 +78,25 @@ class OnlineService {
     return Map<String, dynamic>.from(result.data as Map);
   }
 
-  Future<String> startRanked() async {
-    final response = await _call('startRanked', {});
-    return response['sessionId'] as String;
+  Future<RankedSession> startRanked() async {
+    final response = await _call('startRanked', {'rulesVersion': 2});
+    if (response['rulesVersion'] != 2 || response['seed'] is! int) {
+      throw StateError('Ranked V2 requires updated Firebase Cloud Functions. '
+        'Please deploy functions before online Ranked play.');
+    }
+    return RankedSession(
+      sessionId: response['sessionId'] as String,
+      seed: response['seed'] as int,
+    );
   }
 
-  Future<Map<String, dynamic>> submitRanked(String sessionId, List<Map<String, dynamic>> taps) =>
-      _call('submitRanked', {'sessionId': sessionId, 'taps': taps, 'rulesVersion': 1});
+  Future<Map<String, dynamic>> submitRanked(
+    String sessionId, List<Map<String, dynamic>> taps, {
+    required double fieldWidth, required double fieldHeight,
+  }) => _call('submitRanked', {
+    'sessionId': sessionId, 'taps': taps, 'rulesVersion': 2,
+    'fieldWidth': fieldWidth, 'fieldHeight': fieldHeight,
+  });
 
   Future<Map<String, dynamic>> myProfile() async => _call('ensureProfile', {});
 
@@ -110,7 +128,7 @@ class OnlineService {
 
   Future<List<Map<String, dynamic>>> leaderboard({String? countryCode, bool weekly = false}) async {
     Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection(
-      weekly ? 'rankedWeekly' : 'rankedBest',
+      weekly ? 'rankedWeeklyV2' : 'rankedBestV2',
     );
     if (weekly) {
       final today = DateTime.now().toUtc();
@@ -137,7 +155,7 @@ class OnlineService {
     final today = DateTime.now().toUtc();
     final monday = today.subtract(Duration(days: today.weekday - 1));
     final key = '${monday.year}${monday.month.toString().padLeft(2, '0')}${monday.day.toString().padLeft(2, '0')}';
-    final collection = FirebaseFirestore.instance.collection(weekly ? 'rankedWeekly' : 'rankedBest');
+    final collection = FirebaseFirestore.instance.collection(weekly ? 'rankedWeeklyV2' : 'rankedBestV2');
     final result = await Future.wait(ids.take(100).map((id) async {
       final documentId = weekly ? '${key}_$id' : id;
       final document = await collection.doc(documentId).get();

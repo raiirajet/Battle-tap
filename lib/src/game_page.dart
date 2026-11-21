@@ -8,6 +8,7 @@ import 'battle_audio.dart';
 import 'local_store.dart';
 import 'online.dart';
 import 'rules.dart';
+import 'ranked_v2.dart';
 import 'widgets/golden_splash.dart';
 import 'widgets/skin_button.dart';
 import 'widgets/tap_shockwave.dart';
@@ -29,9 +30,13 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
   final Set<int> _pointers = {};
   final List<Map<String, dynamic>> _rankedEvents = [];
   final List<int> _recentHits = [];
+  final RhythmCombo _rhythm = RhythmCombo();
   late final BattleAudio _audio = BattleAudio(widget.store);
+  late RankedTargetPath _rankedTarget;
+  Size _rankedFieldSize = Size.zero;
   int _combo = 0;
-  int _lastHitAtMs = -100000;
+  int _lastHapticMs = -100000;
+  int _lastUiFrameMs = -100000;
   int _lastEffectMs = -100000;
   int _comboAnnouncementUntilMs = -100000;
   String _comboAnnouncement = '';
@@ -67,8 +72,12 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
     _rankedEvents.clear();
     _pointers.clear();
     _recentHits.clear();
+    _rhythm.reset();
     _combo = 0;
-    _lastHitAtMs = -100000;
+    _lastHapticMs = -100000;
+    _lastUiFrameMs = -100000;
+    _rankedFieldSize = Size.zero;
+    _rankedTarget = RankedTargetPath(_rng.nextInt(0x7ffffffe) + 1);
     _lastEffectMs = -100000;
     _comboAnnouncementUntilMs = -100000;
     _comboAnnouncement = '';
@@ -118,7 +127,9 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
     setState(() => _phase = _Phase.connecting);
     if (widget.mode == BattleMode.ranked && !widget.practice) {
       try {
-        _sessionId = await widget.online.startRanked();
+        final session = await widget.online.startRanked();
+        _sessionId = session.sessionId;
+        _rankedTarget = RankedTargetPath(session.seed);
       } catch (e) {
         if (mounted) setState(() { _error = 'Ranked-Session nicht verfügbar: $e'; _phase = _Phase.failed; });
         return;
@@ -154,7 +165,10 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
       _endRound();
       return;
     }
-    setState(() {});
+    if (elapsed.inMilliseconds - _lastUiFrameMs >= 33) {
+      _lastUiFrameMs = elapsed.inMilliseconds;
+      setState(() {});
+    }
   }
 
   void _teleport(int nowMs) {
@@ -173,25 +187,32 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
     _pointers.add(event.pointer);
     if (!fresh || (_phase != _Phase.playing && _phase != _Phase.stop)) return;
     final elapsed = _clock.elapsed;
-    final diameter = MediaQuery.sizeOf(context).width *
-        (widget.mode == BattleMode.ranked ? BattleRules.rankedButtonWidthRatio : BattleRules.huntButtonWidthRatio);
+    final nowMs = elapsed.inMilliseconds;
+    final diameter = widget.mode == BattleMode.ranked
+      ? fieldSize.width * RankedV2.diameterRatio(_recentHits, nowMs)
+      : fieldSize.width * BattleRules.huntButtonWidthRatio;
     final center = widget.mode == BattleMode.ranked
-      ? Offset(fieldSize.width / 2, fieldSize.height / 2)
+      ? Offset((fieldSize.width - diameter) * _rankedTarget.position.x + diameter / 2,
+               (fieldSize.height - diameter) * _rankedTarget.position.y + diameter / 2)
       : Offset((fieldSize.width - diameter) * _huntPosition.dx + diameter / 2,
                (fieldSize.height - diameter) * _huntPosition.dy + diameter / 2);
+    if (widget.mode == BattleMode.ranked) _rankedFieldSize = fieldSize;
     final hit = (event.localPosition - center).distance <= diameter / 2;
     final oldHits = _round.hits;
     _round.tap(elapsed: elapsed, hit: hit);
     if (_round.hits > oldHits) {
       final now = elapsed.inMilliseconds;
-      _combo = now - _lastHitAtMs <= 850 ? _combo + 1 : 1;
-      _lastHitAtMs = now;
+      _rhythm.hit(now);
+      _combo = _rhythm.combo;
+      _recentHits.removeWhere((ms) => now - ms >= RankedV2.speedWindowMs);
       _recentHits.add(now);
-      _recentHits.removeWhere((ms) => now - ms > 1200);
-      final speed = _recentHits.length / 1.2;
+      final speed = RankedV2.tapsPerSecond(_recentHits, now);
       _lastEffectMs = now;
       _lastEffectPosition = event.localPosition;
-      if (widget.store.vibrationEnabled) HapticFeedback.selectionClick();
+      if (widget.store.vibrationEnabled && now - _lastHapticMs >= 120) {
+        _lastHapticMs = now;
+        HapticFeedback.selectionClick();
+      }
       _audio.tap(hits: _round.hits, combo: _combo, hitsPerSecond: speed);
       if (_combo == 10 || _combo == 25 || _combo == 50 || (_combo > 50 && _combo % 25 == 0)) {
         _comboAnnouncement = '⚡ $_combo COMBO!';
@@ -207,13 +228,22 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
           'x': fieldSize.width == 0 ? 0.5 : event.localPosition.dx / fieldSize.width,
           'y': fieldSize.height == 0 ? 0.5 : event.localPosition.dy / fieldSize.height,
         });
+        if (_round.hits % RankedV2.moveEveryHits == 0) {
+          // Only accepted taps advance the session-seeded path.
+          _rankedTarget.advance();
+          _rhythm.reset();
+          _combo = 0;
+          _recentHits.clear(); // every new target begins at normal difficulty
+        }
       }
     } else if (_round.inStopPhase(elapsed)) {
+      _rhythm.reset();
       _combo = 0;
       _lateFeedbackUntilMs = elapsed.inMilliseconds + 300;
       if (widget.store.vibrationEnabled) HapticFeedback.mediumImpact();
       _audio.miss();
     } else {
+      _rhythm.reset();
       _combo = 0;
     }
     setState(() {});
@@ -225,7 +255,8 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
     setState(() => _phase = _Phase.verifying);
     if (widget.mode == BattleMode.ranked && !widget.practice) {
       try {
-        final result = await widget.online.submitRanked(_sessionId!, _rankedEvents);
+        final result = await widget.online.submitRanked(_sessionId!, _rankedEvents,
+          fieldWidth: _rankedFieldSize.width, fieldHeight: _rankedFieldSize.height);
         if (!mounted) return;
         _verified = result['verified'] == true;
         _newBest = result['newBest'] == true && _verified;
@@ -258,7 +289,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
 
   String get _title => widget.mode == BattleMode.ranked ? 'TAP BATTLE' : 'RANDOM HUNT';
   String get _subTitle => widget.mode == BattleMode.ranked
-      ? '30 seconds • 44% button • +1 each'
+      ? '30 Sek. • rhythmische Combo • kleiner bei Tempo • Sprung alle 100'
       : '18–60 seconds • visible time • −2 late taps';
 
   @override
@@ -277,15 +308,23 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
             style: TextStyle(color: _phase == _Phase.stop ? Colors.redAccent : const Color(0xFFFFD974),
               fontSize: 42, fontWeight: FontWeight.w900, fontFeatures: const [FontFeature.tabularFigures()])),
           Text('SCORE  ${_round.score}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          if (widget.mode == BattleMode.ranked && active)
+            Text(_combo >= RhythmCombo.qualifyingHits
+                  ? '⚡ RHYTHM COMBO  ×$_combo'
+                  : 'Tempo ${RankedV2.tapsPerSecond(_recentHits, nowMs).toStringAsFixed(1)}/s  •  ab 5 gleichmässigen Treffern Combo',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Color(0xFFFFD56C), fontSize: 11)),
           if (widget.practice) const Text('PRACTICE – NOT RANKED',
             style: TextStyle(color: Color(0xFFFFBD63), fontSize: 11, letterSpacing: 1.2)),
           const SizedBox(height: 12),
           Expanded(child: LayoutBuilder(builder: (context, constraints) {
             final fieldSize = Size(constraints.maxWidth, constraints.maxHeight);
-            final diameter = MediaQuery.sizeOf(context).width *
-                (widget.mode == BattleMode.ranked ? BattleRules.rankedButtonWidthRatio : BattleRules.huntButtonWidthRatio);
+            final diameter = widget.mode == BattleMode.ranked
+              ? fieldSize.width * RankedV2.diameterRatio(_recentHits, nowMs)
+              : fieldSize.width * BattleRules.huntButtonWidthRatio;
             final point = widget.mode == BattleMode.ranked
-              ? Offset((fieldSize.width - diameter) / 2, (fieldSize.height - diameter) / 2)
+              ? Offset((fieldSize.width - diameter) * _rankedTarget.position.x,
+                       (fieldSize.height - diameter) * _rankedTarget.position.y)
               : Offset((fieldSize.width - diameter) * _huntPosition.dx,
                        (fieldSize.height - diameter) * _huntPosition.dy);
             return Listener(
@@ -301,7 +340,9 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
                 ))),
                 if (active && _phase == _Phase.playing)
                   Positioned(left: point.dx, top: point.dy,
-                    child: IgnorePointer(child: SkinButton(skin: widget.store.equipped, size: diameter))),
+                    child: IgnorePointer(child: SkinButton(skin: widget.store.equipped,
+                      size: diameter, animate: widget.mode != BattleMode.ranked &&
+                          !widget.store.reducedEffects))),
                 if (_phase == _Phase.playing &&
                     !widget.store.reducedEffects &&
                     nowMs >= _lastEffectMs &&
@@ -313,7 +354,9 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
                       strength: (_combo / 25).clamp(0.0, 1.0),
                     ),
                   ))),
-                if (_phase == _Phase.playing && _combo >= 5 && !widget.store.reducedEffects)
+                if (_phase == _Phase.playing &&
+                    _combo >= RhythmCombo.qualifyingHits &&
+                    !widget.store.reducedEffects)
                   Positioned(top: 18, right: 18,
                     child: IgnorePointer(child: Text('⚡ $_combo COMBO',
                       style: const TextStyle(color: Color(0xFFFFD56C),

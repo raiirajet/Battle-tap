@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import '../skins.dart';
 
 class SkinButton extends StatefulWidget {
-  const SkinButton({super.key, required this.skin, required this.size, this.pressed = false, this.label = 'TAP!'});
+  const SkinButton({super.key, required this.skin, required this.size, this.pressed = false,
+    this.label = 'TAP!', this.animate = true});
   final BattleSkin skin;
   final double size;
   final bool pressed;
   final String label;
+  final bool animate;
 
   @override
   State<SkinButton> createState() => _SkinButtonState();
@@ -16,7 +18,25 @@ class SkinButton extends StatefulWidget {
 class _SkinButtonState extends State<SkinButton> with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this, duration: const Duration(milliseconds: 2800),
-  )..repeat();
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.animate) _controller.repeat();
+  }
+
+  @override
+  void didUpdateWidget(covariant SkinButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.animate != oldWidget.animate) {
+      if (widget.animate) {
+        _controller.repeat();
+      } else {
+        _controller..stop()..value = 0;
+      }
+    }
+  }
 
   @override
   void dispose() { _controller.dispose(); super.dispose(); }
