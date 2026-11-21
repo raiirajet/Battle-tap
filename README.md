@@ -59,6 +59,24 @@ flutter run
 
 Without Firebase configuration, the app launches in **LOCAL PRACTICE ONLY** mode, clearly marked. No fake online rankings or fake transactions are created. Scores in practice are stored on the device with `shared_preferences`.
 
+## BattleTap branding (app launcher, login, play, rankings, shop)
+
+The original BattleTap neon artwork is bundled offline in `assets/branding/`:
+- `app_icon.png` is the Android/iOS launcher icon and the PLAY tab mark.
+- `battle_tap_logo.webp` is used in the sign-in screen and the play homepage.
+- `bt_badge.webp` is used for the rankings tab, shop and player profile.
+
+The graphics are optimized for APK size; original high-resolution files are kept outside the repository.
+During APK builds, `dart run flutter_launcher_icons` creates the Android launcher icon (including adaptive icon) and iOS icons from `app_icon.png` after native platform scaffolding is generated. For local builds, run:
+
+```bash
+flutter create --platforms=android,ios --project-name battle_tap --org ch.battletap .
+python3 scripts/configure_android_permissions.py
+flutter pub get
+dart run flutter_launcher_icons
+flutter run
+```
+
 ## Arcade audio, combo feedback and optional permissions
 
 - Fourteen **original, locally generated** PCM WAV effects live under `assets/audio/`: eight progressively brighter tap sounds, countdown, start, stop, miss, combo and record.

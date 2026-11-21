@@ -9,6 +9,7 @@ import 'rules.dart';
 import 'skins.dart';
 import 'startup_permissions.dart';
 import 'widgets/skin_button.dart';
+import 'widgets/brand_assets.dart';
 
 const gold = Color(0xFFFFD56C);
 const deep = Color(0xFF090D16);
@@ -79,9 +80,7 @@ class _AuthScreenState extends State<AuthScreen> {
     child: Center(child: SingleChildScrollView(padding: const EdgeInsets.all(28),
       child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 440),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          const Icon(Icons.sports_esports, color: gold, size: 68),
-          const Text('BATTLE TAP', textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 35, fontWeight: FontWeight.w900, letterSpacing: 3, color: gold)),
+          const BattleTapLogo(height: 152),
           const SizedBox(height: 4),
           const Text('SPEED. SKILL. GLORY.', textAlign: TextAlign.center,
             style: TextStyle(letterSpacing: 2.5, color: Colors.white54)),
@@ -165,8 +164,8 @@ class _HomeShellState extends State<HomeShell> {
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         onDestinationSelected: (index) => setState(() => tab = index),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.sports_esports_outlined), selectedIcon: Icon(Icons.sports_esports), label: 'PLAY'),
-          NavigationDestination(icon: Icon(Icons.leaderboard_outlined), selectedIcon: Icon(Icons.leaderboard), label: 'RANKS'),
+          NavigationDestination(icon: BattleTapAppMark(size: 27), selectedIcon: BattleTapAppMark(size: 30), label: 'PLAY'),
+          NavigationDestination(icon: BattleTapBadge(size: 27), selectedIcon: BattleTapBadge(size: 30), label: 'RANKS'),
           NavigationDestination(icon: Icon(Icons.storefront_outlined), selectedIcon: Icon(Icons.storefront), label: 'SHOP'),
           NavigationDestination(icon: Icon(Icons.people_outline), selectedIcon: Icon(Icons.people), label: 'FRIENDS'),
           NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'PROFILE'),
@@ -185,9 +184,7 @@ class _PlayTab extends StatelessWidget {
   Widget build(BuildContext context) => SingleChildScrollView(
     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      const Icon(Icons.flash_on, color: gold, size: 46),
-      const Text('BATTLE TAP', textAlign: TextAlign.center, style: TextStyle(
-        color: gold, fontSize: 32, fontWeight: FontWeight.w900, letterSpacing: 2.4)),
+      const BattleTapLogo(height: 148),
       const Text('SPEED. SKILL. GLORY.', textAlign: TextAlign.center,
         style: TextStyle(color: Colors.white54, letterSpacing: 2)),
       const SizedBox(height: 24),
@@ -279,8 +276,15 @@ class _RanksTabState extends State<_RanksTab> {
   }
   @override
   Widget build(BuildContext context) => Column(children: [
-    const Padding(padding: EdgeInsets.all(18), child: Text('LEADERBOARDS',
-      style: TextStyle(fontSize: 25, fontWeight: FontWeight.w900, color: gold))),
+    const Padding(padding: EdgeInsets.all(18), child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        BattleTapBadge(size: 43),
+        SizedBox(width: 10),
+        Text('LEADERBOARDS',
+          style: TextStyle(fontSize: 25, fontWeight: FontWeight.w900, color: gold)),
+      ],
+    )),
     Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: SegmentedButton<int>(
       segments: const [ButtonSegment(value: 0, label: Text('GLOBAL')),
         ButtonSegment(value: 1, label: Text('COUNTRY')),
@@ -338,7 +342,11 @@ class _ShopTabState extends State<_ShopTab> {
     final selection = skins.where((skin) => skin.rarity == rarity).toList();
     return Column(children: [
       const Padding(padding: EdgeInsets.all(20), child: Column(children: [
-        Text('BATTLE SHOP', style: TextStyle(color: gold, fontSize: 25, fontWeight: FontWeight.w900)),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          BattleTapBadge(size: 41),
+          SizedBox(width: 10),
+          Text('BATTLE SHOP', style: TextStyle(color: gold, fontSize: 25, fontWeight: FontWeight.w900)),
+        ]),
         SizedBox(height: 4), Text('COSMETICS ONLY • NO PAY-TO-WIN',
           style: TextStyle(color: Colors.white54, fontSize: 11)),
       ])),
@@ -506,8 +514,7 @@ class _ProfileTabState extends State<_ProfileTab> {
   @override
   Widget build(BuildContext context) => SingleChildScrollView(padding: const EdgeInsets.all(20),
     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      const CircleAvatar(radius: 40, backgroundColor: panel,
-        child: Icon(Icons.person, color: gold, size: 46)),
+      const Center(child: BattleTapBadge(size: 96)),
       const SizedBox(height: 10),
       Text(widget.online.currentUser?.email ?? 'Local Practice Player', textAlign: TextAlign.center,
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),

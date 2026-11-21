@@ -17,6 +17,11 @@ if 'android.permission.POST_NOTIFICATIONS' not in text:
         raise SystemExit("Android manifest has no <application tag")
     text = text.replace(marker, permission + "\n    " + marker, 1)
     manifest.write_text(text, encoding="utf-8")
+# Display the proper game name under its Android launcher icon.
+if 'android:label="battle_tap"' in text:
+    text = text.replace('android:label="battle_tap"', 'android:label="BattleTap"')
+    manifest.write_text(text, encoding="utf-8")
+
 # permission_handler_android 13.x uses Android API 37 to compile.
 # Keep the target SDK managed by Flutter; only raise the compile SDK.
 gradle = Path("android/app/build.gradle.kts")
