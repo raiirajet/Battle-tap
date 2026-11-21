@@ -1,0 +1,87 @@
+import 'dart:async';
+import 'dart:math' as math;
+
+import 'package:audioplayers/audioplayers.dart';
+
+import 'local_store.dart';
+
+/// The original, short PCM effects are bundled offline. Preloaded pools prevent
+/// the normal play-from-file startup latency from slowing down rapid taps.
+class BattleAudio {
+  BattleAudio(this.store);
+
+  final PracticeStore store;
+  final Map<String, AudioPool> _pools = {};
+  bool _disposed = false;
+  static const _cueNames = ['countdown', 'start', 'stop', 'miss', 'combo', 'record'];
+
+  Future<void> preload() async {
+    final names = [
+      for (var i = 0; i < 8; i++) 'tap_$i',
+      ..._cueNames,
+    ];
+    await Future.wait(names.map((name) async {
+      try {
+        final pool = await AudioPool.create(
+          source: AssetSource('audio/$name.wav'),
+          minPlayers: name.startsWith('tap_') ? 2 : 1,
+          maxPlayers: name.startsWith('tap_') ? 5 : 2,
+          playerMode: PlayerMode.lowLatency,
+        );
+        if (_disposed) {
+          await pool.dispose();
+        } else {
+          _pools[name] = pool;
+        }
+      } catch (_) {
+        // Some emulators have no working sound device. Gameplay must continue.
+      }
+    }));
+  }
+
+  void tap({required int hits, required int combo, required double hitsPerSecond}) {
+    final tier = tapSoundTier(
+      hits: hits, combo: combo, hitsPerSecond: hitsPerSecond,
+      adaptive: store.adaptiveAudioEnabled,
+    );
+    _play('tap_$tier', volume: 0.56);
+  }
+
+  void countdown() => _play('countdown', volume: 0.46);
+  void start() => _play('start', volume: 0.72);
+  void stop() => _play('stop', volume: 0.75);
+  void miss() => _play('miss', volume: 0.44);
+  void combo() => _play('combo', volume: 0.65);
+  void record() => _play('record', volume: 0.8);
+
+  void _play(String name, {required double volume}) {
+    if (_disposed || !store.soundEnabled) return;
+    final pool = _pools[name];
+    if (pool == null) return;
+    final actualVolume = (volume * store.soundVolume).clamp(0.0, 1.0);
+    // Never await a sound inside pointer handling; taps stay frame-rate bound.
+    unawaited(pool.start(volume: actualVolume).then<void>((_) {}).catchError((Object _) {}));
+  }
+
+  Future<void> dispose() async {
+    _disposed = true;
+    final pools = _pools.values.toList();
+    _pools.clear();
+    await Future.wait(pools.map((pool) => pool.dispose().catchError((Object _) {})));
+  }
+}
+
+/// Rising hit count, consecutive combo and tapping speed change the timbre.
+/// Adaptation affects feedback only; it never alters scoring or verification.
+int tapSoundTier({
+  required int hits,
+  required int combo,
+  required double hitsPerSecond,
+  required bool adaptive,
+}) {
+  if (!adaptive) return 0;
+  final progress = hits ~/ 12;
+  final chain = combo ~/ 7;
+  final speed = math.max(0, (hitsPerSecond - 3.0).floor());
+  return math.min(7, math.max(progress, math.max(chain, speed)));
+}

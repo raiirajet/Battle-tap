@@ -4,11 +4,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'battle_audio.dart';
 import 'local_store.dart';
 import 'online.dart';
 import 'rules.dart';
 import 'widgets/golden_splash.dart';
 import 'widgets/skin_button.dart';
+import 'widgets/tap_shockwave.dart';
 
 enum _Phase { ready, countdown, connecting, playing, stop, verifying, finished, failed }
 
@@ -26,6 +28,14 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
   final Random _rng = Random.secure();
   final Set<int> _pointers = {};
   final List<Map<String, dynamic>> _rankedEvents = [];
+  final List<int> _recentHits = [];
+  late final BattleAudio _audio = BattleAudio(widget.store);
+  int _combo = 0;
+  int _lastHitAtMs = -100000;
+  int _lastEffectMs = -100000;
+  int _comboAnnouncementUntilMs = -100000;
+  String _comboAnnouncement = '';
+  Offset _lastEffectPosition = Offset.zero;
   late final Ticker _ticker = createTicker(_tick);
   final Stopwatch _clock = Stopwatch();
   Timer? _introTimer;
@@ -47,6 +57,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _reset();
+    unawaited(_audio.preload());
   }
 
   void _reset() {
@@ -55,6 +66,13 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
     _clock..stop()..reset();
     _rankedEvents.clear();
     _pointers.clear();
+    _recentHits.clear();
+    _combo = 0;
+    _lastHitAtMs = -100000;
+    _lastEffectMs = -100000;
+    _comboAnnouncementUntilMs = -100000;
+    _comboAnnouncement = '';
+    _lastEffectPosition = Offset.zero;
     _sessionId = null;
     _error = null;
     _lastMoveMs = 0;
@@ -82,10 +100,12 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
 
   void _start() {
     setState(() { _reset(); _phase = _Phase.countdown; _intro = BattleRules.introSeconds; });
+    _audio.countdown();
     _introTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       if (!mounted) { timer.cancel(); return; }
       if (_intro > 1) {
         setState(() => _intro--);
+        _audio.countdown();
       } else {
         timer.cancel();
         await _launchRound();
@@ -108,6 +128,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
     _clock.start();
     _ticker.start();
     setState(() => _phase = _Phase.playing);
+    _audio.start();
   }
 
   void _tick(Duration _) {
@@ -126,7 +147,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
         return;
       }
       if (widget.store.vibrationEnabled) HapticFeedback.heavyImpact();
-      if (widget.store.soundEnabled) SystemSound.play(SystemSoundType.alert);
+      _audio.stop();
     }
     if (_phase == _Phase.stop && elapsed >= _round.duration + BattleRules.stopReaction) {
       _ticker.stop();
@@ -162,8 +183,22 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
     final oldHits = _round.hits;
     _round.tap(elapsed: elapsed, hit: hit);
     if (_round.hits > oldHits) {
+      final now = elapsed.inMilliseconds;
+      _combo = now - _lastHitAtMs <= 850 ? _combo + 1 : 1;
+      _lastHitAtMs = now;
+      _recentHits.add(now);
+      _recentHits.removeWhere((ms) => now - ms > 1200);
+      final speed = _recentHits.length / 1.2;
+      _lastEffectMs = now;
+      _lastEffectPosition = event.localPosition;
       if (widget.store.vibrationEnabled) HapticFeedback.selectionClick();
-      if (widget.store.soundEnabled) SystemSound.play(SystemSoundType.click);
+      _audio.tap(hits: _round.hits, combo: _combo, hitsPerSecond: speed);
+      if (_combo == 10 || _combo == 25 || _combo == 50 || (_combo > 50 && _combo % 25 == 0)) {
+        _comboAnnouncement = '⚡ $_combo COMBO!';
+        _comboAnnouncementUntilMs = now + 950;
+        _audio.combo();
+        if (widget.store.vibrationEnabled) HapticFeedback.mediumImpact();
+      }
       if (widget.mode == BattleMode.hunt) {
         _teleport(elapsed.inMilliseconds);
       } else {
@@ -174,9 +209,12 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
         });
       }
     } else if (_round.inStopPhase(elapsed)) {
+      _combo = 0;
       _lateFeedbackUntilMs = elapsed.inMilliseconds + 300;
       if (widget.store.vibrationEnabled) HapticFeedback.mediumImpact();
-      if (widget.store.soundEnabled) SystemSound.play(SystemSoundType.alert);
+      _audio.miss();
+    } else {
+      _combo = 0;
     }
     setState(() {});
   }
@@ -203,6 +241,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
       _newBest = widget.store.savePracticeRound(_round);
     }
     if (!mounted) return;
+    if (_newBest) _audio.record();
     setState(() { _phase = _Phase.finished;
       _showGold = _newBest && !widget.store.reducedEffects;
       _goldDisplayed = _showGold; });
@@ -212,6 +251,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
   void dispose() {
     _introTimer?.cancel();
     _ticker.dispose();
+    unawaited(_audio.dispose());
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -225,6 +265,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     final remainingMs = max(0, _round.duration.inMilliseconds - _clock.elapsedMilliseconds);
     final active = _phase == _Phase.playing || _phase == _Phase.stop;
+    final nowMs = _clock.elapsedMilliseconds;
     return Scaffold(
       appBar: AppBar(title: Text(_title), centerTitle: true),
       body: SafeArea(child: Stack(children: [
@@ -261,6 +302,30 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
                 if (active && _phase == _Phase.playing)
                   Positioned(left: point.dx, top: point.dy,
                     child: IgnorePointer(child: SkinButton(skin: widget.store.equipped, size: diameter))),
+                if (_phase == _Phase.playing &&
+                    !widget.store.reducedEffects &&
+                    nowMs >= _lastEffectMs &&
+                    nowMs - _lastEffectMs < 260)
+                  Positioned.fill(child: IgnorePointer(child: CustomPaint(
+                    painter: TapShockwavePainter(
+                      position: _lastEffectPosition,
+                      progress: (nowMs - _lastEffectMs) / 260,
+                      strength: (_combo / 25).clamp(0.0, 1.0),
+                    ),
+                  ))),
+                if (_phase == _Phase.playing && _combo >= 5 && !widget.store.reducedEffects)
+                  Positioned(top: 18, right: 18,
+                    child: IgnorePointer(child: Text('⚡ $_combo COMBO',
+                      style: const TextStyle(color: Color(0xFFFFD56C),
+                        fontWeight: FontWeight.w900, fontSize: 17,
+                        shadows: [Shadow(color: Color(0xFFBC7E21), blurRadius: 12)])))),
+                if (_phase == _Phase.playing &&
+                    !widget.store.reducedEffects &&
+                    nowMs < _comboAnnouncementUntilMs)
+                  Positioned.fill(child: IgnorePointer(child: Center(
+                    child: Text(_comboAnnouncement, style: const TextStyle(
+                      color: Color(0xFFFFE27A), fontWeight: FontWeight.w900,
+                      fontSize: 34, shadows: [Shadow(color: Colors.black, blurRadius: 16)]))))),
                 if (_phase == _Phase.stop) ...[
                   const Center(child: Text('STOP!', style: TextStyle(fontSize: 62,
                     color: Colors.redAccent, fontWeight: FontWeight.w900))),

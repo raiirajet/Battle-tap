@@ -51,12 +51,23 @@ Install **Flutter stable** (Dart comes with Flutter). The project includes the D
 
 ```bash
 flutter create --platforms=android,ios --project-name battle_tap --org ch.battletap .
+python3 scripts/configure_android_permissions.py
 flutter pub get
 flutter test
 flutter run
 ```
 
 Without Firebase configuration, the app launches in **LOCAL PRACTICE ONLY** mode, clearly marked. No fake online rankings or fake transactions are created. Scores in practice are stored on the device with `shared_preferences`.
+
+## Arcade audio, combo feedback and optional permissions
+
+- Fourteen **original, locally generated** PCM WAV effects live under `assets/audio/`: eight progressively brighter tap sounds, countdown, start, stop, miss, combo and record.
+- The preloaded `audioplayers` low-latency pools are fire-and-forget, so audio never blocks pointer handling or changes verified scoring.
+- The tap tone progresses with number of hits, consecutive hit chain and current taps per second; milestone chimes are emitted at 10, 25, 50 and later every 25 hits.
+- Lightweight ring/ray feedback is drawn over the play field via an `IgnorePointer` painter. The existing `Reduce animations` preference disables these cosmetic effects.
+- First launch displays an optional consent/preferences screen for sounds, vibration, visual effects and notifications. No automatic OS notification request occurs until the user explicitly opts in.
+- The notification toggle and its OS permission are **preparation for future challenges**; the current offline prototype does not yet deliver notifications. No location, contacts, photo or microphone permission is requested.
+- For Android, generate native files first and then run `python3 scripts/configure_android_permissions.py` to add `POST_NOTIFICATIONS` to the generated manifest. CI executes this step automatically.
 
 ## Build an APK
 

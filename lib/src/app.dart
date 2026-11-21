@@ -1,11 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:country_picker/country_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'game_page.dart';
 import 'local_store.dart';
 import 'online.dart';
 import 'rules.dart';
 import 'skins.dart';
+import 'startup_permissions.dart';
 import 'widgets/skin_button.dart';
 
 const gold = Color(0xFFFFD56C);
@@ -32,15 +34,18 @@ class BattleTapApp extends StatelessWidget {
         backgroundColor: gold, foregroundColor: deep, textStyle: const TextStyle(fontWeight: FontWeight.w900),
         minimumSize: const Size(140, 52), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)))),
     ),
-    home: online.enabled
-      ? StreamBuilder<User?>(stream: online.authChanges, builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(body: Center(child: CircularProgressIndicator()));
-          }
-          if (snapshot.data == null) return AuthScreen(online: online);
-          return HomeShell(store: store, online: online);
-        })
-      : HomeShell(store: store, online: online),
+    home: StartupPermissionsGate(
+      store: store,
+      child: online.enabled
+        ? StreamBuilder<User?>(stream: online.authChanges, builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(body: Center(child: CircularProgressIndicator()));
+            }
+            if (snapshot.data == null) return AuthScreen(online: online);
+            return HomeShell(store: store, online: online);
+          })
+        : HomeShell(store: store, online: online),
+    ),
   );
 }
 
@@ -549,12 +554,52 @@ class _ProfileTabState extends State<_ProfileTab> {
       ])),
       const SizedBox(height: 16),
       AnimatedBuilder(animation: widget.store, builder: (context, _) => Column(children: [
-        SwitchListTile(title: const Text('Sound'), value: widget.store.soundEnabled,
-          onChanged: widget.store.setSound),
+        SwitchListTile(
+          title: const Text('Spielsounds'),
+          subtitle: const Text('Originale BattleTap-Treffer- und Rekordklänge'),
+          value: widget.store.soundEnabled,
+          onChanged: widget.store.setSound,
+        ),
+        SwitchListTile(
+          title: const Text('Dynamische Tap-Töne'),
+          subtitle: const Text('Klangstufen steigen mit Treffern, Tempo und Combos'),
+          value: widget.store.adaptiveAudioEnabled,
+          onChanged: widget.store.soundEnabled ? widget.store.setAdaptiveAudio : null,
+        ),
+        ListTile(
+          title: const Text('Sound-Lautstärke'),
+          subtitle: Slider(
+            min: 0, max: 1, divisions: 10,
+            value: widget.store.soundVolume,
+            label: '${(widget.store.soundVolume * 100).round()} %',
+            onChanged: widget.store.soundEnabled ? widget.store.setSoundVolume : null,
+          ),
+        ),
         SwitchListTile(title: const Text('Vibration'), value: widget.store.vibrationEnabled,
           onChanged: widget.store.setVibration),
-        SwitchListTile(title: const Text('Reduce animations'), value: widget.store.reducedEffects,
+        SwitchListTile(title: const Text('Weniger Animationen'), value: widget.store.reducedEffects,
           onChanged: widget.store.setReducedEffects),
+        SwitchListTile(
+          title: const Text('Benachrichtigungen'),
+          subtitle: const Text('Optional für zukünftige Challenges und Einladungen'),
+          value: widget.store.notificationsEnabled,
+          onChanged: (enabled) async {
+            if (!enabled) {
+              widget.store.setNotifications(false);
+              return;
+            }
+            final granted = await requestBattleNotifications();
+            if (!mounted) return;
+            widget.store.setNotifications(granted);
+            if (!granted) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: const Text('Benachrichtigungen wurden nicht freigegeben.'),
+                action: SnackBarAction(label: 'EINSTELLUNGEN',
+                    onPressed: () { openAppSettings(); }),
+              ));
+            }
+          },
+        ),
       ])),
       const SizedBox(height: 8),
       if (widget.online.enabled) ...[

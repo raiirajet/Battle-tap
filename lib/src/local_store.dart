@@ -14,6 +14,10 @@ class PracticeStore extends ChangeNotifier {
     soundEnabled = _prefs.getBool('sound_enabled') ?? true;
     vibrationEnabled = _prefs.getBool('vibration_enabled') ?? true;
     reducedEffects = _prefs.getBool('reduced_effects') ?? false;
+    adaptiveAudioEnabled = _prefs.getBool('adaptive_audio_enabled') ?? true;
+    soundVolume = (_prefs.getDouble('sound_volume') ?? 0.85).clamp(0.0, 1.0).toDouble();
+    notificationsEnabled = _prefs.getBool('notifications_enabled') ?? false;
+    startupChoicesSeen = _prefs.getBool('startup_choices_seen') ?? false;
   }
   final SharedPreferences _prefs;
   late int rankedBest;
@@ -24,10 +28,38 @@ class PracticeStore extends ChangeNotifier {
   late bool soundEnabled;
   late bool vibrationEnabled;
   late bool reducedEffects;
+  late bool adaptiveAudioEnabled;
+  late double soundVolume;
+  late bool notificationsEnabled;
+  late bool startupChoicesSeen;
 
   void setSound(bool value) { soundEnabled = value; _prefs.setBool('sound_enabled', value); notifyListeners(); }
   void setVibration(bool value) { vibrationEnabled = value; _prefs.setBool('vibration_enabled', value); notifyListeners(); }
   void setReducedEffects(bool value) { reducedEffects = value; _prefs.setBool('reduced_effects', value); notifyListeners(); }
+
+  void setAdaptiveAudio(bool value) {
+    adaptiveAudioEnabled = value;
+    _prefs.setBool('adaptive_audio_enabled', value);
+    notifyListeners();
+  }
+
+  void setSoundVolume(double value) {
+    soundVolume = value.clamp(0.0, 1.0);
+    _prefs.setDouble('sound_volume', soundVolume);
+    notifyListeners();
+  }
+
+  void setNotifications(bool value) {
+    notificationsEnabled = value;
+    _prefs.setBool('notifications_enabled', value);
+    notifyListeners();
+  }
+
+  void setStartupChoicesSeen() {
+    startupChoicesSeen = true;
+    _prefs.setBool('startup_choices_seen', true);
+    notifyListeners();
+  }
 
   bool savePracticeRound(RoundScore result) {
     final wasBest = result.mode == BattleMode.ranked
