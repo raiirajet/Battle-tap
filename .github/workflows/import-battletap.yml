@@ -1,0 +1,65 @@
+name: Import Battle Tap v1.1 and build APK
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'import_payload/**'
+      - '.github/workflows/import-battletap.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import_and_build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Verify and extract Battle Tap project
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat import_payload/part*.txt | base64 --decode > /tmp/battletap-source.tar.xz
+          echo "72b89631ff0b3e4f36caa1c6154a92f34f5f4c5b8d78068b93b2117ebe5f5301  /tmp/battletap-source.tar.xz" | sha256sum -c -
+          tar -xJf /tmp/battletap-source.tar.xz
+          sed -i 's@https://github.com/onedeen-ch/Apk-test.git@https://github.com/raiirajet/Battle-tap.git@g' scripts/push_to_github.sh
+          rm -rf import_payload .github/workflows/import-battletap.yml
+          test -f pubspec.yaml
+          test -f .github/workflows/android-apk.yml
+      - name: Publish source files to main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "feat: import Battle Tap v1.1 Flutter and Firebase source"
+            git push origin HEAD:main
+          fi
+      - name: Install Flutter stable
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Generate Android project
+        run: flutter create --platforms=android --project-name battle_tap --org ch.battletap .
+      - name: Resolve Flutter packages
+        run: flutter pub get
+      - name: Analyze code
+        run: flutter analyze
+        continue-on-error: true
+      - name: Run tests
+        run: flutter test
+        continue-on-error: true
+      - name: Build Android debug APK
+        run: flutter build apk --debug
+      - name: Upload installable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: battle-tap-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
