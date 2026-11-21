@@ -53,6 +53,13 @@ jobs:
           test -f build/web/sw.js
           test -f build/web/manifest.json
           test -f build/web/main.dart.js
+      - name: Keep a downloadable standalone PWA build
+        uses: actions/upload-artifact@v4
+        with:
+          name: battle-tap-pwa-web
+          path: build/web
+          include-hidden-files: true
+          if-no-files-found: error
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
         with:
