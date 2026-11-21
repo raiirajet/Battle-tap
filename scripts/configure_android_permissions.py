@@ -17,4 +17,19 @@ if 'android.permission.POST_NOTIFICATIONS' not in text:
         raise SystemExit("Android manifest has no <application tag")
     text = text.replace(marker, permission + "\n    " + marker, 1)
     manifest.write_text(text, encoding="utf-8")
-print("BattleTap Android notification permission configured")
+# permission_handler_android 13.x uses Android API 37 to compile.
+# Keep the target SDK managed by Flutter; only raise the compile SDK.
+gradle = Path("android/app/build.gradle.kts")
+if not gradle.exists():
+    raise SystemExit("Missing generated android/app/build.gradle.kts")
+config = gradle.read_text(encoding="utf-8")
+if "compileSdk = flutter.compileSdkVersion" in config:
+    config = config.replace(
+        "compileSdk = flutter.compileSdkVersion",
+        "compileSdk = 37",
+        1,
+    )
+    gradle.write_text(config, encoding="utf-8")
+elif "compileSdk = 37" not in config:
+    raise SystemExit("Unexpected Android build.gradle.kts compileSdk configuration")
+print("BattleTap Android API 37 + notification permission configured")
