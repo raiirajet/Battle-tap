@@ -109,6 +109,25 @@ Both Android and PWA can be rebuilt from `main` using their workflows:
 - `.github/workflows/android-apk.yml` (debug APK)
 - `.github/workflows/deploy-pwa.yml` (web / GitHub Pages)
 
+## Subtle neon arena wallpaper — readability update (November 2026)
+
+The shared `BattleBackdrop` now draws an original, vector-rendered
+**arcade arena wallpaper** in `lib/src/widgets/arcade_backdrop_art.dart`.
+It includes peripheral radar rings, fine circuit traces, sparse particles,
+faint hexagons, and low-intensity gold/cyan edge glows.
+
+**Readability and performance:** The central reading corridor is darkened
+separately from the artwork so section headers, menus, and game-mode labels
+stay legible. Cards, dialogs and the bottom dock keep their own opaque
+high-contrast surfaces. No photography, bright center flare, external asset,
+animated particles, added network access, or new permission is required.
+The custom painter has `shouldRepaint == false`, sits behind an
+`IgnorePointer` and within a `RepaintBoundary`; touch input and game
+scoring are unchanged. Applies to Flutter Web/PWA and Android equally.
+
+Tests in `test/arcade_backdrop_test.dart` verify minimum contrast for
+foreground text and confirm that background artwork never blocks taps.
+
 ## Premium Arcade visual redesign (November 2026)
 
 The visual system in `lib/src/battle_design.dart` gives **all screens** a unified
