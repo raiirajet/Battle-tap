@@ -382,15 +382,9 @@ class _RanksTabState extends State<_RanksTab> {
   }
   @override
   Widget build(BuildContext context) => Column(children: [
-    const Padding(padding: EdgeInsets.all(18), child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        BattleTapBadge(size: 43),
-        SizedBox(width: 10),
-        Text('LEADERBOARDS',
-          style: TextStyle(fontSize: 25, fontWeight: FontWeight.w900, color: gold)),
-      ],
-    )),
+    const BattlePageHeader(title: 'LEADERBOARDS',
+      subtitle: 'Weltweit, Land und Freunde',
+      icon: BattleTapBadge(size: 43)),
     Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: SegmentedButton<int>(
       segments: const [ButtonSegment(value: 0, label: Text('GLOBAL')),
         ButtonSegment(value: 1, label: Text('COUNTRY')),
@@ -423,12 +417,36 @@ class _RanksTabState extends State<_RanksTab> {
           return RefreshIndicator(onRefresh: () async {setState(_refresh); await results;},
             child: ListView.builder(itemCount: snapshot.data!.length, itemBuilder: (context, index) {
               final row = snapshot.data![index];
-              return ListTile(leading: CircleAvatar(backgroundColor: panel,
-                  child: Text('${index + 1}', style: const TextStyle(color: gold))),
-                title: Text('${row['nickname'] ?? 'Player'}'),
-                subtitle: Text('${row['countryCode'] ?? ''}'),
-                trailing: Text('${row['score'] ?? 0}', style: const TextStyle(fontSize: 20,
-                  fontWeight: FontWeight.w900, color: gold)));
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                child: BattleSurface(
+                  accent: index == 0 ? BattleColors.gold
+                      : index == 1 ? BattleColors.cyan
+                      : index == 2 ? const Color(0xFFEEA77A)
+                      : BattleColors.border,
+                  padding: EdgeInsets.zero,
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: (index < 3
+                          ? BattleColors.gold : BattleColors.panelBright)
+                          .withValues(alpha: index < 3 ? .22 : 1),
+                      child: index < 3
+                        ? Icon(Icons.emoji_events_rounded, size: 22,
+                            color: index == 0 ? BattleColors.gold
+                                : index == 1 ? BattleColors.cyan
+                                : const Color(0xFFEEA77A))
+                        : Text('${index + 1}',
+                            style: const TextStyle(color: BattleColors.mutedText)),
+                    ),
+                    title: Text('${row['nickname'] ?? 'Player'}',
+                      style: const TextStyle(fontWeight: FontWeight.w800)),
+                    subtitle: Text('${row['countryCode'] ?? ''}'),
+                    trailing: Text('${row['score'] ?? 0}',
+                      style: const TextStyle(
+                        fontSize: 19, fontWeight: FontWeight.w900, color: gold)),
+                  ),
+                ),
+              );
             }));
         })),
   ]);
@@ -448,15 +466,9 @@ class _ShopTabState extends State<_ShopTab> {
     final selection = skins.where((skin) =>
       rarity == SkinRarity.free ? skin.isFree : skin.rarity == rarity).toList();
     return Column(children: [
-      const Padding(padding: EdgeInsets.all(20), child: Column(children: [
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          BattleTapBadge(size: 41),
-          SizedBox(width: 10),
-          Text('BATTLE SHOP', style: TextStyle(color: gold, fontSize: 25, fontWeight: FontWeight.w900)),
-        ]),
-        SizedBox(height: 4), Text('COSMETICS ONLY • NO PAY-TO-WIN',
-          style: TextStyle(color: Colors.white54, fontSize: 11)),
-      ])),
+      const BattlePageHeader(title: 'BATTLE SHOP',
+        subtitle: 'Nur Kosmetik • kein Pay-to-Win',
+        icon: BattleTapBadge(size: 42)),
       SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -585,7 +597,9 @@ class _FriendsTabState extends State<_FriendsTab> {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.all(20), child: Column(children: [
-      const Text('FRIENDS', style: TextStyle(fontSize: 25, color: gold, fontWeight: FontWeight.w900)),
+      const BattleSectionTitle(title: 'FRIENDS',
+        subtitle: 'Freunde einladen und herausfordern',
+        icon: Icons.people_alt_rounded),
       const SizedBox(height: 12),
       if (!widget.online.enabled) const Expanded(child: _EmptyNotice(icon: Icons.people_outline,
         heading: 'FRIENDS ARE ONLINE-ONLY', description: 'Connect Firebase to search and invite players.'))
@@ -651,8 +665,17 @@ class _ProfileTabState extends State<_ProfileTab> {
   @override
   Widget build(BuildContext context) => SingleChildScrollView(padding: const EdgeInsets.all(20),
     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      const Center(child: BattleTapBadge(size: 96)),
-      const SizedBox(height: 10),
+      const BattleSurface(
+        accent: BattleColors.gold,
+        child: Column(children: [
+          Center(child: BattleTapBadge(size: 84)),
+          SizedBox(height: 9),
+          Text('PLAYER PROFILE',
+            style: TextStyle(color: BattleColors.gold,
+              fontWeight: FontWeight.w900, letterSpacing: 2)),
+        ]),
+      ),
+      const SizedBox(height: 14),
       Text(widget.online.currentUser?.email ?? 'Local Practice Player', textAlign: TextAlign.center,
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
       const SizedBox(height: 10),
@@ -697,7 +720,12 @@ class _ProfileTabState extends State<_ProfileTab> {
         _Metric(label: 'TOTAL TAPS SINCE INSTALL', value: '${widget.store.totalTaps}'),
       ])),
       const SizedBox(height: 16),
-      AnimatedBuilder(animation: widget.store, builder: (context, _) => Column(children: [
+      const BattleSectionTitle(title: 'EINSTELLUNGEN',
+        subtitle: 'Spielgefühl und Benachrichtigungen',
+        icon: Icons.tune_rounded),
+      BattleSurface(
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
+        child: AnimatedBuilder(animation: widget.store, builder: (context, _) => Column(children: [
         SwitchListTile(
           title: const Text('Spielsounds'),
           subtitle: const Text('Originale BattleTap-Treffer- und Rekordklänge'),
@@ -745,6 +773,7 @@ class _ProfileTabState extends State<_ProfileTab> {
           },
         ),
       ])),
+      ),
       const SizedBox(height: 8),
       if (widget.online.enabled) ...[
         OutlinedButton(onPressed: () => widget.online.signOut(), child: const Text('SIGN OUT')),
@@ -772,13 +801,21 @@ class _EmptyNotice extends StatelessWidget {
   final String heading;
   final String description;
   @override
-  Widget build(BuildContext context) => Center(child: Padding(padding: const EdgeInsets.all(25),
-    child: Column(mainAxisSize: MainAxisSize.min, children: [
-      Icon(icon, color: gold, size: 55), const SizedBox(height: 15),
-      Text(heading, textAlign: TextAlign.center,
-        style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
-      const SizedBox(height: 12),
-      Text(description, textAlign: TextAlign.center,
-        style: const TextStyle(color: Colors.white60)),
-    ])));
+  Widget build(BuildContext context) => Center(
+    child: Padding(padding: const EdgeInsets.all(25),
+      child: BattleSurface(
+        accent: BattleColors.cyan,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Icon(icon, color: BattleColors.gold, size: 48),
+          const SizedBox(height: 16),
+          Text(heading, textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 10),
+          Text(description, textAlign: TextAlign.center,
+            style: const TextStyle(color: BattleColors.mutedText, height: 1.5)),
+        ]),
+      ),
+    ),
+  );
 }
