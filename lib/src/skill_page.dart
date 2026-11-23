@@ -443,6 +443,7 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
           const SizedBox(height: 14),
           Text(finished
               ? '$_score ${widget.mode.unit}\n'
+                  '$_hits Treffer • $_mistakes Fehler\n'
                   '${_record ? '🏆 NEUER BESTWERT!' : 'Bestwert: ${best ?? '—'}'}'
               : error ? _status : widget.mode.description,
             textAlign: TextAlign.center,
