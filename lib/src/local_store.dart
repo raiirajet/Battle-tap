@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'rules.dart';
 import 'arcade_rules.dart';
+import 'skill_rules.dart';
 import 'skins.dart';
 
 /// Practice-only storage. Never used as the source for global rankings.
@@ -14,6 +15,12 @@ class PracticeStore extends ChangeNotifier {
       final value = _prefs.getInt('arcade_${mode.name}_best_v1');
       if (value != null) _arcadeBests[mode] = value;
     }
+    for (final mode in SkillMode.values) {
+      final value = _prefs.getInt('skill_${mode.name}_best_v1');
+      if (value != null) _skillBests[mode] = value;
+    }
+    duelMatches = _prefs.getInt('duel_matches_v1') ?? 0;
+    duelBest = _prefs.getInt('duel_best_v1') ?? 0;
     gamesPlayed = _prefs.getInt('practice_games') ?? 0;
     totalHits = _prefs.getInt('practice_hits') ?? 0;
     // Legacy versions stored only successful practice taps. Keep them as a
@@ -37,6 +44,10 @@ class PracticeStore extends ChangeNotifier {
   final SharedPreferences _prefs;
   final Map<ArcadeMode, int> _arcadeBests = {};
   int? arcadeBest(ArcadeMode mode) => _arcadeBests[mode];
+  final Map<SkillMode, int> _skillBests = {};
+  int? skillBest(SkillMode mode) => _skillBests[mode];
+  late int duelMatches;
+  late int duelBest;
   late int rankedBest;
   late int huntBest;
   late int gamesPlayed;
@@ -157,6 +168,38 @@ class PracticeStore extends ChangeNotifier {
     _prefs.setInt('practice_hits', totalHits);
     notifyListeners();
     return newBest;
+  }
+
+  /// Skill arcade uses independent local best scores, isolated from Ranked V2.
+  bool saveSkillRound({required SkillMode mode, required int score, required int hits}) {
+    final previous = _skillBests[mode];
+    final improved = previous == null || score > previous;
+    if (improved) {
+      _skillBests[mode] = score;
+      _prefs.setInt('skill_${mode.name}_best_v1', score);
+    }
+    gamesPlayed++;
+    totalHits += hits;
+    _prefs.setInt('practice_games', gamesPlayed);
+    _prefs.setInt('practice_hits', totalHits);
+    flushTapCount();
+    notifyListeners();
+    return improved;
+  }
+
+  /// A duel consists of two equally timed local turns, not network multiplayer.
+  void saveDuelMatch({required int firstScore, required int secondScore,
+      required int firstHits, required int secondHits}) {
+    duelMatches++;
+    duelBest = [duelBest, firstScore, secondScore].reduce((a, b) => a > b ? a : b);
+    gamesPlayed += 2;
+    totalHits += firstHits + secondHits;
+    _prefs.setInt('duel_matches_v1', duelMatches);
+    _prefs.setInt('duel_best_v1', duelBest);
+    _prefs.setInt('practice_games', gamesPlayed);
+    _prefs.setInt('practice_hits', totalHits);
+    flushTapCount();
+    notifyListeners();
   }
 
   /// Online ranked rounds count only after verified server acceptance.
