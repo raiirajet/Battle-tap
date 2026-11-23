@@ -161,7 +161,8 @@ class _DuelPageState extends State<DuelPage> with WidgetsBindingObserver {
     } else {
       widget.store.saveDuelMatch(
           firstScore: _scores[0], secondScore: _scores[1],
-          firstHits: _hits[0], secondHits: _hits[1]);
+          firstHits: _hits[0], secondHits: _hits[1],
+          firstName: _firstName, secondName: _secondName);
       if (SkillRules.duelWinner(_scores[0], _scores[1]) != null) {
         _audio.record();
       }
