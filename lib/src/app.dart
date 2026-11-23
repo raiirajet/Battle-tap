@@ -311,7 +311,7 @@ class _PlayTab extends StatelessWidget {
       _ModeCard(title: 'MEMORY MATRIX',
         subtitle: '3×3 → 4×4 → 5×5 FELDER • SEQUENZEN MERKEN',
         icon: Icons.grid_view_rounded, accent: const Color(0xFFB6A1FF),
-        detail: '20 STUFEN • 3 LEBEN • PERSÖNLICHER REKORD',
+        detail: '20 STUFEN • 3 LEBEN • BESTWERT IM SPIEL',
         onTap: () => onSkill(SkillMode.memoryMatrix)),
 
       const SizedBox(height: 12),

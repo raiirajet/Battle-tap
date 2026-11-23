@@ -11,13 +11,13 @@
 | TAP BATTLE: starts centered (44% width), shrinks at speed, teleports every 100 hits; 30s, +1 per valid hit | Implemented locally |
 | RANDOM HUNT: 18–60s random visible timer; repositions on hit and after 1s idle | Implemented locally |
 | RANDOM HUNT: 2s STOP phase, −2 per late tap | Implemented locally |
-| BUBBLE RUSH: 30s random air-pocket bubbles, accelerating spawns, combos, three original pops | Implemented locally, separate best score |
+| BUBBLE RUSH: 45s air-pocket bubbles, harder every 5s, more simultaneous bubbles, combos and original pops | Implemented locally, separate best score |
 | COLOR TRAP: 30s fast green targets, red decoys (−2), increasing pace | Implemented locally, separate best score |
-| REFLEX GO: 5 randomized reaction trials, false-start penalties, best average in milliseconds | Implemented locally, separate best time |
-| MEMORY MATRIX: nine-cell sequences, ten escalating stages, separate best score | Implemented locally |
-| PRECISION TRAIL: 30s follow-the-dot finger-tracking accuracy | Implemented locally |
-| TIMING STRIKE: up to ten shots to hit a moving marker on the target zone | Implemented locally |
-| 1 GEGEN 1 ARCADE: 20s per person, identical seeded target sequence, pass-and-play | Implemented locally |
+| REFLEX GO: 30s, six cycling colors; green +1, red −1, four neutral colors, separate points best | Implemented locally; old millisecond records remain archived, not compared |
+| MEMORY MATRIX: 20 escalating stages with 3×3→4×4→5×5 grids, three lives, visible personal best and best level | Implemented locally |
+| TIMING STRIKE: ten shots, shows a white marker for the last stopped cursor position and earned points | Implemented locally |
+| 1 GEGEN 1 ARCADE: 20s per person, identical seeded targets, separate saved history per named player | Implemented locally |
+| Personal best leaderboard and chronological history for all eight playable modes | Device-only; newest 250 completed games/turns, historical bests preserved |
 | Touch handling: no continuous hold points; no overlapping pointer points | Implemented locally |
 | All 15 individually styled skins + default, animated preview | Implemented, cosmetic previews only |
 | Golden Splash on a new practice/verified record | Implemented; practice marked as preview |
@@ -31,6 +31,30 @@
 | Public privacy policy / terms / release documents | **Not yet supplied** |
 | Android APK | CI workflow prepares debug APK after repository push; not yet built |
 | iOS release | iOS platform project can be generated; signing / macOS build pending |
+
+## November 23, 2026 — Arcade gameplay & personal records
+
+- **Memory Matrix** now has 20 stages, unlocks 4×4 and 5×5 grids at levels
+  8/15, has three lives, and displays best score/best level in the HUD.
+- **Precision Trail** has been removed from the game menu and playable
+  `SkillMode` options (the old stored preference is not overwritten).
+- **Timing Strike** reveals the location where the cursor was stopped on
+  the timing bar: a white marker, the previous target outline and the
+  score earned by that shot.
+- **Reflex GO** is now a 30-second color game. Six colors always change.
+  Green: +1; red: −1; blue/purple/yellow/cyan: neutral. Existing
+  millisecond records are deliberately not mixed with new point records.
+- **Bubble Rush** is 45 seconds; every five seconds the bubble spawn
+  interval falls and simultaneous bubble density/burst size increase.
+- **Personal bests & history:** The new screen is available from PLAY and
+  PROFILE, lists all eight active games and lets players filter a local,
+  chronological feed. New completed games are saved with date/time;
+  two-player matches save both player names and individual scores.
+  Only the most recent 250 rounds/turns are retained in the timeline;
+  personal bests remain separately persisted. The timeline begins
+  with this update, since older individual rounds cannot be reconstructed.
+  Only completed, server-verified Ranked rounds count as verified; this
+  feature does not modify the public leaderboards or upload local scores.
 
 ## Locked game rules (GDD v1.1)
 
