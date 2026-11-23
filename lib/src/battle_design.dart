@@ -150,6 +150,32 @@ abstract final class BattleDesign {
               ? BattleColors.gold : BattleColors.mutedText,
         ),
       ),
+      chipTheme: ChipThemeData(
+        backgroundColor: BattleColors.elevated,
+        selectedColor: BattleColors.gold.withValues(alpha: .22),
+        labelStyle: const TextStyle(
+          color: BattleColors.primaryText,
+          fontWeight: FontWeight.w800,
+        ),
+        side: const BorderSide(color: BattleColors.border),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? BattleColors.gold : BattleColors.mutedText,
+          ),
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? BattleColors.gold.withValues(alpha: .15)
+                : BattleColors.elevated,
+          ),
+          side: WidgetStateProperty.all(
+            const BorderSide(color: BattleColors.border),
+          ),
+        ),
+      ),
     );
   }
 }

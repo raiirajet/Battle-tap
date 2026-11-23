@@ -290,18 +290,40 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
           final selected = _phase == _SkillPhase.memoryInput && _selectedCell == i;
           final color = lit ? const Color(0xFFFFDA72)
               : selected ? const Color(0xFF2CB987) : const Color(0xFF22314A);
-          return Material(color: color,
+          return Material(
+            color: Colors.transparent,
             borderRadius: BorderRadius.circular(16),
             child: InkWell(
               borderRadius: BorderRadius.circular(16),
               onTap: _phase == _SkillPhase.memoryInput
                   ? () => _tapMemory(i) : null,
-              child: Center(child: Icon(
-                lit ? Icons.lightbulb : Icons.circle_outlined,
-                color: lit ? const Color(0xFF151B28) : Colors.white24,
-                size: 30,
-              )),
-            ));
+              child: AnimatedContainer(
+                duration: widget.store.reducedEffects ? Duration.zero
+                    : const Duration(milliseconds: 150),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [color, Color.lerp(color, BattleColors.elevated, .24)!],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: lit ? BattleColors.gold.withValues(alpha: .93)
+                        : selected ? BattleColors.green : BattleColors.border,
+                    width: lit ? 2.2 : 1,
+                  ),
+                  boxShadow: lit && !widget.store.reducedEffects
+                      ? [BoxShadow(color: BattleColors.gold.withValues(alpha: .26),
+                          blurRadius: 18)] : const [],
+                ),
+                child: Center(child: Icon(
+                  lit ? Icons.lightbulb : Icons.circle_outlined,
+                  color: lit ? const Color(0xFF151B28) : Colors.white38,
+                  size: 30,
+                )),
+              ),
+            ),
+          );
         },
       ),
     ))),
