@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'rules.dart';
+import 'arcade_rules.dart';
 import 'skins.dart';
 
 /// Practice-only storage. Never used as the source for global rankings.
@@ -9,6 +10,10 @@ class PracticeStore extends ChangeNotifier {
   PracticeStore(this._prefs) {
     rankedBest = _prefs.getInt('practice_ranked_best_v2') ?? 0;
     huntBest = _prefs.getInt('practice_hunt_best') ?? 0;
+    for (final mode in ArcadeMode.values) {
+      final value = _prefs.getInt('arcade_${mode.name}_best_v1');
+      if (value != null) _arcadeBests[mode] = value;
+    }
     gamesPlayed = _prefs.getInt('practice_games') ?? 0;
     totalHits = _prefs.getInt('practice_hits') ?? 0;
     // Legacy versions stored only successful practice taps. Keep them as a
@@ -30,6 +35,8 @@ class PracticeStore extends ChangeNotifier {
     startupChoicesSeen = _prefs.getBool('startup_choices_seen') ?? false;
   }
   final SharedPreferences _prefs;
+  final Map<ArcadeMode, int> _arcadeBests = {};
+  int? arcadeBest(ArcadeMode mode) => _arcadeBests[mode];
   late int rankedBest;
   late int huntBest;
   late int gamesPlayed;
@@ -132,6 +139,24 @@ class PracticeStore extends ChangeNotifier {
     _prefs.setInt('practice_hits', totalHits);
     _recordCompletedRound(result);
     return wasBest;
+  }
+
+  /// Independent, device-only arcade records. No Firebase ranked stats are touched.
+  bool saveArcadeRound({required ArcadeMode mode, required int score, required int hits}) {
+    final previous = _arcadeBests[mode];
+    final newBest = previous == null || (mode.lowerIsBetter
+        ? score < previous : score > previous);
+    if (newBest) {
+      _arcadeBests[mode] = score;
+      _prefs.setInt('arcade_${mode.name}_best_v1', score);
+    }
+    gamesPlayed++;
+    totalHits += hits;
+    flushTapCount();
+    _prefs.setInt('practice_games', gamesPlayed);
+    _prefs.setInt('practice_hits', totalHits);
+    notifyListeners();
+    return newBest;
   }
 
   /// Online ranked rounds count only after verified server acceptance.
