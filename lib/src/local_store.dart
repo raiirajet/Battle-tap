@@ -5,6 +5,7 @@ import 'rules.dart';
 import 'arcade_rules.dart';
 import 'skill_rules.dart';
 import 'skins.dart';
+import 'game_history.dart';
 
 /// Practice-only storage. Never used as the source for global rankings.
 class PracticeStore extends ChangeNotifier {
@@ -12,13 +13,19 @@ class PracticeStore extends ChangeNotifier {
     rankedBest = _prefs.getInt('practice_ranked_best_v2') ?? 0;
     huntBest = _prefs.getInt('practice_hunt_best') ?? 0;
     for (final mode in ArcadeMode.values) {
-      final value = _prefs.getInt('arcade_${mode.name}_best_v1');
+      // Previous Reflex GO used milliseconds (lower was better).
+      // Its scores must not be misinterpreted as new color-game points.
+      final suffix = mode == ArcadeMode.reflexGo ? 'v2' : 'v1';
+      final value = _prefs.getInt('arcade_${mode.name}_best_$suffix');
       if (value != null) _arcadeBests[mode] = value;
     }
     for (final mode in SkillMode.values) {
       final value = _prefs.getInt('skill_${mode.name}_best_v1');
       if (value != null) _skillBests[mode] = value;
     }
+    memoryBestLevel = _prefs.getInt('skill_memory_best_level_v1') ?? 0;
+    verifiedRankedBest = _prefs.getInt('verified_ranked_best_v1') ?? 0;
+    _history.addAll(GameHistoryEntry.decode(_prefs.getString('game_history_v1')));
     duelMatches = _prefs.getInt('duel_matches_v1') ?? 0;
     duelBest = _prefs.getInt('duel_best_v1') ?? 0;
     gamesPlayed = _prefs.getInt('practice_games') ?? 0;
@@ -46,6 +53,42 @@ class PracticeStore extends ChangeNotifier {
   int? arcadeBest(ArcadeMode mode) => _arcadeBests[mode];
   final Map<SkillMode, int> _skillBests = {};
   int? skillBest(SkillMode mode) => _skillBests[mode];
+  final List<GameHistoryEntry> _history = [];
+  List<GameHistoryEntry> get history => List.unmodifiable(_history);
+  static const maxHistoryEntries = 250;
+
+  late int memoryBestLevel;
+  late int verifiedRankedBest;
+
+  /// The best scores are persisted independently of the bounded history.
+  /// Legacy personal bests remain visible after adding this feature.
+  int? bestForGame(String key) => switch (key) {
+    'ranked' => (rankedBest > 0 || verifiedRankedBest > 0)
+        ? (rankedBest > verifiedRankedBest ? rankedBest : verifiedRankedBest)
+        : null,
+    'hunt' => huntRounds > 0 || huntBest > 0 ? huntBest : null,
+    'bubbleRush' => arcadeBest(ArcadeMode.bubbleRush),
+    'colorTrap' => arcadeBest(ArcadeMode.colorTrap),
+    'reflexGo' => arcadeBest(ArcadeMode.reflexGo),
+    'memoryMatrix' => skillBest(SkillMode.memoryMatrix),
+    'timingStrike' => skillBest(SkillMode.timingStrike),
+    'duel' => duelMatches > 0 ? duelBest : null,
+    _ => null,
+  };
+
+  void _rememberRound(String key, int score, int hits, {
+    bool verified = false, String? player, int? level,
+  }) {
+    _history.insert(0, GameHistoryEntry(
+      mode: key, score: score, hits: hits, when: DateTime.now(),
+      verified: verified, player: player, level: level,
+    ));
+    if (_history.length > maxHistoryEntries) {
+      _history.removeRange(maxHistoryEntries, _history.length);
+    }
+    _prefs.setString('game_history_v1', GameHistoryEntry.encode(_history));
+  }
+
   late int duelMatches;
   late int duelBest;
   late int rankedBest;
@@ -148,6 +191,7 @@ class PracticeStore extends ChangeNotifier {
     _prefs.setInt('practice_ranked_best_v2', rankedBest);
     _prefs.setInt('practice_hunt_best', huntBest);
     _prefs.setInt('practice_hits', totalHits);
+    _rememberRound(result.mode.name, result.score, result.hits);
     _recordCompletedRound(result);
     return wasBest;
   }
@@ -159,29 +203,38 @@ class PracticeStore extends ChangeNotifier {
         ? score < previous : score > previous);
     if (newBest) {
       _arcadeBests[mode] = score;
-      _prefs.setInt('arcade_${mode.name}_best_v1', score);
+      final suffix = mode == ArcadeMode.reflexGo ? 'v2' : 'v1';
+      _prefs.setInt('arcade_${mode.name}_best_$suffix', score);
     }
     gamesPlayed++;
     totalHits += hits;
     flushTapCount();
     _prefs.setInt('practice_games', gamesPlayed);
     _prefs.setInt('practice_hits', totalHits);
+    _rememberRound(mode.name, score, hits);
     notifyListeners();
     return newBest;
   }
 
   /// Skill arcade uses independent local best scores, isolated from Ranked V2.
-  bool saveSkillRound({required SkillMode mode, required int score, required int hits}) {
+  bool saveSkillRound({required SkillMode mode, required int score,
+      required int hits, int? level}) {
     final previous = _skillBests[mode];
     final improved = previous == null || score > previous;
     if (improved) {
       _skillBests[mode] = score;
       _prefs.setInt('skill_${mode.name}_best_v1', score);
     }
+    if (mode == SkillMode.memoryMatrix && level != null &&
+        level > memoryBestLevel) {
+      memoryBestLevel = level;
+      _prefs.setInt('skill_memory_best_level_v1', memoryBestLevel);
+    }
     gamesPlayed++;
     totalHits += hits;
     _prefs.setInt('practice_games', gamesPlayed);
     _prefs.setInt('practice_hits', totalHits);
+    _rememberRound(mode.name, score, hits, level: level);
     flushTapCount();
     notifyListeners();
     return improved;
@@ -189,7 +242,8 @@ class PracticeStore extends ChangeNotifier {
 
   /// A duel consists of two equally timed local turns, not network multiplayer.
   void saveDuelMatch({required int firstScore, required int secondScore,
-      required int firstHits, required int secondHits}) {
+      required int firstHits, required int secondHits,
+      String firstName = 'Spieler 1', String secondName = 'Spieler 2'}) {
     duelMatches++;
     duelBest = [duelBest, firstScore, secondScore].reduce((a, b) => a > b ? a : b);
     gamesPlayed += 2;
@@ -198,12 +252,22 @@ class PracticeStore extends ChangeNotifier {
     _prefs.setInt('duel_best_v1', duelBest);
     _prefs.setInt('practice_games', gamesPlayed);
     _prefs.setInt('practice_hits', totalHits);
+    _rememberRound('duel', firstScore, firstHits, player: firstName);
+    _rememberRound('duel', secondScore, secondHits, player: secondName);
     flushTapCount();
     notifyListeners();
   }
 
   /// Online ranked rounds count only after verified server acceptance.
-  void saveVerifiedRound(RoundScore result) => _recordCompletedRound(result);
+  /// Local history remains distinct from the global verified leaderboard.
+  void saveVerifiedRound(RoundScore result) {
+    if (result.mode == BattleMode.ranked && result.score > verifiedRankedBest) {
+      verifiedRankedBest = result.score;
+      _prefs.setInt('verified_ranked_best_v1', verifiedRankedBest);
+    }
+    _rememberRound(result.mode.name, result.score, result.hits, verified: true);
+    _recordCompletedRound(result);
+  }
 
   void equip(String id) {
     final skin = skinById(id);
