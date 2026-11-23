@@ -24,7 +24,7 @@ extension ArcadeModeDetails on ArcadeMode {
   };
 
   bool get lowerIsBetter => this == ArcadeMode.reflexGo;
-  String formatScore(int score) => lowerIsBetter ? '$' + '{score} ms' : '$' + '{score} Punkte';
+  String formatScore(int score) => lowerIsBetter ? '$score ms' : '$score Punkte';
 }
 
 abstract final class ArcadeRules {
