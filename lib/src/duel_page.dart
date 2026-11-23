@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'battle_audio.dart';
+import 'battle_design.dart';
 import 'local_store.dart';
 import 'skill_rules.dart';
 
@@ -281,6 +282,10 @@ class _DuelPageState extends State<DuelPage> with WidgetsBindingObserver {
       body: SafeArea(child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Column(children: [
+          BattleSurface(
+            accent: _turn == 0 ? BattleColors.cyan : BattleColors.red,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Column(children: [
           Text(_phase == _DuelPhase.setup ? 'BATTLE TAP DUEL DASH'
               : 'AM ZUG: $_playerName',
             textAlign: TextAlign.center, style: const TextStyle(
@@ -295,7 +300,9 @@ class _DuelPageState extends State<DuelPage> with WidgetsBindingObserver {
           const Text('20 SEK. JE SPIELER • GLEICHE ZIELE • +3 BEI 10ER-COMBO',
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.white54, fontSize: 10)),
-          const SizedBox(height: 12),
+            ]),
+          ),
+          const SizedBox(height: 10),
           Expanded(child: LayoutBuilder(builder: (context, c) {
             final size = Size(c.maxWidth, c.maxHeight);
             final diameter = math.min(120.0,
@@ -309,7 +316,9 @@ class _DuelPageState extends State<DuelPage> with WidgetsBindingObserver {
                 onPointerUp: (event) => _pointers.remove(event.pointer),
                 onPointerCancel: (event) => _pointers.remove(event.pointer),
                 child: Stack(children: [
-                  const Positioned.fill(child: ColoredBox(color: Color(0xFF111C2E))),
+                  Positioned.fill(child: BattleArena(
+                    accent: _turn == 0 ? BattleColors.cyan : BattleColors.red,
+                  )),
                   if (active)
                     Positioned(
                       left: size.width * target.x - diameter / 2,

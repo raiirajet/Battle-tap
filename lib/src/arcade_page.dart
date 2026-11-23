@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 
 import 'arcade_rules.dart';
 import 'battle_audio.dart';
+import 'battle_design.dart';
 import 'local_store.dart';
 
 enum _ArcadePhase { ready, countdown, playing, finished, interrupted }
@@ -368,11 +369,11 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
       onPointerUp: (event) => _pointers.remove(event.pointer),
       onPointerCancel: (event) => _pointers.remove(event.pointer),
       child: Stack(clipBehavior: Clip.hardEdge, children: [
-        Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(
-          color: const Color(0xFF111A2B),
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: const Color(0xFF344259)),
-        ))),
+        Positioned.fill(child: BattleArena(
+          accent: widget.mode == ArcadeMode.bubbleRush ? BattleColors.cyan
+              : widget.mode == ArcadeMode.colorTrap ? BattleColors.green
+              : BattleColors.gold,
+        )),
         if (running && widget.mode == ArcadeMode.bubbleRush)
           for (final bubble in _bubbles) _bubbleWidget(bubble, size, ms),
         if (running && widget.mode == ArcadeMode.colorTrap)
@@ -468,6 +469,12 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
       body: SafeArea(child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(children: [
+          BattleSurface(
+            accent: widget.mode == ArcadeMode.bubbleRush ? BattleColors.cyan
+                : widget.mode == ArcadeMode.colorTrap ? BattleColors.green
+                : BattleColors.gold,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+            child: Column(children: [
           Text(widget.mode.description, textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.white70, fontSize: 12)),
           const SizedBox(height: 10),
@@ -484,6 +491,8 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
           const SizedBox(height: 4),
           const Text('LOCAL ARCADE • KEINE ONLINE-RANGLISTE',
             style: TextStyle(color: Color(0xFFFFC77E), fontSize: 10, letterSpacing: 1)),
+            ]),
+          ),
           const SizedBox(height: 10),
           Expanded(child: LayoutBuilder(builder: (context, c) => _field(
               Size(c.maxWidth, c.maxHeight)))),

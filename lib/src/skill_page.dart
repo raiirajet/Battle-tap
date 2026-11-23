@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'battle_audio.dart';
+import 'battle_design.dart';
 import 'local_store.dart';
 import 'skill_rules.dart';
 
@@ -469,6 +470,13 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
       body: SafeArea(child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Column(children: [
+          BattleSurface(
+            accent: widget.mode == SkillMode.memoryMatrix
+                ? const Color(0xFFB6A1FF)
+                : widget.mode == SkillMode.precisionTrail
+                    ? BattleColors.cyan : BattleColors.gold,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+            child: Column(children: [
           Text(widget.mode.description, textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.white60, fontSize: 12)),
           const SizedBox(height: 12),
@@ -483,13 +491,20 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
           const SizedBox(height: 4),
           const Text('LOCAL ARCADE • KEINE ONLINE-RANGLISTE',
             style: TextStyle(color: Color(0xFFFFC77E), fontSize: 10)),
-          const SizedBox(height: 14),
+            ]),
+          ),
+          const SizedBox(height: 10),
           Expanded(child: LayoutBuilder(builder: (context, constraints) {
             final size = Size(constraints.maxWidth, constraints.maxHeight);
             _fieldSize = size;
             return ClipRRect(borderRadius: BorderRadius.circular(20),
               child: Stack(children: [
-                const Positioned.fill(child: ColoredBox(color: Color(0xFF121C2D))),
+                Positioned.fill(child: BattleArena(
+                  accent: widget.mode == SkillMode.memoryMatrix
+                      ? const Color(0xFFB6A1FF)
+                      : widget.mode == SkillMode.precisionTrail
+                          ? BattleColors.cyan : BattleColors.gold,
+                )),
                 if (memory) Positioned.fill(child: _memoryBoard()),
                 if (!memory && active && widget.mode == SkillMode.precisionTrail)
                   Positioned.fill(child: _precisionBoard(size)),
