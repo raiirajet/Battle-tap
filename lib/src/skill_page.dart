@@ -358,12 +358,25 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
                 color: const Color(0xFF23314D),
                 border: Border.all(color: Colors.white30, width: 2),
               ))),
-              Positioned(left: math.max(0.0, width * (_target - .08)),
+              if (_lastTapTarget != null)
+                Positioned(
+                  left: math.max(0.0, width * (_lastTapTarget! - .08)),
+                  top: 7, bottom: 7, width: width * .16,
+                  child: IgnorePointer(child: Container(decoration: BoxDecoration(
+                    color: BattleColors.green.withValues(alpha: .13),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: BattleColors.green.withValues(alpha: .5)),
+                  ))),
+                ),
+              Positioned(
+                left: math.max(0.0, width * (_target - .08)),
                 top: 4, bottom: 4, width: width * .16,
                 child: Container(decoration: BoxDecoration(
                   color: const Color(0xFF1CB982),
                   borderRadius: BorderRadius.circular(12),
-                ))),
+                )),
+              ),
               Positioned(left: width * cursor - 4, top: 0, bottom: 0,
                 child: Container(width: 8, decoration: BoxDecoration(
                   color: const Color(0xFFFFD56C),
@@ -372,9 +385,35 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
                     BoxShadow(color: Color(0xAAFFD56C), blurRadius: 12),
                   ],
                 ))),
+              if (_lastTapPosition != null)
+                Positioned(left: math.max(0.0, width * _lastTapPosition! - 9),
+                  top: 11, bottom: 11,
+                  child: IgnorePointer(child: Container(
+                    width: 18,
+                    decoration: BoxDecoration(
+                      color: BattleColors.background,
+                      borderRadius: BorderRadius.circular(9),
+                      border: Border.all(color: Colors.white, width: 3),
+                    ),
+                  )),
+                ),
             ]),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
+          if (_lastTapPosition != null) ...[
+            Text('LETZTER STOPP: $_lastTapPoints / 100 PUNKTE',
+              style: TextStyle(
+                color: _lastTapPoints >= 50 ? BattleColors.green
+                    : BattleColors.red,
+                fontWeight: FontWeight.w900,
+                fontSize: 15,
+              )),
+            const SizedBox(height: 6),
+            const Text('Weisser Marker = Position beim letzten Tap',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white70, fontSize: 11)),
+            const SizedBox(height: 8),
+          ],
           Text(_status.isEmpty ? 'Tippe, wenn die gelbe Linie den grünen Bereich erreicht'
               : _status, textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.white70)),
@@ -406,6 +445,7 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
           const SizedBox(height: 14),
           Text(finished
               ? '$_score ${widget.mode.unit}\n'
+                  '${widget.mode == SkillMode.memoryMatrix ? 'Erreichte Stufe: $_level / ${SkillRules.memoryMaxLevel}\n' : ''}'
                   '$_hits Treffer • $_mistakes Fehler\n'
                   '${_record ? '🏆 NEUER BESTWERT!' : 'Bestwert: ${best ?? '—'}'}'
               : error ? _status : widget.mode.description,
@@ -423,66 +463,62 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final memory = widget.mode == SkillMode.memoryMatrix;
     final active = _phase == _SkillPhase.preview ||
-        _phase == _SkillPhase.memoryInput || _phase == _SkillPhase.precision ||
-        _phase == _SkillPhase.timing;
-    final remaining = (SkillRules.precisionDuration.inMilliseconds -
-        _clock.elapsedMilliseconds).clamp(0, SkillRules.precisionDuration.inMilliseconds);
+        _phase == _SkillPhase.memoryInput || _phase == _SkillPhase.timing;
     return Scaffold(
       appBar: AppBar(title: Text(widget.mode.title), centerTitle: true),
       body: SafeArea(child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Column(children: [
           BattleSurface(
-            accent: widget.mode == SkillMode.memoryMatrix
-                ? const Color(0xFFB6A1FF)
-                : widget.mode == SkillMode.precisionTrail
-                    ? BattleColors.cyan : BattleColors.gold,
+            accent: memory ? const Color(0xFFB6A1FF) : BattleColors.gold,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
             child: Column(children: [
-          Text(widget.mode.description, textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white60, fontSize: 12)),
-          const SizedBox(height: 12),
-          Text(memory ? 'LEVEL $_level' :
-              widget.mode == SkillMode.precisionTrail
-                ? '${(remaining / 1000).toStringAsFixed(1)} s' :
-                  '${_attempts} / ${SkillRules.timingAttempts} SCHÜSSE',
-            style: const TextStyle(fontSize: 32, color: Color(0xFFFFD56C),
-              fontWeight: FontWeight.w900)),
-          Text('$_score ${widget.mode.unit}', style: const TextStyle(
-            fontSize: 21, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          const Text('LOCAL ARCADE • KEINE ONLINE-RANGLISTE',
-            style: TextStyle(color: Color(0xFFFFC77E), fontSize: 10)),
+              Text(widget.mode.description, textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white70, fontSize: 12)),
+              const SizedBox(height: 8),
+              Text(memory
+                  ? 'LEVEL $_level / ${SkillRules.memoryMaxLevel}'
+                  : '${_attempts} / ${SkillRules.timingAttempts} SCHÜSSE',
+                style: const TextStyle(
+                  fontSize: 29, color: BattleColors.gold,
+                  fontWeight: FontWeight.w900)),
+              Text('$_score ${widget.mode.unit}',
+                style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 6),
+              Text('PERSÖNLICHER BESTWERT: ${widget.store.skillBest(widget.mode) ?? '—'}'
+                  '${memory ? '  •  STUFE ${widget.store.memoryBestLevel}' : ''}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: BattleColors.cyan, fontSize: 11,
+                  fontWeight: FontWeight.w900)),
+              const SizedBox(height: 4),
+              const Text('LOKALER MODUS • KEINE ONLINE-RANGLISTE',
+                style: TextStyle(color: BattleColors.mutedText, fontSize: 10)),
             ]),
           ),
           const SizedBox(height: 10),
           Expanded(child: LayoutBuilder(builder: (context, constraints) {
             final size = Size(constraints.maxWidth, constraints.maxHeight);
-            _fieldSize = size;
-            return ClipRRect(borderRadius: BorderRadius.circular(20),
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(20),
               child: Stack(children: [
                 Positioned.fill(child: BattleArena(
-                  accent: widget.mode == SkillMode.memoryMatrix
-                      ? const Color(0xFFB6A1FF)
-                      : widget.mode == SkillMode.precisionTrail
-                          ? BattleColors.cyan : BattleColors.gold,
+                  accent: memory ? const Color(0xFFB6A1FF) : BattleColors.gold,
                 )),
                 if (memory) Positioned.fill(child: _memoryBoard()),
-                if (!memory && active && widget.mode == SkillMode.precisionTrail)
-                  Positioned.fill(child: _precisionBoard(size)),
-                if (!memory && active && widget.mode == SkillMode.timingStrike)
+                if (!memory && active)
                   Positioned.fill(child: _timingBoard(size)),
                 if (!active) _overlay(),
               ]),
             );
           })),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Text('BESTWERT: ${widget.store.skillBest(widget.mode) ?? '—'} '
-              '${widget.mode.unit}', style: const TextStyle(color: Colors.white70)),
-          const SizedBox(height: 12),
+              '${widget.mode.unit}',
+            style: const TextStyle(color: Colors.white70)),
+          const SizedBox(height: 9),
         ]),
       )),
     );
   }
 }
-
