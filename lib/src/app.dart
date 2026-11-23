@@ -84,9 +84,11 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(body: SafeArea(
-    child: Center(child: SingleChildScrollView(padding: const EdgeInsets.all(28),
+    child: Center(child: SingleChildScrollView(padding: const EdgeInsets.all(16),
       child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 440),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        child: BattleSurface(accent: gold,
+          padding: const EdgeInsets.all(20),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           const BattleTapLogo(height: 128),
           const SizedBox(height: 4),
           const Text('SPEED. SKILL. GLORY.', textAlign: TextAlign.center,
@@ -129,7 +131,7 @@ class _AuthScreenState extends State<AuthScreen> {
           const SizedBox(height: 16),
           const Text('Ranked play requires a verified online account.',
             textAlign: TextAlign.center, style: TextStyle(color: Colors.white54, fontSize: 12)),
-        ]))),
+        ])))),
     )),
   );
 }

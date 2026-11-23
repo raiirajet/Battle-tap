@@ -109,6 +109,31 @@ Both Android and PWA can be rebuilt from `main` using their workflows:
 - `.github/workflows/android-apk.yml` (debug APK)
 - `.github/workflows/deploy-pwa.yml` (web / GitHub Pages)
 
+## Premium Arcade visual redesign (November 2026)
+
+The visual system in `lib/src/battle_design.dart` gives **all screens** a unified
+premium arcade identity while retaining the nine modes and their original rules.
+
+- Deep navy/black backdrop with *static* ambient blue/cyan radial glows, avoiding
+  continuously ticking background particle animations.
+- Gold primary buttons, bordered secondary actions, dark input panels, consistent
+  18–23px radii, and clearly contrasting text and interactive states.
+- Custom five-tab **gaming dock** for PLAY / RANKS / SHOP / FRIENDS / PROFILE.
+  It retains tab history and does not replace native back navigation.
+- PLAY includes a compact logo hero, nine differentiated mode tiles, improved
+  score metrics and category headers.
+- All game screens feature a dark gridded arena and visually separate
+  timer/score HUD panels; modes retain distinct accent colors.
+- Shop displays skins in rarity-tinted premium panels; rankings use podium
+  styling for the leading three; friends, profile and settings share bordered surfaces.
+- Memory Matrix uses illuminated animated grid tiles.
+- No new network services, data collection or permissions are required.
+
+The gameplay and existing Firebase verification protocol were **not modified**.
+Effects follow the user's existing game settings where applicable; the new
+backdrop and arena grids are intentionally static. The web and Android builds
+share the same Dart UI code.
+
 ## Four more skill games — November 2026
 
 The PLAY screen includes four additional modes alongside Tap Battle, Random Hunt and the original three Arcade games:
