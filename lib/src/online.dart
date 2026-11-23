@@ -3,8 +3,6 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-/// Firebase is intentionally NOT initialized with dummy credentials.
-/// Supply these values with --dart-define or a secure build pipeline.
 class RankedSession {
   const RankedSession({required this.sessionId, required this.seed});
   final String sessionId;
@@ -20,15 +18,26 @@ class OnlineService {
     const appId = String.fromEnvironment('FIREBASE_APP_ID');
     const sender = String.fromEnvironment('FIREBASE_SENDER_ID');
     const projectId = String.fromEnvironment('FIREBASE_PROJECT_ID');
-    const iosBundleId = String.fromEnvironment('FIREBASE_IOS_BUNDLE_ID', defaultValue: 'ch.battletap.battle_tap');
-    if ([apiKey, appId, sender, projectId].any((value) => value.isEmpty)) {
+    const authDomain = String.fromEnvironment('FIREBASE_AUTH_DOMAIN');
+    const iosBundleId = String.fromEnvironment(
+      'FIREBASE_IOS_BUNDLE_ID',
+      defaultValue: 'ch.battletap.battleTap',
+    );
+    final requiredOptions = [apiKey, appId, sender, projectId];
+    if (authDomain.isEmpty && requiredOptions.every((value) => value.isEmpty)) {
       return OnlineService._(false);
+    }
+    if (requiredOptions.any((value) => value.isEmpty)) {
+      throw StateError(
+        'Firebase requires an API key, app ID, sender ID and project ID.',
+      );
     }
     await Firebase.initializeApp(options: FirebaseOptions(
       apiKey: apiKey,
       appId: appId,
       messagingSenderId: sender,
       projectId: projectId,
+      authDomain: authDomain.isEmpty ? null : authDomain,
       iosBundleId: iosBundleId,
     ));
     return OnlineService._(true);

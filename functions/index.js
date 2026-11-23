@@ -1,12 +1,13 @@
 'use strict';
 
-const admin = require('firebase-admin');
+const {initializeApp} = require('firebase-admin/app');
+const {getAuth} = require('firebase-admin/auth');
+const {FieldValue, getFirestore, Timestamp} = require('firebase-admin/firestore');
 const {onCall, HttpsError} = require('firebase-functions/v2/https');
 const {randomInt} = require('crypto');
 const {validateRankedV2} = require('./ranked_v2');
-admin.initializeApp();
-const db = admin.firestore();
-const FieldValue = admin.firestore.FieldValue;
+initializeApp();
+const db = getFirestore();
 
 const region = 'europe-west6'; // Zurich, Switzerland
 const callable = (handler) => onCall({region, maxInstances: 30}, handler);
@@ -67,7 +68,7 @@ exports.updateProfile = callable(async (request) => {
   }
   await ensureProfile(uid);
   const ref = db.collection('users').doc(uid);
-  const now = admin.firestore.Timestamp.now();
+  const now = Timestamp.now();
   await db.runTransaction(async (tx) => {
     const p = (await tx.get(ref)).data();
     if (p.countryCode !== countryCode) {
@@ -297,6 +298,6 @@ exports.deleteAccount = callable(async (request) => {
     batch.delete(db.collection('battleTags').doc(user.data().battleTag));
   }
   await batch.commit();
-  await admin.auth().deleteUser(uid);
+  await getAuth().deleteUser(uid);
   return {deleted: true};
 });

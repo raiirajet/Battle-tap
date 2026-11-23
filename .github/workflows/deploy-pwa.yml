@@ -6,6 +6,7 @@ on:
       - 'lib/**'
       - 'assets/**'
       - 'web/**'
+      - 'firebase/web.json'
       - 'pubspec.yaml'
       - 'scripts/create_pwa_icons.py'
       - '.github/workflows/deploy-pwa.yml'
@@ -45,7 +46,12 @@ jobs:
           python3 -m pip install --quiet Pillow
           python3 scripts/create_pwa_icons.py
       - name: Build BattleTap web app
-        run: flutter build web --release --base-href /Battle-tap/ --pwa-strategy=none
+        run: |
+          firebase_options=()
+          if [[ -f firebase/web.json ]]; then
+            firebase_options+=(--dart-define-from-file=firebase/web.json)
+          fi
+          flutter build web --release --base-href /Battle-tap/ --pwa-strategy=none "${firebase_options[@]}"
       - name: Preserve GitHub Pages paths
         run: |
           touch build/web/.nojekyll
@@ -53,6 +59,8 @@ jobs:
           test -f build/web/sw.js
           test -f build/web/manifest.json
           test -f build/web/main.dart.js
+          cache_version=$(sha256sum build/web/main.dart.js | cut -c1-16)
+          sed -i "s/battle-tap-pwa-dev/battle-tap-pwa-$cache_version/" build/web/sw.js
       - name: Keep a downloadable standalone PWA build
         uses: actions/upload-artifact@v4
         with:

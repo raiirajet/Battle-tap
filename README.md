@@ -127,7 +127,7 @@ The web app is built from the **same Flutter screens and gameplay** as Android. 
 - **Shop:** four new permanently FREE, immediately equippable buttons: Aurora Flux and Ember Storm with Epic-style effects; Solar Halo and Night Nebula with Legend-style effects. All original paid skins are preserved, but transactions still require actual native store/receipt verification before enabling paid purchases.
 - **PWA:** manifest, original branded icon variants, standalone installation, an HTTPS service worker for shell and runtime asset caching, and a GitHub Actions deployment pipeline to GitHub Pages.
 - **Web publishing:** `https://raiirajet.github.io/Battle-tap/` becomes available after Pages is enabled and the workflow succeeds. The first run compiled successfully but Pages activation returned **403: Resource not accessible by integration**. A repository administrator must select **Settings → Pages → Build and deployment → Source: GitHub Actions**, then rerun `Build & deploy BattleTap PWA`. The workflow now uploads the compiled site as the `battle-tap-pwa-web` artifact even when Pages has not yet been enabled.
-- **Online limits:** the repository ships without Firebase credentials. The PWA and default debug APK start in **LOCAL PRACTICE ONLY**. To enable real sign-in and verified ranked scores, set valid platform-specific Firebase configuration and deploy the compatible V2 Cloud Functions, Firestore rules and indexes. The two device/browser stores do not automatically sync each other's local statistics. No Firebase production settings are changed by the Pages workflow.
+- **Online play:** the PWA and APK builds use their platform's Firebase client configuration when present and offer **LOCAL PRACTICE ONLY** otherwise. Online profiles and verified ranked scores require the V2 Cloud Functions, Firestore rules and indexes. The two device/browser stores do not automatically sync each other's local statistics.
 
 Both Android and PWA can be rebuilt from `main` using their workflows:
 - `.github/workflows/android-apk.yml` (debug APK)
@@ -220,22 +220,37 @@ The workflow `.github/workflows/android-apk.yml` runs on GitHub pushes and can b
 
 ## Configure Firebase for online features
 
-1. Create a Firebase project with Authentication (Email/Password, Google, Apple), Cloud Firestore and Cloud Functions.
-2. Configure the Android SHA keys and OAuth providers; configure iOS bundle identifiers, URL schemes and Apple sign-in capability. Do not commit private signing keys or secrets.
-3. Create the correct **Android and iOS Firebase apps** and obtain each platform's application ID and options. Production builds require the appropriate values per platform.
-4. Install the Firebase CLI and run `firebase login`, `firebase use --add` and then `firebase deploy --only functions,firestore` from this directory. Note: Cloud Functions and related services may require a billed Firebase plan.
-5. Add Firebase client options using environment variables or CI secrets passed to Flutter as `--dart-define` values:
+The Firebase CLI project for Battle Tap is **Spiele** (`spiele-bcbad`).
+Register a Web app for the PWA and an Android app with package name
+`ch.battletap.battle_tap` for the APK. For iOS, use the Firebase app registered
+with bundle ID `ch.battletap.battleTap`. Set `FIREBASE_IOS_BUNDLE_ID` when
+building with a different registered iOS bundle ID.
 
-```bash
-flutter run \
-  --dart-define=FIREBASE_API_KEY=YOUR_API_KEY \
-  --dart-define=FIREBASE_APP_ID=YOUR_PLATFORM_APP_ID \
-  --dart-define=FIREBASE_SENDER_ID=YOUR_MESSAGING_SENDER_ID \
-  --dart-define=FIREBASE_PROJECT_ID=YOUR_PROJECT_ID \
-  --dart-define=FIREBASE_IOS_BUNDLE_ID=ch.battletap.battle_tap
+Copy the public Firebase client values from each app into `firebase/web.json`,
+`firebase/android.json`, or `firebase/ios.json`, using the following keys.
+The web app's `authDomain` goes in `FIREBASE_AUTH_DOMAIN` and can be omitted
+for native builds. These files contain public SDK options. Keep service-account
+keys and signing credentials outside the repository.
+
+```json
+{
+  "FIREBASE_API_KEY": "YOUR_API_KEY",
+  "FIREBASE_APP_ID": "YOUR_PLATFORM_APP_ID",
+  "FIREBASE_SENDER_ID": "YOUR_MESSAGING_SENDER_ID",
+  "FIREBASE_PROJECT_ID": "YOUR_PROJECT_ID",
+  "FIREBASE_AUTH_DOMAIN": "YOUR_PROJECT_ID.firebaseapp.com"
+}
 ```
 
-**Important:** Firebase app IDs and OAuth setups differ on Android/iOS. The configuration must match the platform, and Android Google Sign-in and Apple Sign-in require additional provider setup. The location of Cloud Functions is `europe-west6` in both client and backend; coordinate deployment and calls if changing the region.
+GitHub Actions reads `firebase/web.json` for GitHub Pages and
+`firebase/android.json` for the APK. For local builds, pass the matching file
+to Flutter, for example `flutter run -d chrome --dart-define-from-file=firebase/web.json`.
+
+Online profiles, friends and rankings need the existing Battle Tap backend deployed
+to the same project. Verify the project ID and its Firestore configuration before
+deploying. Run `npx -y firebase-tools@latest deploy --project spiele-bcbad --only functions,firestore`
+from the repository. The client and Cloud Functions use `europe-west6` (Zurich).
+Google and Apple sign-in require separate provider and platform configuration.
 
 The current functions are an initial verification design: they prevent blindly accepting a client-supplied score, enforce a 30-second time window, validate event ordering and restrict updates to the backend. **Client-supplied tap events remain forgeable**, so a competitive public release additionally requires device attestation, abuse monitoring, fraud escalation and penetration testing.
 
