@@ -16,10 +16,11 @@ import 'skins.dart';
 import 'startup_permissions.dart';
 import 'widgets/skin_button.dart';
 import 'widgets/brand_assets.dart';
+import 'battle_design.dart';
 
-const gold = Color(0xFFFFD56C);
-const deep = Color(0xFF090D16);
-const panel = Color(0xFF151C2A);
+const gold = BattleColors.gold;
+const deep = BattleColors.background;
+const panel = BattleColors.panel;
 
 class BattleTapApp extends StatelessWidget {
   const BattleTapApp({super.key, required this.store, required this.online});
@@ -30,25 +31,17 @@ class BattleTapApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
     debugShowCheckedModeBanner: false,
     title: 'BATTLE TAP',
-    builder: (context, child) => kIsWeb
-        ? ColoredBox(color: deep, child: Center(
-            child: ConstrainedBox(
+    builder: (context, child) {
+      final scene = child ?? const SizedBox.shrink();
+      return BattleBackdrop(
+        child: kIsWeb
+          ? Center(child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 560),
-              child: child ?? const SizedBox.shrink(),
-            ),
-          ))
-        : child ?? const SizedBox.shrink(),
-    theme: ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      scaffoldBackgroundColor: deep,
-      colorScheme: ColorScheme.fromSeed(seedColor: gold, brightness: Brightness.dark),
-      cardTheme: CardThemeData(color: panel, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18))),
-      appBarTheme: const AppBarTheme(backgroundColor: deep, foregroundColor: Colors.white),
-      filledButtonTheme: FilledButtonThemeData(style: FilledButton.styleFrom(
-        backgroundColor: gold, foregroundColor: deep, textStyle: const TextStyle(fontWeight: FontWeight.w900),
-        minimumSize: const Size(140, 52), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)))),
-    ),
+              child: scene))
+          : scene,
+      );
+    },
+    theme: BattleDesign.theme,
     home: StartupPermissionsGate(
       store: store,
       child: online.enabled
@@ -94,11 +87,13 @@ class _AuthScreenState extends State<AuthScreen> {
     child: Center(child: SingleChildScrollView(padding: const EdgeInsets.all(28),
       child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 440),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          const BattleTapLogo(height: 152),
+          const BattleTapLogo(height: 128),
           const SizedBox(height: 4),
           const Text('SPEED. SKILL. GLORY.', textAlign: TextAlign.center,
             style: TextStyle(letterSpacing: 2.5, color: Colors.white54)),
-          const SizedBox(height: 32),
+          const SizedBox(height: 28),
+          const BattleSectionTitle(title: 'PLAYER ACCESS',
+            subtitle: 'Dein Profil, deine Rekorde, dein Battle.', icon: Icons.lock_outline),
           if (register) ...[
             TextField(controller: nickname, maxLength: 24,
               decoration: const InputDecoration(labelText: 'Player nickname', prefixIcon: Icon(Icons.person))),
@@ -189,17 +184,20 @@ class _HomeShellState extends State<HomeShell> {
             textAlign: TextAlign.center, style: TextStyle(color: Color(0xFFFFE1A4), fontSize: 10))),
         Expanded(child: IndexedStack(index: tab, children: pages)),
       ])),
-      bottomNavigationBar: NavigationBar(
-        backgroundColor: const Color(0xFF111827), selectedIndex: tab,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        onDestinationSelected: (index) => setState(() => tab = index),
-        destinations: const [
-          NavigationDestination(icon: BattleTapAppMark(size: 27), selectedIcon: BattleTapAppMark(size: 30), label: 'PLAY'),
-          NavigationDestination(icon: BattleTapBadge(size: 27), selectedIcon: BattleTapBadge(size: 30), label: 'RANKS'),
-          NavigationDestination(icon: Icon(Icons.storefront_outlined), selectedIcon: Icon(Icons.storefront), label: 'SHOP'),
-          NavigationDestination(icon: Icon(Icons.people_outline), selectedIcon: Icon(Icons.people), label: 'FRIENDS'),
-          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'PROFILE'),
-        ],
+      bottomNavigationBar: AnimatedBuilder(
+        animation: widget.store,
+        builder: (context, _) => BattleDock(
+          selectedIndex: tab,
+          reduceMotion: widget.store.reducedEffects,
+          onSelected: (index) => setState(() => tab = index),
+          items: const [
+            BattleDockItem('PLAY', BattleTapAppMark(size: 25)),
+            BattleDockItem('RANKS', BattleTapBadge(size: 25)),
+            BattleDockItem('SHOP', Icon(Icons.storefront_rounded)),
+            BattleDockItem('FRIENDS', Icon(Icons.people_alt_rounded)),
+            BattleDockItem('PROFILE', Icon(Icons.person_rounded)),
+          ],
+        ),
       ),
     );
   }
@@ -218,10 +216,26 @@ class _PlayTab extends StatelessWidget {
   Widget build(BuildContext context) => SingleChildScrollView(
     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      const BattleTapLogo(height: 148),
-      const Text('SPEED. SKILL. GLORY.', textAlign: TextAlign.center,
-        style: TextStyle(color: Colors.white54, letterSpacing: 2)),
-      const SizedBox(height: 24),
+      BattleSurface(
+        accent: BattleColors.gold,
+        padding: const EdgeInsets.fromLTRB(15, 16, 15, 18),
+        child: Column(children: [
+          const BattleTapLogo(height: 116),
+          const SizedBox(height: 5),
+          const Text('SPEED  /  SKILL  /  GLORY',
+            style: TextStyle(
+              fontSize: 11, fontWeight: FontWeight.w900,
+              color: BattleColors.gold, letterSpacing: 2.2,
+            )),
+          const SizedBox(height: 13),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            _heroTag(Icons.sports_esports_rounded, '9 MODES'),
+            const SizedBox(width: 9),
+            _heroTag(Icons.bolt_rounded, 'PURE SKILL'),
+          ]),
+        ]),
+      ),
+      const SizedBox(height: 20),
       AnimatedBuilder(animation: store, builder: (_, __) => Column(children: [
         Row(children: [
           Expanded(child: _Metric(label: 'GAMES PLAYED', value: '${store.gamesPlayed}')),
@@ -241,7 +255,9 @@ class _PlayTab extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(color: Colors.white38, fontSize: 10)),
       ])),
-      const SizedBox(height: 25),
+      const SizedBox(height: 22),
+      const BattleSectionTitle(title: 'BATTLE ARENA',
+        subtitle: 'Wähle deine Herausforderung', icon: Icons.bolt_rounded),
       _ModeCard(title: 'TAP BATTLE', subtitle: '30 SECONDS • ADAPTIVE BUTTON • MOVES EVERY 100',
         icon: Icons.ads_click, accent: gold,
         detail: online.enabled ? 'RANKED • GLOBAL LEADERBOARDS' : 'PRACTICE • RANKINGS OFFLINE',
@@ -251,11 +267,9 @@ class _PlayTab extends StatelessWidget {
         icon: Icons.control_camera_rounded, accent: const Color(0xFF7DE0F8),
         detail: 'VISIBLE TIMER • −2 FOR LATE TAPS', onTap: () => onPlay(BattleMode.hunt)),
       const SizedBox(height: 27),
-      const Text('SKILL ARCADE', style: TextStyle(fontSize: 18,
-        color: gold, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
-      const SizedBox(height: 4),
-      const Text('Neue Geschicklichkeitsspiele • eigene lokale Bestwerte',
-        style: TextStyle(color: Colors.white60, fontSize: 12)),
+      const BattleSectionTitle(title: 'SKILL ARCADE',
+        subtitle: 'Reaktion, Tempo und Präzision mit lokalen Bestwerten',
+        icon: Icons.sports_esports_rounded),
       const SizedBox(height: 12),
       _ModeCard(title: 'BUBBLE RUSH', subtitle: '30 SEK. • ZUFÄLLIGE BLASEN • IMMER SCHNELLER',
         icon: Icons.bubble_chart_rounded, accent: const Color(0xFF5BD9F6),
@@ -272,11 +286,9 @@ class _PlayTab extends StatelessWidget {
         detail: 'REAKTIONSZEIT IN MS • FRÜHSTARTSTRAFE',
         onTap: () => onArcade(ArcadeMode.reflexGo)),
       const SizedBox(height: 26),
-      const Text('MORE SKILL CHALLENGES', style: TextStyle(fontSize: 17,
-        color: gold, fontWeight: FontWeight.w900, letterSpacing: 1.1)),
-      const SizedBox(height: 4),
-      const Text('Gedächtnis • Präzision • Timing • Duell',
-        style: TextStyle(color: Colors.white60, fontSize: 12)),
+      const BattleSectionTitle(title: 'MORE CHALLENGES',
+        subtitle: 'Gedächtnis • Tracking • Timing • Duell',
+        icon: Icons.stars_rounded),
       const SizedBox(height: 12),
       _ModeCard(title: 'MEMORY MATRIX',
         subtitle: '3 × 3 FELDER • MERKEN & WIEDERHOLEN',
@@ -313,15 +325,25 @@ class _Metric extends StatelessWidget {
   final String label;
   final String value;
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(color: panel, borderRadius: BorderRadius.circular(14)),
-    child: Column(children: [Text(label, style: const TextStyle(color: Colors.white54, fontSize: 10,
-      letterSpacing: 1.7)), const SizedBox(height: 5),
-      FittedBox(fit: BoxFit.scaleDown,
-        child: Text(value, style: const TextStyle(color: gold, fontSize: 28, fontWeight: FontWeight.w900)))]),
-  );
+  Widget build(BuildContext context) => BattleMetric(label: label, value: value);
 }
+
+Widget _heroTag(IconData icon, String label) => Container(
+  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+  decoration: BoxDecoration(
+    color: BattleColors.gold.withValues(alpha: .09),
+    borderRadius: BorderRadius.circular(22),
+    border: Border.all(color: BattleColors.gold.withValues(alpha: .22)),
+  ),
+  child: Row(mainAxisSize: MainAxisSize.min, children: [
+    Icon(icon, color: BattleColors.gold, size: 14),
+    const SizedBox(width: 6),
+    Text(label, style: const TextStyle(
+      fontSize: 10, color: BattleColors.gold,
+      fontWeight: FontWeight.w900, letterSpacing: 1,
+    )),
+  ]),
+);
 
 class _ModeCard extends StatelessWidget {
   const _ModeCard({required this.title, required this.subtitle, required this.detail,
@@ -333,25 +355,9 @@ class _ModeCard extends StatelessWidget {
   final Color accent;
   final VoidCallback onTap;
   @override
-  Widget build(BuildContext context) => Card(
-    child: InkWell(borderRadius: BorderRadius.circular(18), onTap: onTap,
-      child: Padding(padding: const EdgeInsets.all(19),
-        child: Row(children: [
-          Container(padding: const EdgeInsets.all(13),
-            decoration: BoxDecoration(color: accent.withValues(alpha: .12), borderRadius: BorderRadius.circular(15)),
-            child: Icon(icon, color: accent, size: 34)),
-          const SizedBox(width: 14),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(title, style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w900)),
-            const SizedBox(height: 3),
-            Text(subtitle, style: const TextStyle(fontSize: 11, color: Colors.white70)),
-            const SizedBox(height: 6),
-            Text(detail, style: TextStyle(fontSize: 10, color: accent)),
-          ])),
-          Icon(Icons.arrow_forward_ios_rounded, size: 16, color: accent),
-        ]),
-      ),
-    ),
+  Widget build(BuildContext context) => BattleModeTile(
+    title: title, subtitle: subtitle, detail: detail,
+    icon: icon, accent: accent, onTap: onTap,
   );
 }
 
