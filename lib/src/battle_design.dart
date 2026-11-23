@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'widgets/arcade_backdrop_art.dart';
 
 /// A single, reusable visual language for all Battle Tap screens.
 /// No images, network dependencies or continuously ticking animations.
@@ -180,8 +181,10 @@ abstract final class BattleDesign {
   }
 }
 
-/// Static layered ambient light. Avoids particle loops / GPU-heavy blur.
-/// Applied outside every Scaffold, including routes and login.
+/// Cohesive, original neon arcade wallpaper behind *every* page.
+/// The artwork keeps the central reading area dark; surface cards and menus
+/// are intentionally more opaque than the surrounding illustration.
+/// Static painter + repaint boundary = no ongoing animation cost.
 class BattleBackdrop extends StatelessWidget {
   const BattleBackdrop({super.key, required this.child});
   final Widget child;
@@ -196,34 +199,18 @@ class BattleBackdrop extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF080F1E),
+              Color(0xFF0B1525),
               BattleColors.background,
-              Color(0xFF080E19),
-              Color(0xFF0B1020),
+              Color(0xFF070C17),
+              Color(0xFF111421),
             ],
-            stops: [0, .35, .7, 1],
+            stops: [0, .34, .75, 1],
           ),
         ),
       ),
-      const IgnorePointer(child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment(.92, -.92),
-            radius: 1.12,
-            colors: [Color(0x373675C9), Color(0x083675C9), Colors.transparent],
-            stops: [0, .48, 1],
-          ),
-        ),
-      )),
-      const IgnorePointer(child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment(-1.1, .85),
-            radius: 1.4,
-            colors: [Color(0x214DADAE), Colors.transparent],
-          ),
-        ),
-      )),
+      const Positioned.fill(
+        child: IgnorePointer(child: ArcadeBackdropArt()),
+      ),
       child,
     ],
   );
