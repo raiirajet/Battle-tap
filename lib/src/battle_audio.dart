@@ -15,11 +15,13 @@ class BattleAudio {
   bool _disposed = false;
   final Stopwatch _tapClock = Stopwatch()..start();
   int _lastPlayedMs = -100000;
+  int _lastPopMs = -100000;
   static const _cueNames = ['countdown', 'start', 'stop', 'miss', 'combo', 'record'];
 
   Future<void> preload() async {
     final names = [
       for (var i = 0; i < 8; i++) 'tap_$i',
+      for (var i = 0; i < 3; i++) 'pop_$i',
       ..._cueNames,
     ];
     await Future.wait(names.map((name) async {
@@ -29,7 +31,7 @@ class BattleAudio {
           // Cap the concurrent native players: otherwise each rapid tap
           // schedules too many platform-channel requests and drifts behind.
           minPlayers: 1,
-          maxPlayers: name.startsWith('tap_') ? 2 : 1,
+          maxPlayers: name.startsWith('tap_') || name.startsWith('pop_') ? 2 : 1,
           playerMode: PlayerMode.lowLatency,
         );
         if (_disposed) {
@@ -54,6 +56,14 @@ class BattleAudio {
     if (now - _lastPlayedMs < 70) return;
     _lastPlayedMs = now;
     _play('tap_$tier', volume: 0.56);
+  }
+
+  /// Short, original air-pocket pops, randomized without blocking input.
+  void pop(int variation) {
+    final now = _tapClock.elapsedMilliseconds;
+    if (now - _lastPopMs < 55) return;
+    _lastPopMs = now;
+    _play('pop_' + (variation % 3).toString(), volume: .77);
   }
 
   void countdown() => _play('countdown', volume: 0.46);
