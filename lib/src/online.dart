@@ -19,13 +19,18 @@ class OnlineService {
     const sender = String.fromEnvironment('FIREBASE_SENDER_ID');
     const projectId = String.fromEnvironment('FIREBASE_PROJECT_ID');
     const authDomain = String.fromEnvironment('FIREBASE_AUTH_DOMAIN');
-    const iosBundleId = String.fromEnvironment('FIREBASE_IOS_BUNDLE_ID', defaultValue: 'ch.battletap.battle_tap');
+    const iosBundleId = String.fromEnvironment(
+      'FIREBASE_IOS_BUNDLE_ID',
+      defaultValue: 'ch.battletap.battleTap',
+    );
     final requiredOptions = [apiKey, appId, sender, projectId];
     if (authDomain.isEmpty && requiredOptions.every((value) => value.isEmpty)) {
       return OnlineService._(false);
     }
     if (requiredOptions.any((value) => value.isEmpty)) {
-      throw StateError('Firebase requires an API key, app ID, sender ID and project ID.');
+      throw StateError(
+        'Firebase requires an API key, app ID, sender ID and project ID.',
+      );
     }
     await Firebase.initializeApp(options: FirebaseOptions(
       apiKey: apiKey,

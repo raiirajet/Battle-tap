@@ -223,7 +223,8 @@ The workflow `.github/workflows/android-apk.yml` runs on GitHub pushes and can b
 Use the existing Firebase project for Battle Tap with Email/Password enabled.
 Register a Web app for the PWA and an Android app with package name
 `ch.battletap.battle_tap` for the APK. For iOS, use the Firebase app registered
-with bundle ID `ch.battletap.battle_tap`.
+with bundle ID `ch.battletap.battleTap`. Set `FIREBASE_IOS_BUNDLE_ID` when
+building with a different registered iOS bundle ID.
 
 Copy the public Firebase client values from each app into `firebase/web.json`,
 `firebase/android.json`, or `firebase/ios.json`, using the following keys.
