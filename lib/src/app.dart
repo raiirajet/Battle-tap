@@ -17,6 +17,7 @@ import 'startup_permissions.dart';
 import 'widgets/skin_button.dart';
 import 'widgets/brand_assets.dart';
 import 'battle_design.dart';
+import 'game_history_page.dart';
 
 const gold = BattleColors.gold;
 const deep = BattleColors.background;
@@ -167,15 +168,22 @@ class _HomeShellState extends State<HomeShell> {
       store: widget.store)));
   }
 
+  void _openHistory() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) =>
+        GameHistoryPage(store: widget.store)));
+  }
+
   @override
   Widget build(BuildContext context) {
     final pages = <Widget>[
       _PlayTab(onPlay: _play, onArcade: _playArcade, onSkill: _playSkill,
-        onDuel: _playDuel, store: widget.store, online: widget.online),
+        onDuel: _playDuel, onHistory: _openHistory,
+        store: widget.store, online: widget.online),
       _RanksTab(online: widget.online),
       _ShopTab(store: widget.store),
       _FriendsTab(online: widget.online),
-      _ProfileTab(store: widget.store, online: widget.online),
+      _ProfileTab(store: widget.store, online: widget.online,
+        onHistory: _openHistory),
     ];
     return Scaffold(
       body: SafeArea(child: Column(children: [
@@ -207,11 +215,13 @@ class _HomeShellState extends State<HomeShell> {
 
 class _PlayTab extends StatelessWidget {
   const _PlayTab({required this.onPlay, required this.onArcade,
-    required this.onSkill, required this.onDuel, required this.store, required this.online});
+    required this.onSkill, required this.onDuel, required this.onHistory,
+    required this.store, required this.online});
   final void Function(BattleMode mode) onPlay;
   final void Function(ArcadeMode mode) onArcade;
   final void Function(SkillMode mode) onSkill;
   final VoidCallback onDuel;
+  final VoidCallback onHistory;
   final PracticeStore store;
   final OnlineService online;
   @override
@@ -231,7 +241,7 @@ class _PlayTab extends StatelessWidget {
             )),
           const SizedBox(height: 13),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            _heroTag(Icons.sports_esports_rounded, '9 MODES'),
+            _heroTag(Icons.sports_esports_rounded, '8 MODES'),
             const SizedBox(width: 9),
             _heroTag(Icons.bolt_rounded, 'PURE SKILL'),
           ]),
@@ -257,6 +267,12 @@ class _PlayTab extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(color: Colors.white38, fontSize: 10)),
       ])),
+      const SizedBox(height: 15),
+      OutlinedButton.icon(
+        onPressed: onHistory,
+        icon: const Icon(Icons.emoji_events_rounded),
+        label: const Text('MEINE BESTENLISTE & SPIELVERLAUF'),
+      ),
       const SizedBox(height: 22),
       const BattleSectionTitle(title: 'BATTLE ARENA',
         subtitle: 'Wähle deine Herausforderung', icon: Icons.bolt_rounded),
@@ -273,7 +289,7 @@ class _PlayTab extends StatelessWidget {
         subtitle: 'Reaktion, Tempo und Präzision mit lokalen Bestwerten',
         icon: Icons.sports_esports_rounded),
       const SizedBox(height: 12),
-      _ModeCard(title: 'BUBBLE RUSH', subtitle: '30 SEK. • ZUFÄLLIGE BLASEN • IMMER SCHNELLER',
+      _ModeCard(title: 'BUBBLE RUSH', subtitle: '45 SEK. • ALLE 5 SEK. SCHNELLER • MEHR BLASEN',
         icon: Icons.bubble_chart_rounded, accent: const Color(0xFF5BD9F6),
         detail: 'LUFTPOLSTER-PLOPP • COMBO-BONUS',
         onTap: () => onArcade(ArcadeMode.bubbleRush)),
@@ -283,31 +299,26 @@ class _PlayTab extends StatelessWidget {
         detail: 'REAKTION • ROT = −2 PUNKTE',
         onTap: () => onArcade(ArcadeMode.colorTrap)),
       const SizedBox(height: 12),
-      _ModeCard(title: 'REFLEX GO', subtitle: '5 VERSUCHE • AUF GRÜN WARTEN',
+      _ModeCard(title: 'REFLEX GO', subtitle: '30 SEK. • SECHS WECHSELNDE FARBEN',
         icon: Icons.flash_on_rounded, accent: const Color(0xFFFFA9B5),
-        detail: 'REAKTIONSZEIT IN MS • FRÜHSTARTSTRAFE',
+        detail: 'GRÜN +1 • ROT −1 • ANDERE 0',
         onTap: () => onArcade(ArcadeMode.reflexGo)),
       const SizedBox(height: 26),
       const BattleSectionTitle(title: 'MORE CHALLENGES',
-        subtitle: 'Gedächtnis • Tracking • Timing • Duell',
+        subtitle: 'Gedächtnis • Timing • Duell',
         icon: Icons.stars_rounded),
       const SizedBox(height: 12),
       _ModeCard(title: 'MEMORY MATRIX',
-        subtitle: '3 × 3 FELDER • MERKEN & WIEDERHOLEN',
+        subtitle: '3×3 → 4×4 → 5×5 FELDER • SEQUENZEN MERKEN',
         icon: Icons.grid_view_rounded, accent: const Color(0xFFB6A1FF),
-        detail: '10 STUFEN • JEDE RUNDE EIN FELD MEHR',
+        detail: '20 STUFEN • 3 LEBEN • PERSÖNLICHER REKORD',
         onTap: () => onSkill(SkillMode.memoryMatrix)),
-      const SizedBox(height: 12),
-      _ModeCard(title: 'PRECISION TRAIL',
-        subtitle: '30 SEK. • BEWEGLICHEM LICHTPUNKT FOLGEN',
-        icon: Icons.gesture_rounded, accent: const Color(0xFF80E2F1),
-        detail: 'FINGERFÜHRUNG • GENAUIGKEIT IN %',
-        onTap: () => onSkill(SkillMode.precisionTrail)),
+
       const SizedBox(height: 12),
       _ModeCard(title: 'TIMING STRIKE',
         subtitle: '10 VERSUCHE • IM GRÜNEN BEREICH STOPPEN',
         icon: Icons.track_changes_rounded, accent: const Color(0xFFFFBF80),
-        detail: 'JE NÄHER AN DER MITTE, DESTO MEHR PUNKTE',
+        detail: 'LETZTEN TAP MIT WEISSEM MARKER SEHEN',
         onTap: () => onSkill(SkillMode.timingStrike)),
       const SizedBox(height: 12),
       _ModeCard(title: '1 GEGEN 1 ARCADE',
@@ -662,9 +673,11 @@ class _FriendsTabState extends State<_FriendsTab> {
 }
 
 class _ProfileTab extends StatefulWidget {
-  const _ProfileTab({required this.store, required this.online});
+  const _ProfileTab({required this.store, required this.online,
+    required this.onHistory});
   final PracticeStore store;
   final OnlineService online;
+  final VoidCallback onHistory;
   @override
   State<_ProfileTab> createState() => _ProfileTabState();
 }
@@ -730,6 +743,12 @@ class _ProfileTabState extends State<_ProfileTab> {
         const SizedBox(height: 10),
         _Metric(label: 'TOTAL TAPS SINCE INSTALL', value: '${widget.store.totalTaps}'),
       ])),
+      const SizedBox(height: 12),
+      OutlinedButton.icon(
+        onPressed: widget.onHistory,
+        icon: const Icon(Icons.history_rounded),
+        label: const Text('BESTENLISTE & SPIELVERLAUF ANZEIGEN'),
+      ),
       const SizedBox(height: 16),
       const BattleSectionTitle(title: 'EINSTELLUNGEN',
         subtitle: 'Spielgefühl und Benachrichtigungen',
