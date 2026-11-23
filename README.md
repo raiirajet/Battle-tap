@@ -14,6 +14,10 @@
 | BUBBLE RUSH: 30s random air-pocket bubbles, accelerating spawns, combos, three original pops | Implemented locally, separate best score |
 | COLOR TRAP: 30s fast green targets, red decoys (−2), increasing pace | Implemented locally, separate best score |
 | REFLEX GO: 5 randomized reaction trials, false-start penalties, best average in milliseconds | Implemented locally, separate best time |
+| MEMORY MATRIX: nine-cell sequences, ten escalating stages, separate best score | Implemented locally |
+| PRECISION TRAIL: 30s follow-the-dot finger-tracking accuracy | Implemented locally |
+| TIMING STRIKE: up to ten shots to hit a moving marker on the target zone | Implemented locally |
+| 1 GEGEN 1 ARCADE: 20s per person, identical seeded target sequence, pass-and-play | Implemented locally |
 | Touch handling: no continuous hold points; no overlapping pointer points | Implemented locally |
 | All 15 individually styled skins + default, animated preview | Implemented, cosmetic previews only |
 | Golden Splash on a new practice/verified record | Implemented; practice marked as preview |
@@ -104,6 +108,17 @@ The web app is built from the **same Flutter screens and gameplay** as Android. 
 Both Android and PWA can be rebuilt from `main` using their workflows:
 - `.github/workflows/android-apk.yml` (debug APK)
 - `.github/workflows/deploy-pwa.yml` (web / GitHub Pages)
+
+## Four more skill games — November 2026
+
+The PLAY screen includes four additional modes alongside Tap Battle, Random Hunt and the original three Arcade games:
+
+- **MEMORY MATRIX:** A 3×3 grid shows a sequence of glowing fields. Reproduce the order from memory. It starts with two flashes and adds one field every level, up to ten levels. Each correct input gives one point; completing a level gives two bonus points. The game ends on the first incorrect input or after level ten.
+- **PRECISION TRAIL:** Drag your finger to follow a smoothly moving light along a curved path. The round lasts 30 seconds. Accuracy is the percent of 33ms samples for which your finger remains within the target's proximity radius; the locally stored best is your highest percentage.
+- **TIMING STRIKE:** A yellow marker travels left and right, increasing its pace. Tap when it aligns with the green target area. Each of ten shots awards 0–100 points based on distance to its centre; maximum 1,000 points. A 30-second upper time limit applies.
+- **1 GEGEN 1 ARCADE / DUEL DASH:** Two players take turns on the *same device*, each for 20 seconds. They must tap the targets in a seeded, **identical** sequence; a streak of ten hits grants extra points. A handoff screen separates the turns and a result screen announces the winner or draw. This is **not real-time online multiplayer**; it requires neither a network opponent nor Firebase.
+
+All four modes are available in the Android app and Flutter PWA, reuse existing optional audio/haptics and reduced-motion preferences, and keep independent device-only records or duel statistics. No new permissions, backend scoring, or global leaderboard changes were made. Sources: `lib/src/skill_rules.dart`, `lib/src/skill_page.dart`, `lib/src/duel_page.dart`; regression tests: `test/skill_modes_test.dart`.
 
 ## Skill Arcade: three additional local modes (November 2026)
 
