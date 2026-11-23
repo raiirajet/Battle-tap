@@ -402,23 +402,42 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
             )),
           ),
         if (running && widget.mode == ArcadeMode.reflexGo)
-          Positioned.fill(child: IgnorePointer(child: AnimatedContainer(
-            duration: widget.store.reducedEffects ? Duration.zero
-                : const Duration(milliseconds: 90),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: _goVisible ? const Color(0xFF186C49) : const Color(0xFF562C36),
-              borderRadius: BorderRadius.circular(22)),
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Icon(_goVisible ? Icons.flash_on_rounded : Icons.pan_tool_alt_rounded,
-                size: 86, color: Colors.white),
-              const SizedBox(height: 14),
-              Text(_goVisible ? 'GO!' : 'WARTEN',
-                style: const TextStyle(fontSize: 45, fontWeight: FontWeight.w900)),
-              const SizedBox(height: 6),
-              Text('VERSUCH ${_reactionTimes.length + 1} / ${ArcadeRules.reactionTrials}',
-                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white70)),
-            ]),
+          Positioned.fill(child: IgnorePointer(child: Center(
+            child: AnimatedContainer(
+              duration: widget.store.reducedEffects ? Duration.zero
+                  : const Duration(milliseconds: 115),
+              width: size.shortestSide * .72,
+              height: size.shortestSide * .72,
+              constraints: const BoxConstraints(maxWidth: 285, maxHeight: 285),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: _reflexPaint.withValues(alpha: .20),
+                border: Border.all(color: _reflexPaint, width: 5),
+                boxShadow: widget.store.reducedEffects ? [] : [
+                  BoxShadow(color: _reflexPaint.withValues(alpha: .22),
+                      blurRadius: 27, spreadRadius: 3),
+                ],
+              ),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(Icons.bolt_rounded, color: _reflexPaint, size: 48),
+                    const SizedBox(height: 7),
+                    Text(_reflexName, style: TextStyle(
+                      color: _reflexPaint, fontSize: 35,
+                      fontWeight: FontWeight.w900, letterSpacing: 2,
+                    )),
+                    const SizedBox(height: 7),
+                    Text(_reflexColor.points > 0 ? '+1 PUNKT'
+                        : _reflexColor.points < 0 ? '−1 PUNKT' : '0 PUNKTE',
+                      style: const TextStyle(color: Colors.white,
+                        fontWeight: FontWeight.w900, fontSize: 17)),
+                  ]),
+                ),
+              ),
+            ),
           ))),
         if (_phase == _ArcadePhase.countdown)
           Center(child: Text('$_intro', style: const TextStyle(
@@ -441,7 +460,7 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
                 Text(_phase == _ArcadePhase.finished
                       ? '${widget.mode.formatScore(_score)}\n'
                         '$_hits Treffer • $_misses Fehler'
-                        '${widget.mode == ArcadeMode.reflexGo ? ' • $_falseStarts Frühstarts' : ''}\n'
+                        '${widget.mode == ArcadeMode.reflexGo ? ' • $_neutralTaps neutral' : ''}\n'
                         '${_newRecord ? '🏆 NEUER BESTWERT!' : 'Dein Bestwert: ${_bestLabel()}'}'
                       : _phase == _ArcadePhase.interrupted ? _message
                       : widget.mode.instruction,
@@ -465,10 +484,9 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final running = _phase == _ArcadePhase.playing;
-    final remaining = max(0, ArcadeRules.timedRound.inMilliseconds - _clock.elapsedMilliseconds);
-    final value = widget.mode == ArcadeMode.reflexGo
-        ? '${_reactionTimes.length} / ${ArcadeRules.reactionTrials}'
-        : (remaining / 1000).toStringAsFixed(1) + ' s';
+    final duration = ArcadeRules.durationForMode(widget.mode);
+    final remaining = max(0, duration.inMilliseconds - _clock.elapsedMilliseconds);
+    final value = '${(remaining / 1000).toStringAsFixed(1)} s';
     return Scaffold(
       appBar: AppBar(title: Text(widget.mode.title), centerTitle: true),
       body: SafeArea(child: Padding(
@@ -483,16 +501,18 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
           Text(widget.mode.description, textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.white70, fontSize: 12)),
           const SizedBox(height: 10),
-          Text(running ? value : widget.mode == ArcadeMode.reflexGo
-              ? '${ArcadeRules.reactionTrials} VERSUCHE' : '30.0 s',
+          Text(running ? value : '${duration.inSeconds}.0 s',
             style: const TextStyle(fontSize: 37, fontWeight: FontWeight.w900,
               color: Color(0xFFFFD56C), fontFeatures: [FontFeature.tabularFigures()])),
-          if (widget.mode != ArcadeMode.reflexGo)
-            Text('PUNKTE  $_score', style: const TextStyle(
-              fontSize: 23, fontWeight: FontWeight.w900)),
-          if (widget.mode == ArcadeMode.reflexGo && running)
-            Text('FRÜHSTARTS $_falseStarts', style: const TextStyle(
-              fontSize: 15, color: Colors.white70)),
+          Text('PUNKTE  $_score', style: const TextStyle(
+            fontSize: 23, fontWeight: FontWeight.w900)),
+          if (widget.mode == ArcadeMode.bubbleRush)
+            Text('TEMPO ${ArcadeRules.bubbleStage(_clock.elapsedMilliseconds) + 1}/'
+                '${ArcadeRules.bubbleStageCount}  •  ${_bubbles.length} BLASEN',
+              style: const TextStyle(fontSize: 11, color: BattleColors.cyan)),
+          if (widget.mode == ArcadeMode.reflexGo)
+            const Text('GRÜN +1  •  ROT −1  •  ANDERE 0',
+              style: TextStyle(fontSize: 11, color: Colors.white70)),
           const SizedBox(height: 4),
           const Text('LOCAL ARCADE • KEINE ONLINE-RANGLISTE',
             style: TextStyle(color: Color(0xFFFFC77E), fontSize: 10, letterSpacing: 1)),
