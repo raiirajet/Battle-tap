@@ -11,6 +11,9 @@
 | TAP BATTLE: starts centered (44% width), shrinks at speed, teleports every 100 hits; 30s, +1 per valid hit | Implemented locally |
 | RANDOM HUNT: 18–60s random visible timer; repositions on hit and after 1s idle | Implemented locally |
 | RANDOM HUNT: 2s STOP phase, −2 per late tap | Implemented locally |
+| BUBBLE RUSH: 30s random air-pocket bubbles, accelerating spawns, combos, three original pops | Implemented locally, separate best score |
+| COLOR TRAP: 30s fast green targets, red decoys (−2), increasing pace | Implemented locally, separate best score |
+| REFLEX GO: 5 randomized reaction trials, false-start penalties, best average in milliseconds | Implemented locally, separate best time |
 | Touch handling: no continuous hold points; no overlapping pointer points | Implemented locally |
 | All 15 individually styled skins + default, animated preview | Implemented, cosmetic previews only |
 | Golden Splash on a new practice/verified record | Implemented; practice marked as preview |
@@ -102,9 +105,19 @@ Both Android and PWA can be rebuilt from `main` using their workflows:
 - `.github/workflows/android-apk.yml` (debug APK)
 - `.github/workflows/deploy-pwa.yml` (web / GitHub Pages)
 
+## Skill Arcade: three additional local modes (November 2026)
+
+All three are available from the **PLAY** tab on web and Android and share the current sound, volume, haptics and reduce-motion preferences. These are **local practice modes**: their records are stored on the current device/browser, never uploaded to Firebase and never mixed with the server-verified TAP BATTLE V2 leaderboard. Existing ranked and Random Hunt gameplay is unchanged.
+
+- **BUBBLE RUSH:** a 30-second arcade round. Air-pocket bubbles appear at random locations; the interval drops progressively from **850ms to 230ms**. A bubble remains tap-able for **1.9–1.05s** depending on elapsed time. Successful pops have one of three new original bubble-pop WAV sounds. Five consecutive successful hits yield a two-point hit; unpopped bubbles and empty taps break the chain. Best score is highest points.
+- **COLOR TRAP:** a 30-second visual-accuracy round. The target switches between randomly positioned **green** and **red** in progressively shorter intervals (**1000ms to 350ms**). Green +1; red −2; empty taps score 0. Best score is highest points.
+- **REFLEX GO:** five independent trials with random wait times (**1.0–2.8s**) and an unexpected GO signal. Reaction time is captured from the GO display until pointer-down. Premature taps reset the wait and add **350ms** to the total; missed signals count as **2500ms**. The result is the five-trial average including penalties. **Lower is better**.
+
+New game logic is in `lib/src/arcade_page.dart` and `lib/src/arcade_rules.dart`; local records live in `PracticeStore`. `test/arcade_modes_test.dart` covers acceleration, streak rewards, reaction penalties and persisted best scores. The modes do not need extra app permissions or backend changes.
+
 ## Arcade audio, combo feedback and optional permissions
 
-- Fourteen **original, locally generated** PCM WAV effects live under `assets/audio/`: eight progressively brighter tap sounds, countdown, start, stop, miss, combo and record.
+- Seventeen **original, locally generated** PCM WAV effects live under `assets/audio/`: eight progressively brighter tap sounds, three new air-pocket pop variations, countdown, start, stop, miss, combo and record.
 - The preloaded `audioplayers` low-latency pools are fire-and-forget, so audio never blocks pointer handling or changes verified scoring.
 - The tap tone progresses with number of hits, consecutive hit chain and current taps per second; milestone chimes are emitted at 10, 25, 50 and later every 25 hits.
 - Lightweight ring/ray feedback is drawn over the play field via an `IgnorePointer` painter. The existing `Reduce animations` preference disables these cosmetic effects.
