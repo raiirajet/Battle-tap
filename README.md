@@ -220,7 +220,7 @@ The workflow `.github/workflows/android-apk.yml` runs on GitHub pushes and can b
 
 ## Configure Firebase for online features
 
-Use the existing Firebase project for Battle Tap with Email/Password enabled.
+The Firebase CLI project for Battle Tap is **Spiele** (`spiele-bcbad`).
 Register a Web app for the PWA and an Android app with package name
 `ch.battletap.battle_tap` for the APK. For iOS, use the Firebase app registered
 with bundle ID `ch.battletap.battleTap`. Set `FIREBASE_IOS_BUNDLE_ID` when
@@ -248,7 +248,7 @@ to Flutter, for example `flutter run -d chrome --dart-define-from-file=firebase/
 
 Online profiles, friends and rankings need the existing Battle Tap backend deployed
 to the same project. Verify the project ID and its Firestore configuration before
-deploying. Run `npx -y firebase-tools@latest deploy --project PROJECT_ID --only functions,firestore`
+deploying. Run `npx -y firebase-tools@latest deploy --project spiele-bcbad --only functions,firestore`
 from the repository. The client and Cloud Functions use `europe-west6` (Zurich).
 Google and Apple sign-in require separate provider and platform configuration.
 
