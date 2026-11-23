@@ -490,7 +490,14 @@ class _ShopTabState extends State<_ShopTab> {
         itemCount: selection.length,
         itemBuilder: (context, index) {
           final skin = selection[index];
-          return Card(child: InkWell(borderRadius: BorderRadius.circular(18), onTap: () => _preview(skin),
+          return BattleSurface(
+            accent: skin.visualRarity == SkinRarity.legend
+                ? BattleColors.gold
+                : skin.visualRarity == SkinRarity.epic
+                    ? const Color(0xFFAA96F3) : BattleColors.cyan,
+            padding: EdgeInsets.zero,
+            child: InkWell(borderRadius: BorderRadius.circular(18),
+              onTap: () => _preview(skin),
             child: Padding(padding: const EdgeInsets.all(9), child: Column(children: [
               Expanded(child: Center(child: LayoutBuilder(builder: (context, constraints) =>
                 SkinButton(skin: skin, size: constraints.maxWidth.clamp(80.0, 155.0).toDouble())))),
@@ -623,7 +630,9 @@ class _FriendsTabState extends State<_FriendsTab> {
             return ListView(children: snapshot.data!.map((friend) {
               final pending = friend['status'] == 'pending';
               final id = '${friend['id']}';
-              return ListTile(
+              return Padding(padding: const EdgeInsets.only(bottom: 10),
+                child: BattleSurface(accent: BattleColors.cyan,
+                  padding: EdgeInsets.zero, child: ListTile(
                 leading: const CircleAvatar(child: Icon(Icons.person)),
                 title: Text(pending ? 'Friend request' : 'Battle friend'),
                 subtitle: Text(id),
@@ -642,7 +651,7 @@ class _FriendsTabState extends State<_FriendsTab> {
                         if (mounted) setState(() => notice = 'Score challenge sent'); }
                       catch (e) { if (mounted) setState(() => notice = '$e'); }
                     }),
-              );
+              )));
             }).toList());
           })),
       ],
