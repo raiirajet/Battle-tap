@@ -56,6 +56,15 @@ abstract final class SkillRules {
 
   static int memoryPointsForLevel(int level) => memorySteps(level) + 2;
 
+  /// Retrying a level after a lost life cannot farm extra points for
+  /// sequence prefixes already completed in that same level.
+  static int memoryProgressPoints(int previousFurthest, int currentProgress) {
+    if (previousFurthest < 0 || currentProgress < 0) {
+      throw ArgumentError('Memory progress cannot be negative.');
+    }
+    return currentProgress > previousFurthest ? 1 : 0;
+  }
+
   /// 100 points at the target centre; zero at 16% of the bar or further.
   static int timingPoints(double cursor, double target) {
     final diff = (cursor - target).abs();

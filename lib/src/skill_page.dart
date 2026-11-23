@@ -39,6 +39,7 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
   int _level = 1;
   int _lives = SkillRules.memoryMaxLives;
   int _memoryIndex = 0;
+  int _levelMaxProgress = 0;
   int _previewStep = 0;
   int _litCell = -1;
   int _selectedCell = -1;
@@ -91,6 +92,7 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
     _lives = SkillRules.memoryMaxLives;
     _sequence.clear();
     _memoryIndex = 0;
+    _levelMaxProgress = 0;
     _litCell = -1;
     _selectedCell = -1;
     _attempts = 0;
@@ -177,8 +179,10 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
     }
     _audio.tap(hits: ++_hits, combo: _memoryIndex + 1, hitsPerSecond: 3);
     if (widget.store.vibrationEnabled) HapticFeedback.selectionClick();
-    _score++;
     _memoryIndex++;
+    _score += SkillRules.memoryProgressPoints(
+      _levelMaxProgress, _memoryIndex);
+    if (_memoryIndex > _levelMaxProgress) _levelMaxProgress = _memoryIndex;
     if (_memoryIndex == _sequence.length) {
       _score += 2;
       _audio.combo();
@@ -187,6 +191,7 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
         _finish();
       } else {
         _level++;
+        _levelMaxProgress = 0;
         _phase = _SkillPhase.preview;
         _status = 'Richtig! Nächste Stufe';
         _nextLevelTimer?.cancel();
@@ -513,9 +518,6 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
             );
           })),
           const SizedBox(height: 10),
-          Text('BESTWERT: ${widget.store.skillBest(widget.mode) ?? '—'} '
-              '${widget.mode.unit}',
-            style: const TextStyle(color: Colors.white70)),
           const SizedBox(height: 9),
         ]),
       )),

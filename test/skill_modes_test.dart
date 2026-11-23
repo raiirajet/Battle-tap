@@ -14,6 +14,11 @@ void main() {
     expect(SkillRules.memorySteps(10), 11);
     expect(SkillRules.memorySteps(20), 21);
     expect(SkillRules.memoryPointsForLevel(3), 6);
+    expect(SkillRules.memoryProgressPoints(0, 1), 1);
+    expect(SkillRules.memoryProgressPoints(4, 1), 0);
+    expect(SkillRules.memoryProgressPoints(4, 4), 0);
+    expect(SkillRules.memoryProgressPoints(4, 5), 1);
+    expect(() => SkillRules.memoryProgressPoints(-1, 1), throwsArgumentError);
     expect(SkillRules.memoryColumnsForLevel(1), 3);
     expect(SkillRules.memoryColumnsForLevel(7), 3);
     expect(SkillRules.memoryColumnsForLevel(8), 4);
