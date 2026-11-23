@@ -9,7 +9,7 @@ import 'battle_design.dart';
 import 'local_store.dart';
 import 'skill_rules.dart';
 
-enum _SkillPhase { ready, preview, memoryInput, precision, timing, done, interrupted }
+enum _SkillPhase { ready, preview, memoryInput, timing, done, interrupted }
 
 class SkillPage extends StatefulWidget {
   const SkillPage({super.key, required this.mode, required this.store});
@@ -37,23 +37,20 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
   // Memory Matrix: progressive, non-repeating adjacent cells.
   final List<int> _sequence = [];
   int _level = 1;
+  int _lives = SkillRules.memoryMaxLives;
   int _memoryIndex = 0;
   int _previewStep = 0;
   int _litCell = -1;
   int _selectedCell = -1;
-
-  // Precision Trail: positional proximity sampled at a constant 33ms cadence.
-  final List<Offset> _trail = [];
-  Offset? _finger;
-  int? _fingerId;
-  int _samples = 0;
-  int _tracked = 0;
 
   // Timing Strike: exactly ten attempts, gradually faster moving marker.
   int _attempts = 0;
   double _target = .5;
   int _lastShotMs = -9999;
   int? _tapPointer;
+  double? _lastTapPosition;
+  double? _lastTapTarget;
+  int _lastTapPoints = 0;
 
   @override
   void initState() {
@@ -66,7 +63,7 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) return;
     if (_phase == _SkillPhase.preview || _phase == _SkillPhase.memoryInput ||
-        _phase == _SkillPhase.precision || _phase == _SkillPhase.timing) {
+        _phase == _SkillPhase.timing) {
       _cancelTimers();
       _clock.stop();
       widget.store.flushTapCount();
@@ -91,17 +88,16 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
     _mistakes = 0;
     _record = false;
     _level = 1;
+    _lives = SkillRules.memoryMaxLives;
     _sequence.clear();
     _memoryIndex = 0;
     _litCell = -1;
     _selectedCell = -1;
-    _finger = null;
-    _fingerId = null;
-    _trail.clear();
-    _samples = 0;
-    _tracked = 0;
     _attempts = 0;
     _lastShotMs = -9999;
+    _lastTapPosition = null;
+    _lastTapTarget = null;
+    _lastTapPoints = 0;
     _tapPointer = null;
     _target = .25 + _rng.nextDouble() * .5;
     _audio.start();
@@ -109,15 +105,13 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
       _startMemoryLevel();
     } else {
       _clock.start();
-      _phase = widget.mode == SkillMode.precisionTrail
-          ? _SkillPhase.precision : _SkillPhase.timing;
+      _phase = _SkillPhase.timing;
       _timer = Timer.periodic(const Duration(milliseconds: 33), (_) {
         if (!mounted) return;
-        if (_clock.elapsed >= SkillRules.precisionDuration) {
+        if (_clock.elapsed >= SkillRules.timingDuration) {
           _finish();
           return;
         }
-        if (_phase == _SkillPhase.precision) _precisionSample();
         setState(() {});
       });
       setState(() {});
@@ -127,8 +121,9 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
   void _startMemoryLevel() {
     if (!mounted) return;
     while (_sequence.length < SkillRules.memorySteps(_level)) {
-      var tile = _rng.nextInt(9);
-      if (_sequence.isNotEmpty && tile == _sequence.last) tile = (tile + 1) % 9;
+      final cells = SkillRules.memoryCellCount(_level);
+      var tile = _rng.nextInt(cells);
+      if (_sequence.isNotEmpty && tile == _sequence.last) tile = (tile + 1) % cells;
       _sequence.add(tile);
     }
     _phase = _SkillPhase.preview;
@@ -138,7 +133,7 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
     _memoryIndex = 0;
     _previewStep = 0;
     _previewTimer?.cancel();
-    _previewTimer = Timer.periodic(const Duration(milliseconds: 350), (timer) {
+    _previewTimer = Timer.periodic(SkillRules.memoryFlashInterval(_level), (timer) {
       if (!mounted || _phase != _SkillPhase.preview) {
         timer.cancel();
         return;
@@ -165,9 +160,19 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
     _selectedCell = tile;
     if (tile != _sequence[_memoryIndex]) {
       _mistakes++;
+      _lives--;
       _audio.miss();
-      _status = 'Falsches Feld!';
-      _finish();
+      if (_lives <= 0) {
+        _status = 'Keine Leben mehr – versuche es erneut!';
+        _finish();
+      } else {
+        _phase = _SkillPhase.preview;
+        _status = 'Falsches Feld – Sequenz wird wiederholt!';
+        _nextLevelTimer?.cancel();
+        _nextLevelTimer = Timer(const Duration(milliseconds: 750),
+            _startMemoryLevel);
+        if (mounted) setState(() {});
+      }
       return;
     }
     _audio.tap(hits: ++_hits, combo: _memoryIndex + 1, hitsPerSecond: 3);
@@ -178,7 +183,7 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
       _score += 2;
       _audio.combo();
       if (_level == SkillRules.memoryMaxLevel) {
-        _status = 'Alle zehn Stufen geschafft!';
+        _status = 'Alle 20 Stufen geschafft!';
         _finish();
       } else {
         _level++;
@@ -190,30 +195,6 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
     }
     setState(() {});
   }
-
-  Offset _trailPoint(int ms) {
-    final seconds = ms / 1000;
-    return Offset(
-      .5 + .34 * math.sin(seconds * 1.22),
-      .5 + .32 * math.sin(seconds * .88 + 1.25),
-    );
-  }
-
-  void _precisionSample() {
-    final p = _trailPoint(_clock.elapsedMilliseconds);
-    _trail.add(p);
-    if (_trail.length > 40) _trail.removeAt(0);
-    _samples++;
-    // The player must actively keep one finger near the moving point.
-    if (_finger != null && _fieldSize != Size.zero) {
-      final point = Offset(p.dx * _fieldSize.width, p.dy * _fieldSize.height);
-      final tolerance = math.max(27.0, _fieldSize.shortestSide * .105);
-      if ((point - _finger!).distance <= tolerance) _tracked++;
-    }
-    _score = SkillRules.trackingAccuracy(_tracked, _samples);
-  }
-
-  Size _fieldSize = Size.zero;
 
   double _cursor(int ms) {
     final shot = _attempts;
@@ -227,7 +208,12 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
     if (ms - _lastShotMs < 250) return;
     _lastShotMs = ms;
     widget.store.registerTap();
-    final points = SkillRules.timingPoints(_cursor(ms), _target);
+    final tapPosition = _cursor(ms);
+    final targetAtTap = _target;
+    final points = SkillRules.timingPoints(tapPosition, targetAtTap);
+    _lastTapPosition = tapPosition;
+    _lastTapTarget = targetAtTap;
+    _lastTapPoints = points;
     _score += points;
     _attempts++;
     if (points > 0) {
@@ -251,10 +237,9 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
     if (_phase == _SkillPhase.done || _phase == _SkillPhase.interrupted) return;
     _cancelTimers();
     _clock.stop();
-    _finger = null;
-    _fingerId = null;
     _record = widget.store.saveSkillRound(
-        mode: widget.mode, score: _score, hits: _hits);
+        mode: widget.mode, score: _score, hits: _hits,
+        level: widget.mode == SkillMode.memoryMatrix ? _level : null);
     _audio.stop();
     if (_record) _audio.record();
     if (mounted) setState(() => _phase = _SkillPhase.done);
@@ -275,16 +260,26 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
     Text('STUFE $_level / ${SkillRules.memoryMaxLevel}',
       style: const TextStyle(color: Color(0xFFFFD56C), fontSize: 18,
         fontWeight: FontWeight.w900)),
-    const SizedBox(height: 12),
-    Text(_status, style: const TextStyle(color: Colors.white70)),
+    const SizedBox(height: 7),
+    Text('LEBEN: ${'♥ ' * _lives}${'♡ ' * (SkillRules.memoryMaxLives - _lives)}',
+      style: const TextStyle(fontWeight: FontWeight.w900,
+        color: BattleColors.red, fontSize: 15)),
+    const SizedBox(height: 7),
+    Text('EINGABE $_memoryIndex / ${_sequence.length}',
+      style: const TextStyle(color: Colors.white60, fontSize: 12)),
+    const SizedBox(height: 9),
+    Text(_status, textAlign: TextAlign.center,
+      style: const TextStyle(color: Colors.white70)),
     const SizedBox(height: 20),
     Expanded(child: Center(child: AspectRatio(aspectRatio: 1,
       child: GridView.builder(
         physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.all(8),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3, crossAxisSpacing: 10, mainAxisSpacing: 10),
-        itemCount: 9,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: SkillRules.memoryColumnsForLevel(_level),
+          crossAxisSpacing: _level >= 15 ? 5 : 10,
+          mainAxisSpacing: _level >= 15 ? 5 : 10),
+        itemCount: SkillRules.memoryCellCount(_level),
         itemBuilder: (_, i) {
           final lit = _phase == _SkillPhase.preview && _litCell == i;
           final selected = _phase == _SkillPhase.memoryInput && _selectedCell == i;
@@ -319,7 +314,7 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
                 child: Center(child: Icon(
                   lit ? Icons.lightbulb : Icons.circle_outlined,
                   color: lit ? const Color(0xFF151B28) : Colors.white38,
-                  size: 30,
+                  size: _level >= 15 ? 21 : _level >= 8 ? 25 : 30,
                 )),
               ),
             ),
@@ -332,61 +327,6 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
       style: TextStyle(color: Colors.white54)),
     const SizedBox(height: 12),
   ]);
-
-  Widget _precisionBoard(Size size) {
-    final p = _trailPoint(_clock.elapsedMilliseconds);
-    final target = Offset(p.dx * size.width, p.dy * size.height);
-    final good = _finger != null && (target - _finger!).distance <=
-        math.max(27.0, size.shortestSide * .105);
-    return Listener(
-      behavior: HitTestBehavior.opaque,
-      onPointerDown: (event) {
-        if (_phase != _SkillPhase.precision || _fingerId != null) return;
-        _fingerId = event.pointer;
-        _finger = event.localPosition;
-        widget.store.registerTap();
-        setState(() {});
-      },
-      onPointerMove: (event) {
-        if (_phase != _SkillPhase.precision || event.pointer != _fingerId) return;
-        _finger = event.localPosition;
-        setState(() {});
-      },
-      onPointerUp: (event) {
-        if (event.pointer == _fingerId) {
-          _finger = null;
-          _fingerId = null;
-          setState(() {});
-        }
-      },
-      onPointerCancel: (event) {
-        if (event.pointer == _fingerId) {
-          _finger = null;
-          _fingerId = null;
-          setState(() {});
-        }
-      },
-      child: Stack(children: [
-        Positioned.fill(child: CustomPaint(painter: _TrailPainter(_trail))),
-        Positioned(left: target.dx - 27, top: target.dy - 27,
-          child: IgnorePointer(child: Container(width: 54, height: 54,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: good ? const Color(0xFF69F3C1) : const Color(0xFF53C5FF),
-              border: Border.all(width: 4, color: Colors.white),
-              boxShadow: widget.store.reducedEffects ? [] : const [
-                BoxShadow(color: Color(0x8853C5FF), blurRadius: 22, spreadRadius: 4),
-              ],
-            ),
-            child: const Icon(Icons.my_location, color: Color(0xFF112338), size: 24),
-          ))),
-        const Positioned(left: 12, right: 12, bottom: 14,
-          child: Text('Finger auf den Lichtpunkt legen und ihm folgen',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white70, fontSize: 12))),
-      ]),
-    );
-  }
 
   Widget _timingBoard(Size size) {
     final cursor = _cursor(_clock.elapsedMilliseconds);
@@ -546,25 +486,3 @@ class _SkillPageState extends State<SkillPage> with WidgetsBindingObserver {
   }
 }
 
-class _TrailPainter extends CustomPainter {
-  const _TrailPainter(this.trail);
-  final List<Offset> trail;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (trail.length < 2) return;
-    final path = Path()..moveTo(trail.first.dx * size.width,
-        trail.first.dy * size.height);
-    for (final point in trail.skip(1)) {
-      path.lineTo(point.dx * size.width, point.dy * size.height);
-    }
-    canvas.drawPath(path, Paint()
-      ..color = const Color(0xCC3AA8E7)
-      ..strokeWidth = 5
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round);
-  }
-
-  @override
-  bool shouldRepaint(covariant _TrailPainter oldDelegate) => true;
-}
