@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:country_picker/country_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'game_page.dart';
+import 'arcade_page.dart';
+import 'arcade_rules.dart';
 import 'local_store.dart';
 import 'online.dart';
 import 'rules.dart';
@@ -150,10 +152,15 @@ class _HomeShellState extends State<HomeShell> {
       store: widget.store, online: widget.online)));
   }
 
+  void _playArcade(ArcadeMode mode) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => ArcadePage(
+      mode: mode, store: widget.store)));
+  }
+
   @override
   Widget build(BuildContext context) {
     final pages = <Widget>[
-      _PlayTab(onPlay: _play, store: widget.store, online: widget.online),
+      _PlayTab(onPlay: _play, onArcade: _playArcade, store: widget.store, online: widget.online),
       _RanksTab(online: widget.online),
       _ShopTab(store: widget.store),
       _FriendsTab(online: widget.online),
@@ -185,8 +192,9 @@ class _HomeShellState extends State<HomeShell> {
 }
 
 class _PlayTab extends StatelessWidget {
-  const _PlayTab({required this.onPlay, required this.store, required this.online});
+  const _PlayTab({required this.onPlay, required this.onArcade, required this.store, required this.online});
   final void Function(BattleMode mode) onPlay;
+  final void Function(ArcadeMode mode) onArcade;
   final PracticeStore store;
   final OnlineService online;
   @override
@@ -225,6 +233,27 @@ class _PlayTab extends StatelessWidget {
       _ModeCard(title: 'RANDOM HUNT', subtitle: '18–60 SECONDS • MOVING, COLOR-CHANGING TARGET',
         icon: Icons.control_camera_rounded, accent: const Color(0xFF7DE0F8),
         detail: 'VISIBLE TIMER • −2 FOR LATE TAPS', onTap: () => onPlay(BattleMode.hunt)),
+      const SizedBox(height: 27),
+      const Text('SKILL ARCADE', style: TextStyle(fontSize: 18,
+        color: gold, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+      const SizedBox(height: 4),
+      const Text('Neue Geschicklichkeitsspiele • eigene lokale Bestwerte',
+        style: TextStyle(color: Colors.white60, fontSize: 12)),
+      const SizedBox(height: 12),
+      _ModeCard(title: 'BUBBLE RUSH', subtitle: '30 SEK. • ZUFÄLLIGE BLASEN • IMMER SCHNELLER',
+        icon: Icons.bubble_chart_rounded, accent: const Color(0xFF5BD9F6),
+        detail: 'LUFTPOLSTER-PLOPP • COMBO-BONUS',
+        onTap: () => onArcade(ArcadeMode.bubbleRush)),
+      const SizedBox(height: 12),
+      _ModeCard(title: 'COLOR TRAP', subtitle: '30 SEK. • GRÜN TREFFEN • ROT VERMEIDEN',
+        icon: Icons.traffic_rounded, accent: const Color(0xFF6EE7A3),
+        detail: 'REAKTION • ROT = −2 PUNKTE',
+        onTap: () => onArcade(ArcadeMode.colorTrap)),
+      const SizedBox(height: 12),
+      _ModeCard(title: 'REFLEX GO', subtitle: '5 VERSUCHE • AUF GRÜN WARTEN',
+        icon: Icons.flash_on_rounded, accent: const Color(0xFFFFA9B5),
+        detail: 'REAKTIONSZEIT IN MS • FRÜHSTARTSTRAFE',
+        onTap: () => onArcade(ArcadeMode.reflexGo)),
       const SizedBox(height: 24),
       const Center(child: Text('Every tap counts. No pay-to-win.',
         style: TextStyle(color: Colors.white54))),
