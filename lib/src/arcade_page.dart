@@ -34,7 +34,6 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
   final Stopwatch _clock = Stopwatch();
   final Set<int> _pointers = <int>{};
   final List<_Bubble> _bubbles = [];
-  final List<int> _reactionTimes = [];
   late final BattleAudio _audio = BattleAudio(widget.store);
   Timer? _countdownTimer;
   Timer? _loop;
@@ -52,10 +51,10 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
   bool _signalGreen = true;
   int _colorChangesAtMs = 0;
   Offset _colorPosition = const Offset(.5, .5);
-  bool _goVisible = false;
-  int _goAtMs = 0;
-  int _goShownAtMs = 0;
-  int _falseStarts = 0;
+  ReflexColor _reflexColor = ReflexColor.blue;
+  int _reflexChangesAtMs = 0;
+  int _lastReflexTapMs = -10000;
+  int _neutralTaps = 0;
   String _message = '';
 
   @override
@@ -86,7 +85,6 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
     _clock..stop()..reset();
     _pointers.clear();
     _bubbles.clear();
-    _reactionTimes.clear();
     _score = 0;
     _hits = 0;
     _misses = 0;
@@ -99,10 +97,10 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
     _signalGreen = true;
     _colorChangesAtMs = 0;
     _colorPosition = const Offset(.5, .5);
-    _goVisible = false;
-    _goAtMs = 0;
-    _goShownAtMs = 0;
-    _falseStarts = 0;
+    _reflexColor = ReflexColor.blue;
+    _reflexChangesAtMs = 0;
+    _lastReflexTapMs = -10000;
+    _neutralTaps = 0;
     _message = '';
   }
 
@@ -134,7 +132,7 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
         _changeSignal(0);
         break;
       case ArcadeMode.reflexGo:
-        _scheduleGo(0);
+        _changeReflexColor(0);
         break;
     }
     _audio.start();
@@ -145,8 +143,7 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
   void _tick() {
     if (!mounted || _phase != _ArcadePhase.playing) return;
     final ms = _clock.elapsedMilliseconds;
-    if (widget.mode != ArcadeMode.reflexGo &&
-        ms >= ArcadeRules.timedRound.inMilliseconds) {
+    if (ms >= ArcadeRules.durationForMode(widget.mode).inMilliseconds) {
       _finish();
       return;
     }
@@ -158,21 +155,19 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
           _misses += expired;
           _streak = 0;
         }
-        if (ms >= _spawnAtMs && _bubbles.length < 6) _spawnBubble(ms);
+        if (ms >= _spawnAtMs) {
+          final maxVisible = ArcadeRules.bubbleMaxVisible(ms);
+          final burst = ArcadeRules.bubbleBurstSize(ms);
+          for (var i = 0; i < burst && _bubbles.length < maxVisible; i++) {
+            _spawnBubble(ms);
+          }
+        }
         break;
       case ArcadeMode.colorTrap:
         if (ms >= _colorChangesAtMs) _changeSignal(ms);
         break;
       case ArcadeMode.reflexGo:
-        if (!_goVisible && ms >= _goAtMs) {
-          _goVisible = true;
-          _goShownAtMs = ms;
-          _audio.start();
-        } else if (_goVisible && ms - _goShownAtMs >= ArcadeRules.reactionTimeoutMs) {
-          _reactionTimes.add(ArcadeRules.reactionTimeoutMs);
-          _misses++;
-          _nextTrial(ms);
-        }
+        if (ms >= _reflexChangesAtMs) _changeReflexColor(ms);
         break;
     }
     setState(() {});
@@ -184,7 +179,8 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
     for (var attempt = 0; attempt < 32; attempt++) {
       pos = Offset(.14 + _random.nextDouble() * .72,
           .12 + _random.nextDouble() * .76);
-      if (_bubbles.every((b) => (b.position - pos).distance > .20)) break;
+      final minimumGap = ArcadeRules.bubbleStage(ms) >= 5 ? .13 : .20;
+      if (_bubbles.every((b) => (b.position - pos).distance > minimumGap)) break;
     }
     _bubbles.add(_Bubble(++_bubbleId, pos,
         .087 + _random.nextDouble() * .027, ms,
@@ -199,18 +195,28 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
     _colorChangesAtMs = ms + ArcadeRules.colorSignalIntervalMs(ms);
   }
 
-  void _scheduleGo(int ms) {
-    _goVisible = false;
-    _goAtMs = ms + 1000 + _random.nextInt(1800);
+  void _changeReflexColor(int ms) {
+    _reflexColor = ArcadeRules.nextReflexColor(_random, _reflexColor);
+    _reflexChangesAtMs = ms + ArcadeRules.reflexSignalIntervalMs;
   }
 
-  void _nextTrial(int ms) {
-    if (_reactionTimes.length >= ArcadeRules.reactionTrials) {
-      _finish();
-    } else {
-      _scheduleGo(ms);
-    }
-  }
+  Color get _reflexPaint => switch (_reflexColor) {
+    ReflexColor.green => const Color(0xFF38E2A2),
+    ReflexColor.red => const Color(0xFFFF7286),
+    ReflexColor.blue => const Color(0xFF53C5FF),
+    ReflexColor.purple => const Color(0xFFC4A2FF),
+    ReflexColor.yellow => const Color(0xFFFFD56C),
+    ReflexColor.cyan => const Color(0xFF72E8E2),
+  };
+
+  String get _reflexName => switch (_reflexColor) {
+    ReflexColor.green => 'GRÜN',
+    ReflexColor.red => 'ROT',
+    ReflexColor.blue => 'BLAU',
+    ReflexColor.purple => 'LILA',
+    ReflexColor.yellow => 'GELB',
+    ReflexColor.cyan => 'TÜRKIS',
+  };
 
   void _tap(PointerDownEvent event, Size size) {
     final fresh = _pointers.isEmpty;
@@ -219,8 +225,7 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
     widget.store.registerTap();
     final ms = _clock.elapsedMilliseconds;
 
-    if (widget.mode != ArcadeMode.reflexGo &&
-        ms >= ArcadeRules.timedRound.inMilliseconds) {
+    if (ms >= ArcadeRules.durationForMode(widget.mode).inMilliseconds) {
       _finish();
       return;
     }
@@ -278,20 +283,23 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
         }
         break;
       case ArcadeMode.reflexGo:
-        if (_goVisible) {
-          final reaction = max(1, ms - _goShownAtMs);
-          _reactionTimes.add(reaction);
+        if (ms - _lastReflexTapMs < ArcadeRules.reflexTapCooldownMs) break;
+        _lastReflexTapMs = ms;
+        final points = _reflexColor.points;
+        _score += points;
+        if (points > 0) {
           _hits++;
-          _audio.pop(_random.nextInt(3));
+          _audio.tap(hits: _hits, combo: _hits,
+              hitsPerSecond: _hits / max(1, ms / 1000));
           _haptic(ms);
-          _nextTrial(ms);
-        } else {
-          _falseStarts++;
+        } else if (points < 0) {
           _misses++;
           _audio.miss();
-          // Re-randomize wait: repeated premature taps cannot reveal GO time.
-          _scheduleGo(ms);
+          if (widget.store.vibrationEnabled) HapticFeedback.mediumImpact();
+        } else {
+          _neutralTaps++;
         }
+        _changeReflexColor(ms);
         break;
     }
     if (mounted) setState(() {});
@@ -308,9 +316,6 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
     if (_phase != _ArcadePhase.playing) return;
     _loop?.cancel();
     _clock.stop();
-    if (widget.mode == ArcadeMode.reflexGo) {
-      _score = ArcadeRules.reactionAverageMs(_reactionTimes, _falseStarts);
-    }
     _newRecord = widget.store.saveArcadeRound(
       mode: widget.mode, score: _score, hits: _hits);
     _audio.stop();
