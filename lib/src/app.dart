@@ -6,6 +6,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'game_page.dart';
 import 'arcade_page.dart';
 import 'arcade_rules.dart';
+import 'skill_page.dart';
+import 'skill_rules.dart';
+import 'duel_page.dart';
 import 'local_store.dart';
 import 'online.dart';
 import 'rules.dart';
@@ -157,10 +160,21 @@ class _HomeShellState extends State<HomeShell> {
       mode: mode, store: widget.store)));
   }
 
+  void _playSkill(SkillMode mode) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => SkillPage(
+      mode: mode, store: widget.store)));
+  }
+
+  void _playDuel() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => DuelPage(
+      store: widget.store)));
+  }
+
   @override
   Widget build(BuildContext context) {
     final pages = <Widget>[
-      _PlayTab(onPlay: _play, onArcade: _playArcade, store: widget.store, online: widget.online),
+      _PlayTab(onPlay: _play, onArcade: _playArcade, onSkill: _playSkill,
+        onDuel: _playDuel, store: widget.store, online: widget.online),
       _RanksTab(online: widget.online),
       _ShopTab(store: widget.store),
       _FriendsTab(online: widget.online),
@@ -192,9 +206,12 @@ class _HomeShellState extends State<HomeShell> {
 }
 
 class _PlayTab extends StatelessWidget {
-  const _PlayTab({required this.onPlay, required this.onArcade, required this.store, required this.online});
+  const _PlayTab({required this.onPlay, required this.onArcade,
+    required this.onSkill, required this.onDuel, required this.store, required this.online});
   final void Function(BattleMode mode) onPlay;
   final void Function(ArcadeMode mode) onArcade;
+  final void Function(SkillMode mode) onSkill;
+  final VoidCallback onDuel;
   final PracticeStore store;
   final OnlineService online;
   @override
@@ -254,6 +271,36 @@ class _PlayTab extends StatelessWidget {
         icon: Icons.flash_on_rounded, accent: const Color(0xFFFFA9B5),
         detail: 'REAKTIONSZEIT IN MS • FRÜHSTARTSTRAFE',
         onTap: () => onArcade(ArcadeMode.reflexGo)),
+      const SizedBox(height: 26),
+      const Text('MORE SKILL CHALLENGES', style: TextStyle(fontSize: 17,
+        color: gold, fontWeight: FontWeight.w900, letterSpacing: 1.1)),
+      const SizedBox(height: 4),
+      const Text('Gedächtnis • Präzision • Timing • Duell',
+        style: TextStyle(color: Colors.white60, fontSize: 12)),
+      const SizedBox(height: 12),
+      _ModeCard(title: 'MEMORY MATRIX',
+        subtitle: '3 × 3 FELDER • MERKEN & WIEDERHOLEN',
+        icon: Icons.grid_view_rounded, accent: const Color(0xFFB6A1FF),
+        detail: '10 STUFEN • JEDE RUNDE EIN FELD MEHR',
+        onTap: () => onSkill(SkillMode.memoryMatrix)),
+      const SizedBox(height: 12),
+      _ModeCard(title: 'PRECISION TRAIL',
+        subtitle: '30 SEK. • BEWEGLICHEM LICHTPUNKT FOLGEN',
+        icon: Icons.gesture_rounded, accent: const Color(0xFF80E2F1),
+        detail: 'FINGERFÜHRUNG • GENAUIGKEIT IN %',
+        onTap: () => onSkill(SkillMode.precisionTrail)),
+      const SizedBox(height: 12),
+      _ModeCard(title: 'TIMING STRIKE',
+        subtitle: '10 VERSUCHE • IM GRÜNEN BEREICH STOPPEN',
+        icon: Icons.track_changes_rounded, accent: const Color(0xFFFFBF80),
+        detail: 'JE NÄHER AN DER MITTE, DESTO MEHR PUNKTE',
+        onTap: () => onSkill(SkillMode.timingStrike)),
+      const SizedBox(height: 12),
+      _ModeCard(title: '1 GEGEN 1 ARCADE',
+        subtitle: 'ZWEI SPIELER • 20 SEK. JE PERSON • GLEICHE ZIELE',
+        icon: Icons.people_alt_rounded, accent: const Color(0xFFFF88A6),
+        detail: 'PASS-AND-PLAY • DIREKTER SIEGERVERGLEICH',
+        onTap: onDuel),
       const SizedBox(height: 24),
       const Center(child: Text('Every tap counts. No pay-to-win.',
         style: TextStyle(color: Colors.white54))),
