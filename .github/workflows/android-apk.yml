@@ -19,7 +19,7 @@ jobs:
           cache: true
       - name: Generate native Android and iOS platform scaffolding
         run: flutter create --platforms=android,ios --project-name battle_tap --org ch.battletap .
-      - name: Configure Android notification permission
+      - name: Configure Android permissions
         run: python3 scripts/configure_android_permissions.py
       - name: Resolve packages
         run: flutter pub get
@@ -30,7 +30,12 @@ jobs:
       - name: Unit tests
         run: flutter test
       - name: Build debug APK
-        run: flutter build apk --debug
+        run: |
+          firebase_options=()
+          if [[ -f firebase/android.json ]]; then
+            firebase_options+=(--dart-define-from-file=firebase/android.json)
+          fi
+          flutter build apk --debug "${firebase_options[@]}"
       - uses: actions/upload-artifact@v4
         with:
           name: battle-tap-debug-apk

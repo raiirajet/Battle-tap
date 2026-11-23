@@ -1,5 +1,5 @@
 /* BattleTap offline PWA cache. HTTPS served by GitHub Pages. */
-const CACHE = 'battle-tap-pwa-v1';
+const CACHE = 'battle-tap-pwa-dev';
 const SHELL = ['./', './index.html', './flutter_bootstrap.js', './main.dart.js',
   './manifest.json', './icons/Icon-192.png', './icons/Icon-512.png'];
 self.addEventListener('install', (event) => {
