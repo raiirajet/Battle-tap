@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'battle_audio.dart';
+import 'battle_design.dart';
 import 'local_store.dart';
 import 'skins.dart';
 import 'online.dart';
@@ -324,7 +325,13 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
       appBar: AppBar(title: Text(_title), centerTitle: true),
       body: SafeArea(child: Stack(children: [
         Column(children: [
-          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 9, 12, 5),
+            child: BattleSurface(
+              accent: widget.mode == BattleMode.ranked
+                  ? BattleColors.gold : BattleColors.cyan,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Column(children: [
           Text(_subTitle, style: const TextStyle(color: Colors.white54, fontSize: 12)),
           const SizedBox(height: 16),
           Text(active ? (remainingMs / 1000).toStringAsFixed(2) : _round.duration.inSeconds.toString(),
@@ -339,7 +346,10 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
               style: const TextStyle(color: Color(0xFFFFD56C), fontSize: 11)),
           if (widget.practice) const Text('PRACTICE – NOT RANKED',
             style: TextStyle(color: Color(0xFFFFBD63), fontSize: 11, letterSpacing: 1.2)),
-          const SizedBox(height: 12),
+              ]),
+            ),
+          ),
+          const SizedBox(height: 8),
           Expanded(child: LayoutBuilder(builder: (context, constraints) {
             final fieldSize = Size(constraints.maxWidth, constraints.maxHeight);
             final diameter = widget.mode == BattleMode.ranked
@@ -356,11 +366,11 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
               onPointerUp: (event) => _pointers.remove(event.pointer),
               onPointerCancel: (event) => _pointers.remove(event.pointer),
               child: Stack(clipBehavior: Clip.hardEdge, children: [
-                Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
-                  color: _phase == _Phase.stop ? const Color(0xFF43151C) : const Color(0xFF101726),
-                  border: Border.all(color: const Color(0xFF2F3547)),
-                ))),
+                Positioned.fill(child: BattleArena(
+                  accent: widget.mode == BattleMode.ranked
+                      ? BattleColors.gold : BattleColors.cyan,
+                  danger: _phase == _Phase.stop,
+                )),
                 if (active && _phase == _Phase.playing)
                   Positioned(left: point.dx, top: point.dy,
                     child: IgnorePointer(child: SkinButton(
