@@ -1,33 +1,50 @@
 import 'dart:math' as math;
 
 /// Skill-arcade modes are device-only; never submit these scores to Ranked V2.
-enum SkillMode { memoryMatrix, precisionTrail, timingStrike }
+enum SkillMode { memoryMatrix, timingStrike }
 
 extension SkillModeInfo on SkillMode {
   String get title => switch (this) {
     SkillMode.memoryMatrix => 'MEMORY MATRIX',
-    SkillMode.precisionTrail => 'PRECISION TRAIL',
     SkillMode.timingStrike => 'TIMING STRIKE',
   };
 
   String get description => switch (this) {
     SkillMode.memoryMatrix => 'Merke dir die leuchtenden Felder in der richtigen Reihenfolge.',
-    SkillMode.precisionTrail => 'Folge dem bewegten Lichtpunkt mit dem Finger.',
     SkillMode.timingStrike => 'Triff den Zielbereich mit perfektem Timing.',
   };
 
   String get unit => switch (this) {
     SkillMode.memoryMatrix => 'Punkte',
-    SkillMode.precisionTrail => '% Genauigkeit',
     SkillMode.timingStrike => 'Punkte',
   };
 }
 
 abstract final class SkillRules {
-  static const memoryMaxLevel = 10;
-  static const memoryColumns = 3;
-  static const precisionDuration = Duration(seconds: 30);
+  static const memoryMaxLevel = 20;
+  static const memoryMaxLives = 3;
+  static const timingDuration = Duration(seconds: 30);
   static const timingAttempts = 10;
+
+  /// A larger matrix unlocks as the player advances.
+  static int memoryColumnsForLevel(int level) {
+    if (level < 1 || level > memoryMaxLevel) {
+      throw RangeError.range(level, 1, memoryMaxLevel, 'level');
+    }
+    return level >= 15 ? 5 : level >= 8 ? 4 : 3;
+  }
+
+  static int memoryCellCount(int level) {
+    final columns = memoryColumnsForLevel(level);
+    return columns * columns;
+  }
+
+  static Duration memoryFlashInterval(int level) {
+    if (level < 1 || level > memoryMaxLevel) {
+      throw RangeError.range(level, 1, memoryMaxLevel, 'level');
+    }
+    return Duration(milliseconds: math.max(235, 390 - (level - 1) * 8));
+  }
 
   /// First level shows two squares; each subsequent level adds one.
   static int memorySteps(int level) {
@@ -38,11 +55,6 @@ abstract final class SkillRules {
   }
 
   static int memoryPointsForLevel(int level) => memorySteps(level) + 2;
-
-  static int trackingAccuracy(int trackedFrames, int totalFrames) {
-    if (totalFrames <= 0) return 0;
-    return ((trackedFrames / totalFrames) * 100).round().clamp(0, 100);
-  }
 
   /// 100 points at the target centre; zero at 16% of the bar or further.
   static int timingPoints(double cursor, double target) {
