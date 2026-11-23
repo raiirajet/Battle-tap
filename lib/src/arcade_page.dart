@@ -331,7 +331,7 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
   Widget _bubbleWidget(_Bubble bubble, Size size, int ms) {
     final radius = min(48.0, size.shortestSide * bubble.radiusRatio);
     final remaining = ((bubble.bornMs + bubble.lifetimeMs - ms) /
-        bubble.lifetimeMs).clamp(0.0, 1.0);
+        bubble.lifetimeMs).clamp(0.0, 1.0).toDouble();
     final diameter = radius * 2;
     return Positioned(
       key: ValueKey(bubble.id),
@@ -377,11 +377,11 @@ class _ArcadePageState extends State<ArcadePage> with WidgetsBindingObserver {
           for (final bubble in _bubbles) _bubbleWidget(bubble, size, ms),
         if (running && widget.mode == ArcadeMode.colorTrap)
           Positioned(
-            left: size.width * _colorPosition.dx - min(size.shortestSide * .39, 160) / 2,
-            top: size.height * _colorPosition.dy - min(size.shortestSide * .39, 160) / 2,
+            left: size.width * _colorPosition.dx - min(size.shortestSide * .39, 160.0) / 2,
+            top: size.height * _colorPosition.dy - min(size.shortestSide * .39, 160.0) / 2,
             child: IgnorePointer(child: Container(
-              width: min(size.shortestSide * .39, 160),
-              height: min(size.shortestSide * .39, 160),
+              width: min(size.shortestSide * .39, 160.0),
+              height: min(size.shortestSide * .39, 160.0),
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
