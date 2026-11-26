@@ -24,3 +24,8 @@ test('PDF paper sizes and orientation',()=>{const p=template('studio','Test');as
 
 import {templateChoices} from '../src/core.js';
 test('all 60 parametric presets create valid nonempty projects',()=>{assert.equal(templateChoices.length,60);for(const t of templateChoices){const p=template(t.id,t.name);validate(p);assert.ok(rooms(p.levels[0]).length>0)}});
+
+import {editWall,angleSnap,catalogStats} from '../src/core.js';
+test('moving wall endpoints keeps adjacent endpoints joined',()=>{const p=project(),l=p.levels[0];rectangle(l,{x:0,y:0},{x:6,y:4});editWall(l,l.walls[0],{a:{x:0,y:-1},b:{x:6,y:-1}});assert.deepEqual(l.walls[1].a,{x:6,y:-1});assert.deepEqual(l.walls[3].b,{x:0,y:-1});assert.equal(rooms(l).length,1)});
+test('angle snapping preserves length',()=>{const a={x:0,y:0},b={x:3,y:.1},p=angleSnap(a,b,90);assert.ok(Math.abs(p.y)<1e-9);assert.ok(Math.abs(Math.hypot(p.x,p.y)-Math.hypot(b.x,b.y))<1e-9)});
+test('catalog count separates base types from finish variants',()=>{const s=catalogStats();assert.equal(s.base,54);assert.equal(s.entries,s.base+s.variants)});

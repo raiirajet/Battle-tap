@@ -50,9 +50,14 @@ jobs:
           path: homecraft/dist
       - run: npx cap add android
       - run: npx cap sync android
+      - run: python3 scripts/icons.py android
       - run: chmod +x gradlew && ./gradlew assembleDebug --no-daemon
         working-directory: homecraft/android
       - run: cp android/app/build/outputs/apk/debug/app-debug.apk HomeCraft-3D-debug.apk
+      - name: Verify packaged planner assets
+        run: |
+          unzip -tq HomeCraft-3D-debug.apk
+          python3 -c "import zipfile; z=zipfile.ZipFile('HomeCraft-3D-debug.apk'); n=z.namelist(); assert 'assets/public/index.html' in n; assert any(x.startswith('assets/public/assets/') and x.endswith('.js') for x in n); print('HomeCraft web engine packaged')"
       - uses: actions/upload-artifact@v4
         with:
           name: HomeCraft-3D-APK
