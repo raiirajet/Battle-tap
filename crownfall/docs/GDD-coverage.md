@@ -20,3 +20,9 @@ Source: Crownfall Game Design Document v1.1, 65 pp.
 | 58–61 | QA/release/monetization | CI tests/build only; unsigned development APK; no monetization. |
 | 62–63 | Gear | Recipe goods, not the 32-item equipment inventory. |
 | 64–65 | Achievements | 120 thresholds, private local awards; some categories have no producers; full anti-repeat and public verification absent. |
+
+## Visual bible v1.0 / 0.4
+- pp. 3–8, 15–20, 25: procedural figure descriptors for 12 heroes, 24 military/transport units, 8 worker roles. Not exact previsualization meshes.
+- p. 21: walk/run limb cycles with fixed-step displacement and eight-way heading; no FPS-driven motion.
+- pp. 22–24: animated worker poses only; full combat, defeat and ability animation events not yet implemented.
+- p. 30: live polygon renderer, no GLB or sprite atlas. No certified mobile FPS or device-level visual acceptance yet.

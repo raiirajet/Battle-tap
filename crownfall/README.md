@@ -13,3 +13,5 @@ Full GDD building, technology, unit and hero stat catalogues and 120 achievement
 
 ## 0.3 expanded alpha
 Ten separate save slots and text export/import, separate Campaign mode with the 40 GDD mission descriptions and rule-backed early mission goals, one-time local rewards, scout BFS movement, route obstruction checks, road placement, building cancellation. Remaining campaign missions and full tactical combat/logistics are not completed. See GDD coverage.
+## 0.4 character movement
+12 hero looks, 24 unit looks (human, mounted, siege, ship, cart), 8 worker looks based on visual bible. Procedural 3D mesh faces projected to Canvas with limb animation, direction, selection, shadow and health bars. Tap own unit then target; hold directional pad or WASD/arrows; stop/run/focus hero. Fixed simulation step 100ms, persisted unit coordinates, no movement from rendering, paths avoid blocked tiles and diagonal corner clipping. Ships stay on water; civilians are assigned-work visualizations, not individually simulated. Combat is still the old abstract tutorial system, no full melee/ranged contact timing or exported GLB/sprite assets.
