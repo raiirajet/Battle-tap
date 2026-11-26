@@ -19,7 +19,7 @@ jobs:
           node --test crownfall/tests/*.test.mjs
           node --check crownfall/web/app.mjs
           node --check crownfall/web/sw.js
-          node --check crownfall/web/catalog.mjs
+          for f in crownfall/web/*.mjs; do node --check "$f"; done
       - name: Generate PWA icons
         run: python3 crownfall/tools/icons.py crownfall/web
       - uses: actions/upload-artifact@v4

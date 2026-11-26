@@ -10,3 +10,6 @@ Simplifications: no pathfinding or physical goods yet (direct delivery), 24x24 m
 
 ## 0.2 expanded offline alpha
 Full GDD building, technology, unit and hero stat catalogues and 120 achievement thresholds. Not all catalogue entries have mechanics; unsupported research is explicitly disabled. See docs/GDD-coverage.md. New age/research queues, storage, upgrades, direct-delivery recipes, taxes/health/satisfaction, seasons, local market, rudimentary NPC treaty, deterministic expeditions, private achievements, speed control, expanded 48x48 play area. Existing saves are extended on load. No public deployment or online game server.
+
+## 0.3 expanded alpha
+Ten separate save slots and text export/import, separate Campaign mode with the 40 GDD mission descriptions and rule-backed early mission goals, one-time local rewards, scout BFS movement, route obstruction checks, road placement, building cancellation. Remaining campaign missions and full tactical combat/logistics are not completed. See GDD coverage.
