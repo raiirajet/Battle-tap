@@ -28,7 +28,7 @@ test('all 60 parametric presets create valid nonempty projects',()=>{assert.equa
 import {editWall,angleSnap,catalogStats} from '../src/core.js';
 test('moving wall endpoints keeps adjacent endpoints joined',()=>{const p=project(),l=p.levels[0];rectangle(l,{x:0,y:0},{x:6,y:4});editWall(l,l.walls[0],{a:{x:0,y:-1},b:{x:6,y:-1}});assert.deepEqual(l.walls[1].a,{x:6,y:-1});assert.deepEqual(l.walls[3].b,{x:0,y:-1});assert.equal(rooms(l).length,1)});
 test('angle snapping preserves length',()=>{const a={x:0,y:0},b={x:3,y:.1},p=angleSnap(a,b,90);assert.ok(Math.abs(p.y)<1e-9);assert.ok(Math.abs(Math.hypot(p.x,p.y)-Math.hypot(b.x,b.y))<1e-9)});
-test('catalog count separates base types from finish variants',()=>{const s=catalogStats();assert.equal(s.base,54);assert.equal(s.entries,s.base+s.variants)});
+test('catalog count separates base types from finish variants',()=>{const s=catalogStats();assert.equal(s.base,74);assert.equal(s.entries,s.base+s.variants)});
 
 import {materials,finish,kitchenLayout,bathroomLayout,overlap,roomCosts} from '../src/core.js';
 test('128 finish presets have unique identifiers and valid descriptors',()=>{assert.equal(materials.length,128);assert.equal(new Set(materials.map(x=>x.id)).size,128);assert.ok(materials.every(x=>/^#[0-9a-f]{6}$/i.test(finish(x.id).color)))});
@@ -42,3 +42,6 @@ test('landscape polygon rejects self crossing and preserves valid concave shape'
 test('schematic route length and invalid system',()=>{const p=project(),l=p.levels[0],r=addRoute(l,'water',[{x:0,y:0},{x:3,y:0},{x:3,y:4}]);assert.equal(r.length,7);assert.equal(validate(p),p);assert.throws(()=>addRoute(l,'invalid',r.points))});
 test('solar elevation in Swiss summer exceeds winter and night is below horizon',()=>{const a=solarPosition('2026-06-21',12,47,8,2),b=solarPosition('2026-12-21',12,47,8,1),n=solarPosition('2026-06-21',0,47,8,2);assert.ok(a.altitude>b.altitude&&a.altitude>50&&n.altitude<0)});
 test('module group moves as one',()=>{const p=project(),l=p.levels[0];l.objects=kitchenLayout({x:0,y:0});const old=l.objects.map(o=>o.x);moveGroup(l,l.objects[0].groupId,2,1);assert.ok(l.objects.every((o,i)=>Math.abs(o.x-old[i]-2)<1e-8))});
+
+import {openingFromPreset,openingPresets} from '../src/core.js';
+test('opening styles generate correctly dimensioned voids',()=>{const w=wall({x:0,y:0},{x:6,y:0});const o=openingFromPreset(w,2,'door','double');assert.equal(o.width,1.6);assert.equal(o.style,'double');assert.throws(()=>openingFromPreset(w,.2,'window','panorama'));assert.equal(openingPresets.door.length,5)});
