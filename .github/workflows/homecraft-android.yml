@@ -48,6 +48,7 @@ jobs:
           npm run preview -- --port 4173 > /tmp/homecraft-preview.log 2>&1 &
           for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && break; sleep 1; done
           node scripts/browser-smoke.mjs
+          node scripts/release-smoke.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: HomeCraft-smoke-screenshot
@@ -66,9 +67,13 @@ jobs:
       - name: Verify packaged planner assets
         run: |
           unzip -tq HomeCraft-3D-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose HomeCraft-3D-debug.apk
+          sha256sum HomeCraft-3D-debug.apk > HomeCraft-3D-debug.apk.sha256
           python3 -c "import zipfile; z=zipfile.ZipFile('HomeCraft-3D-debug.apk'); n=z.namelist(); assert 'assets/public/index.html' in n; assert any(x.startswith('assets/public/assets/') and x.endswith('.js') for x in n); print('HomeCraft web engine packaged')"
       - uses: actions/upload-artifact@v4
         with:
           name: HomeCraft-3D-APK
-          path: homecraft/HomeCraft-3D-debug.apk
+          path: |
+            homecraft/HomeCraft-3D-debug.apk
+            homecraft/HomeCraft-3D-debug.apk.sha256
           if-no-files-found: error

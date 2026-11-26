@@ -1,19 +1,21 @@
-# HomeCraft 3D — masterplan status, 0.9.6
-This is a release-candidate development branch, not a completed 1.0. A passing browser smoke test is not a physical Android test.
-| Area | Implemented | Remaining validation or scope |
+# HomeCraft 3D — masterplan status, 1.0.0-rc.1
+Release candidate for the implemented local-first planner. Not a claim of 100% completion of the original 38-section masterplan. The exact build and test result must be read from the HomeCraft Android/PWA workflow.
+
+| Area | Implemented | Remaining limits / release gates |
 |---|---|---|
-| Projects | IndexedDB, autosave, backup/restore, copies, variants, overlay | Multi-tab conflict protection, long-running device tests |
-| Geometry | straight/segmented curved walls, planar face detection, dimensions, windows/doors, levels, slabs | robust arbitrary wall junction solids, nonrectangular intersections, stable room IDs |
-| Stairs | straight, L, U, spiral treads, linked floor voids | headroom, exact voids, handrails, physical walk QA |
-| Roof | six profiles and manually defined sloped polygon patches | automatic compound roof intersection and roof structural geometry |
-| Terrain | polygon areas with two-axis slope | continuous sculpted heightfield, retaining walls and collision |
-| 3D | real-time view, split, orbit, walkthrough, fly, x-ray, explosion, cameras | photorealistic offline rendering, animation/video and panorama |
-| Catalog | 77 differentiated procedural base types and finish/size variants, imported GLB reuse | 795 individually authored high-quality models with asset-level QA and license provenance |
-| Materials | 128 procedural presets, scale/rotation/side choices | scanned PBR textures and additional custom material import |
-| Templates | 63 building variants and 30 room variants | individually authored architecture/layout QA |
-| Interior | kitchen and bath assistants, room furnishing suggestion, object groups | accessibility and clearance validation |
-| MEP | schematic paths and independent visibility | engineering sizing deliberately out of scope |
-| Export | project JSON, backup, PDF, SVG, GLB, 1080p/4K PNG/JPG, CSV | high-res real-device memory tests; additional interchange formats and true video |
-| Privacy | AES-GCM vault, passphrase lock, Android native strong biometric code | independent security review, physical biometric tests, storage migration tests |
-| Delivery | Android debug and installable PWA CI, release signing workflow | owner-supplied stable signing key, successful release build and physical device test |
-No building-code, structural, electrical or engineering certification. No cloud or external data required for core functionality. Do not label a build 1.0 until open release gates are resolved.
+| Projects | IndexedDB, autosave, backup/restore, variants, compare, revision CAS conflict detection, onboarding | browser/device crash recovery endurance and physical update tests |
+| Precision | 2D drawing, connected vertices, dashed previews, linked dimensions, angle display, magnetic guides, loupe | stable associations after arbitrary topology changes; CAD-grade junctions |
+| Architecture | four schematic elevations and X/Y cuts, SVG, geometric net/gross, renovation colors, basic project checker | certified drawings, exact solid CSG, SIA classification not implemented |
+| Stairs | four types, linked floor voids and adjustable railings | headroom, exact voids, physical walkthrough QA |
+| Roof | six automatic profiles, manual patches, basic skylights/dormers/solar/gutters/downpipes | automatic compound roofs; engineering validation |
+| Site | parcel, height points, terrain mesh, geometric setbacks, fences/hedges/walls, parking, garden assistant | exact earthworks, grading, landscape engineering |
+| 3D | orbit/split/walk/fly/xray/exploded/camera views, weather, reflection environment, contact shadows, image export | photorealistic path tracing, 360 panorama/video, physical performance QA |
+| Catalog | 78 procedural base types and finish/size variants, GLB import/reuse, groups, mirror, align/repeat | 795 individually authored premium assets not complete |
+| Materials | 128 procedural color/normal/roughness presets | photographic scans, custom material import |
+| Templates | 63 building variants and 30 room variants, local furniture groups | individually authored architectural QA |
+| MEP | schematic paths and visibility | sizing/certification out of scope |
+| Export | JSON/backup, PDF/SVG/GLB, PNG/JPG HD/4K, CSV | DXF/SH3D, video/panorama, real-device memory QA |
+| Privacy | AES-GCM vault, Android biometric implementation, revision conflict protection, stricter imports | independent security audit, physical biometrics, no stable signing key |
+| Delivery | CI debug APK + offline PWA, manual signed release workflow | stable owner-controlled keystore; physical install/update and performance tests; workflow access on default branch |
+
+No cloud required for core planning. No building-code or structural certification. The release candidate is a usable scope, not the final signed store release. Backup before uninstalling/debug signature changes. No claim that the original 795-model target or every future feature has been delivered.

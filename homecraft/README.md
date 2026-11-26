@@ -62,3 +62,6 @@ Adds non-destructive planar wall intersection/T-junction splitting for room dete
 0.9.17: original procedural color/height/roughness maps for all 128 finishes, quality-dependent textures and instanced foliage, furniture refinements, offline PMREM studio environment, adjustable weather and exposure, approximate contact shadows, fitted directional shadow camera, architecture photo preset. Weather is decorative, not physical simulation; material textures are procedural, not scans; not pathtraced rendering. Eco profile reduces GPU load; real device benchmarks still required.
 
 Graphics refinement: tangent-space normal maps derived from height fields, texture LRU bounded to 18 material sets, one room computation per floor per build, and isolated photo shadow targets. GLB exports omit decorative contact shadows.
+
+## 1.0.0-rc.1
+Finalization of the implemented planner scope: onboarding, backup from project list, revision-safe IndexedDB writes, save indicators, input hardening, project checks, offline PWA regression test, APK signature/checksum verification and Android version metadata. See docs/MASTERPLAN-STATUS.md for remaining masterplan and production-release gates.
