@@ -1,0 +1,17 @@
+{
+  "name": "HomeCraft 3D",
+  "short_name": "HomeCraft",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#102b2b",
+  "theme_color": "#102b2b",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

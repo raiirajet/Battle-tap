@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {project,rectangle,rooms,wall,addOpening,wallCells,validate,object} from '../src/core.js';
+test('rectangle net area accounts for wall thickness',()=>{const p=project();rectangle(p.levels[0],{x:0,y:0},{x:6,y:4});const r=rooms(p.levels[0]);assert.equal(r.length,1);assert.ok(Math.abs(r[0].area-5.8*3.8)<1e-8)});
+test('wall contains real void and preserves solid area',()=>{const w=wall({x:0,y:0},{x:6,y:0},.3,2.5);addOpening(w,2,'door',1,2,0);const a=wallCells(w).reduce((s,c)=>s+c.width*c.height,0);assert.equal(a,13);assert.throws(()=>addOpening(w,2.1,'door',1,2,0));});
+test('open wall chain no room',()=>{const p=project();p.levels[0].walls.push(wall({x:0,y:0},{x:2,y:0}));assert.equal(rooms(p.levels[0]).length,0)});
+test('invalid opening and invalid imported furniture rejected',()=>{const p=project();const l=p.levels[0];l.walls.push(wall({x:0,y:0},{x:3,y:0}));assert.throws(()=>addOpening(l.walls[0],.1,'window'));l.objects.push(object('sofa',{x:1,y:1}));assert.equal(validate(p),p);l.objects[0].width=-1;assert.throws(()=>validate(p))});
