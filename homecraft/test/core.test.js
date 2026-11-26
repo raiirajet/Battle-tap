@@ -45,3 +45,6 @@ test('module group moves as one',()=>{const p=project(),l=p.levels[0];l.objects=
 
 import {openingFromPreset,openingPresets} from '../src/core.js';
 test('opening styles generate correctly dimensioned voids',()=>{const w=wall({x:0,y:0},{x:6,y:0});const o=openingFromPreset(w,2,'door','double');assert.equal(o.width,1.6);assert.equal(o.style,'double');assert.throws(()=>openingFromPreset(w,.2,'window','panorama'));assert.equal(openingPresets.door.length,5)});
+
+import {validCamera,storeCamera} from '../src/core.js';
+test('camera positions persist with valid level and finite geometry',()=>{const p=project(),c={position:[1,2,3],target:[0,0,0],quaternion:[0,0,0,1],fov:55,level:p.levels[0].id,walk:false};assert.ok(validCamera(c));storeCamera(p,'Wohnzimmer',c);assert.equal(validate(p),p);assert.throws(()=>storeCamera(p,'Invalid',{...c,level:'missing'}))});
