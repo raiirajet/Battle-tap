@@ -1,6 +1,6 @@
 {
   "name": "homecraft-3d",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -12,7 +12,8 @@
   "dependencies": {
     "three": "0.170.0",
     "@capacitor/core": "7.4.4",
-    "@capacitor/android": "7.4.4"
+    "@capacitor/android": "7.4.4",
+    "pdfjs-dist": "4.10.38"
   },
   "devDependencies": {
     "@capacitor/cli": "7.4.4",
