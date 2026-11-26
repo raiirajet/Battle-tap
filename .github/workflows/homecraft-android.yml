@@ -34,6 +34,16 @@ jobs:
       - run: npm install --no-audit --no-fund
       - run: npm test
       - run: npm run build
+      - name: Browser 2D and WebGL smoke test
+        run: |
+          npx playwright install --with-deps chromium
+          npm run preview -- --port 4173 > /tmp/homecraft-preview.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && break; sleep 1; done
+          node scripts/browser-smoke.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HomeCraft-smoke-screenshot
+          path: homecraft/homecraft-smoke.png
       - uses: actions/upload-artifact@v4
         with:
           name: HomeCraft-PWA

@@ -1,6 +1,6 @@
 {
   "name": "homecraft-3d",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "7.4.4",
-    "vite": "6.4.1"
+    "vite": "6.4.1",
+    "playwright": "1.51.1"
   }
 }

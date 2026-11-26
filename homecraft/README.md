@@ -6,3 +6,5 @@ Not release-ready: no validated Android hardware run yet. localStorage not SQLit
 
 ## 0.4.0
 Adds non-destructive planar wall intersection/T-junction splitting for room detection, overlapping-wall rejection, named rooms and 8 floor color presets, 3 editable starter templates, upper-floor mesh openings for valid straight stairs, touch pinch/pan, manual annotations and measurements, raster image tracing, and vector A3 PDF export. Room metadata is keyed by contour and may reset when topology changes. Image tracing uses whole-image width, not two-point calibration. Stair movement, full slabs/ceilings, complex roof geometry, PDF import and textured assets remain incomplete. PDF uses ASCII text fallback. No full masterplan completion claimed.
+
+0.4.1: two-point raster calibration, offset adjustment, transparent room overlay, procedural floor textures, straight staircase walking with level transitions and basic furniture collisions. Not yet validated on real devices. The stair cutout remains a floor-plane opening, not a complete structural slab. Stair walk is limited to linked straight runs. Imported plan image remains locally stored; export your project as backup.

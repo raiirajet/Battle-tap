@@ -9,3 +9,7 @@ test('T junction splits rectangular floor into two rooms',()=>{const p=project()
 test('dangling partition preserves closed room',()=>{const p=project(),l=p.levels[0];rectangle(l,{x:0,y:0},{x:6,y:4});insertWall(l,{x:3,y:0},{x:3,y:2});assert.equal(rooms(l).length,1)});
 test('overlapping wall rejected',()=>{const p=project(),l=p.levels[0];rectangle(l,{x:0,y:0},{x:6,y:4});assert.throws(()=>insertWall(l,{x:1,y:0},{x:3,y:0}))});
 test('family template has valid stair opening and PDF pages',()=>{const p=template('family','Test');validate(p);assert.equal(stairLinks(p).length,1);const pdf=planPDF(p,100);assert.match(pdf,/\/Count 2/);assert.ok(pdf.startsWith('%PDF-1.4'));assert.throws(()=>planPDF(p,20))});
+
+import {stairHeight,walkTarget} from '../src/core.js';
+test('stair height is orientation-aware and increases along run',()=>{const p=template('family','Test'),a=stairLinks(p)[0],o=a.object;assert.ok(stairHeight(a,{x:o.x,y:o.y-1})<stairHeight(a,{x:o.x,y:o.y+1}));assert.equal(stairHeight(a,{x:o.x+2,y:o.y}),null)});
+test('walker cannot cross solid wall or climb from stair side',()=>{const p=template('family','Test'),a=stairLinks(p)[0],l=p.levels[0];assert.equal(walkTarget(p,l.id,{x:.3,y:2,height:0},{x:.05,y:2}),null);assert.equal(walkTarget(p,l.id,{x:a.object.x+1,y:a.object.y,height:0},{x:a.object.x,y:a.object.y}),null)});
