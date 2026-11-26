@@ -49,7 +49,7 @@ public class BiometricVaultPlugin extends Plugin {
         }catch(Exception e){call.reject("Biometrischer Schlüssel nicht verfügbar. Passphrase verwenden.");}});
     }
     private void authenticate(PluginCall call,Cipher cipher,String password,boolean enable){
-        BiometricPrompt prompt=new BiometricPrompt.Builder(getActivity()).setTitle("HomeCraft 3D").setSubtitle(enable?"Biometrie für Projektspeicher aktivieren":"Projekte entsperren").setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG).setNegativeButton("Abbrechen",getActivity().getMainExecutor(),(d,w)->{}).build();
+        BiometricPrompt prompt=new BiometricPrompt.Builder(getActivity()).setTitle("HomeCraft 3D").setSubtitle(enable?"Biometrie für Projektspeicher aktivieren":"Projekte entsperren").setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG).setNegativeButton("Abbrechen",getActivity().getMainExecutor(),(d,w)->call.reject("Biometrie abgebrochen")).build();
         prompt.authenticate(new BiometricPrompt.CryptoObject(cipher),new CancellationSignal(),getActivity().getMainExecutor(),new BiometricPrompt.AuthenticationCallback(){
             @Override public void onAuthenticationError(int code,CharSequence message){call.reject("Biometrie abgebrochen oder nicht verfügbar");}
             @Override public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result){try{
