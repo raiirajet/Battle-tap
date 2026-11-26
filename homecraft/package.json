@@ -1,6 +1,6 @@
 {
   "name": "homecraft-3d",
-  "version": "0.9.17",
+  "version": "1.0.0-rc.1",
   "private": true,
   "type": "module",
   "scripts": {
