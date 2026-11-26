@@ -21,3 +21,6 @@ test('curve contains endpoints and interior bend',()=>{const p=curvePoints({x:0,
 test('quantity report subtracts openings and counts objects',()=>{const p=template('studio','Test'),q=quantities(p)[0];assert.equal(q.doors,1);assert.equal(q.windows,1);assert.equal(q.objects,4);assert.ok(q.wallArea>0&&q.floor>0)});
 
 test('PDF paper sizes and orientation',()=>{const p=template('studio','Test');assert.match(planPDF(p,100,'A4',false),/MediaBox \[0 0 595.28 841.89\]/);assert.throws(()=>planPDF(p,100,'A0'))});
+
+import {templateChoices} from '../src/core.js';
+test('all 60 parametric presets create valid nonempty projects',()=>{assert.equal(templateChoices.length,60);for(const t of templateChoices){const p=template(t.id,t.name);validate(p);assert.ok(rooms(p.levels[0]).length>0)}});

@@ -1,11 +1,11 @@
 {
   "name": "homecraft-3d",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "vite build",
+    "build": "vite build && node scripts/cache-assets.mjs",
     "test": "node --test",
     "preview": "vite preview --host 0.0.0.0"
   },
