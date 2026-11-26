@@ -1,0 +1,11 @@
+
+import {uiIcon} from './menu-ui.js';
+const labels={select:'Auswahl',wall:'Wand',room:'Raum',curve:'Kurve',route:'Leitung',landscape:'Aussenfläche',parcel:'Bauland',roofPatch:'Dachfläche',measure:'Messen',note:'Text',door:'Tür',window:'Fenster',furniture:'Möbel',move:'Verschieben',pan:'Plan verschieben',cancel:'Fertig',abort:'Abbrechen',plus:'Vergrössern',minus:'Verkleinern',fit2d:'Plan zentrieren',focus:'Zeichenmodus',fit:'Zentrieren',all:'Alle Etagen',cut:'Dach zeigen',night:'Nacht',photo:'Foto',interact:'Interagieren',views:'Ansichten',cameras:'Kameras'};
+const plan=[{id:'build',label:'Bauen',tools:['wall','room','door','window','curve','roofPatch']},{id:'interior',label:'Einrichten',tools:['furniture','move']},{id:'garden',label:'Garten',tools:['landscape','parcel']},{id:'planning',label:'Planung',tools:['measure','note','route','cancel','abort']},{id:'view',label:'Ansicht',tools:['select','pan','plus','minus','fit2d','focus']}];
+const model=[{id:'view',label:'Ansicht',tools:['fit','all','cut','views','night','focus']},{id:'presentation',label:'Präsentation',tools:['photo','cameras']},{id:'interactGroup',label:'Rundgang',tools:['interact']}];
+export const toolGroups=planMode=>planMode?plan:model;
+export const toolLabel=id=>labels[id]||id;
+export const toolCategory=(id,planMode)=>toolGroups(planMode).find(g=>g.tools.includes(id))?.id;
+const allowed=new Set([...plan,...model].flatMap(g=>g.tools).filter(id=>!['select','pan','fit','cancel','abort','focus'].includes(id)));
+export function toolFavorites(value){if(!Array.isArray(value))return ['wall','room','measure','furniture','landscape','photo'];return [...new Set(value.filter(id=>allowed.has(id)))].slice(0,6)}
+export function toolIcon(id){const d={focus:'M9 3H3v6 M15 3h6v6 M21 15v6h-6 M3 15v6h6',unfocus:'M3 9h6V3 M21 9h-6V3 M15 21v-6h6 M3 15h6v6',star:'M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z'}[id];if(d)return '<svg class="uiIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+d+'"/></svg>';return uiIcon(({build:'home',interior:'furniture',garden:'landscape',planning:'measure',view:'views',presentation:'photo',interactGroup:'walk'})[id]||id)}
