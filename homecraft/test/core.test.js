@@ -13,3 +13,9 @@ test('family template has valid stair opening and PDF pages',()=>{const p=templa
 import {stairHeight,walkTarget} from '../src/core.js';
 test('stair height is orientation-aware and increases along run',()=>{const p=template('family','Test'),a=stairLinks(p)[0],o=a.object;assert.ok(stairHeight(a,{x:o.x,y:o.y-1})<stairHeight(a,{x:o.x,y:o.y+1}));assert.equal(stairHeight(a,{x:o.x+2,y:o.y}),null)});
 test('walker cannot cross solid wall or climb from stair side',()=>{const p=template('family','Test'),a=stairLinks(p)[0],l=p.levels[0];assert.equal(walkTarget(p,l.id,{x:.3,y:2,height:0},{x:.05,y:2}),null);assert.equal(walkTarget(p,l.id,{x:a.object.x+1,y:a.object.y,height:0},{x:a.object.x,y:a.object.y}),null)});
+
+import {catalog,object,quantities,roofProfile,curvePoints} from '../src/core.js';
+test('catalog IDs unique and variants instantiate',()=>{const ids=catalog.map(c=>c.modelId||c.kind);assert.equal(new Set(ids).size,ids.length);assert.ok(catalog.length>300);const o=object('sofa-eiche',{x:0,y:0});assert.equal(o.kind,'sofa');assert.equal(o.color,'#b68b5d')});
+test('all six roof profiles finite and indexed',()=>{for(const type of ['flat','gable','shed','hip','mansard','butterfly']){const r=roofProfile(type,8,10,30);assert.ok(r.vertices.flat().every(Number.isFinite));assert.ok(r.faces.flat().every(i=>i>=0&&i<r.vertices.length))}});
+test('curve contains endpoints and interior bend',()=>{const p=curvePoints({x:0,y:0},{x:2,y:2},{x:4,y:0});assert.equal(p.length,17);assert.deepEqual(p[0],{x:0,y:0});assert.deepEqual(p[16],{x:4,y:0});assert.equal(p[8].y,1)});
+test('quantity report subtracts openings and counts objects',()=>{const p=template('studio','Test'),q=quantities(p)[0];assert.equal(q.doors,1);assert.equal(q.windows,1);assert.equal(q.objects,4);assert.ok(q.wallArea>0&&q.floor>0)});
