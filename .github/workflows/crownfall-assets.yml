@@ -1,0 +1,37 @@
+name: Crownfall 3D asset pack
+on:
+  push:
+    branches: ['crownfall-v0.1']
+    paths: ['crownfall/tools/asset3d/**', '.github/workflows/crownfall-assets.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate binary GLB assets
+        run: node crownfall/tools/asset3d/generate.mjs crownfall/assets/3d
+      - name: Validate generated assets
+        run: node crownfall/tools/asset3d/validate.mjs crownfall/assets/3d
+      - name: Package production prototype
+        run: |
+          mkdir -p dist
+          cd crownfall/assets
+          zip -qr ../../dist/Crownfall_3D_Assets_v0.1.zip 3d
+          cd ../..
+          unzip -tq dist/Crownfall_3D_Assets_v0.1.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Crownfall_3D_Assets_v0.1
+          path: crownfall/assets/3d/
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Crownfall_3D_Assets_ZIP_v0.1
+          path: dist/Crownfall_3D_Assets_v0.1.zip
+          if-no-files-found: error
