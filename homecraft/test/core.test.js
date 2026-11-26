@@ -29,3 +29,10 @@ import {editWall,angleSnap,catalogStats} from '../src/core.js';
 test('moving wall endpoints keeps adjacent endpoints joined',()=>{const p=project(),l=p.levels[0];rectangle(l,{x:0,y:0},{x:6,y:4});editWall(l,l.walls[0],{a:{x:0,y:-1},b:{x:6,y:-1}});assert.deepEqual(l.walls[1].a,{x:6,y:-1});assert.deepEqual(l.walls[3].b,{x:0,y:-1});assert.equal(rooms(l).length,1)});
 test('angle snapping preserves length',()=>{const a={x:0,y:0},b={x:3,y:.1},p=angleSnap(a,b,90);assert.ok(Math.abs(p.y)<1e-9);assert.ok(Math.abs(Math.hypot(p.x,p.y)-Math.hypot(b.x,b.y))<1e-9)});
 test('catalog count separates base types from finish variants',()=>{const s=catalogStats();assert.equal(s.base,54);assert.equal(s.entries,s.base+s.variants)});
+
+import {materials,finish,kitchenLayout,bathroomLayout,overlap,roomCosts} from '../src/core.js';
+test('128 finish presets have unique identifiers and valid descriptors',()=>{assert.equal(materials.length,128);assert.equal(new Set(materials.map(x=>x.id)).size,128);assert.ok(materials.every(x=>/^#[0-9a-f]{6}$/i.test(finish(x.id).color)))});
+test('kitchen layouts generate grouped modules and worktops',()=>{for(const shape of ['straight','L','U','island']){const a=kitchenLayout({x:2,y:3},{shape,rotation:90});assert.ok(a.length>=5);assert.equal(new Set(a.map(x=>x.groupId)).size,1);assert.ok(a.some(x=>x.name==='Arbeitsplatte'));assert.ok(a.every(x=>Number.isFinite(x.x)&&Number.isFinite(x.y)))}});
+test('bathroom layout has required fixtures',()=>{const a=bathroomLayout({x:0,y:0},{bath:true});assert.ok(a.some(x=>x.kind==='bath'));assert.ok(a.some(x=>x.kind==='toilet'));assert.throws(()=>bathroomLayout({x:0,y:0},{width:1}))});
+test('rotated overlap respects vertical separation',()=>{const a=object('table',{x:0,y:0}),b=object('chair',{x:.2,y:0});b.rotation=45;assert.ok(overlap(a,b));b.elevation=2;assert.equal(overlap(a,b),false)});
+test('cost rates are calculated per level',()=>{const p=template('studio','Test'),q=roomCosts(p,{floor:40,waste:10,labor:20})[0];assert.ok(Math.abs(q.cost-q.floor*64)<1e-8)});
