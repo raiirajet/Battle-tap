@@ -24,16 +24,16 @@ jobs:
         run: |
           mkdir -p dist
           cd crownfall/assets
-          zip -qr ../../dist/Crownfall_3D_Assets_v0.2.zip 3d
+          zip -qr ../../dist/Crownfall_3D_Assets_v0.3.zip 3d
           cd ../..
-          unzip -tq dist/Crownfall_3D_Assets_v0.2.zip
+          unzip -tq dist/Crownfall_3D_Assets_v0.3.zip
       - uses: actions/upload-artifact@v4
         with:
-          name: Crownfall_3D_Assets_v0.2
+          name: Crownfall_3D_Assets_v0.3
           path: crownfall/assets/3d/
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
-          name: Crownfall_3D_Assets_ZIP_v0.2
-          path: dist/Crownfall_3D_Assets_v0.2.zip
+          name: Crownfall_3D_Assets_ZIP_v0.3
+          path: dist/Crownfall_3D_Assets_v0.3.zip
           if-no-files-found: error
