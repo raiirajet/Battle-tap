@@ -2,7 +2,8 @@ plugins { id 'com.android.application' }
 android {
  namespace 'ch.crownfall.game'
  compileSdk 35
- defaultConfig { applicationId 'ch.crownfall.game'; minSdk 23; targetSdk 35; versionCode 4; versionName '0.4-alpha' }
+ defaultConfig { applicationId 'ch.crownfall.game'; minSdk 23; targetSdk 35; versionCode 5; versionName '0.5-alpha-3d' }
+ androidResources { noCompress += ['glb'] }
  sourceSets { main { assets.srcDirs = ['../../web']; res.srcDirs = ['src/main/res'] } }
  compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }

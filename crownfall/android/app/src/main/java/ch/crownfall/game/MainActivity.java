@@ -23,7 +23,7 @@ public class MainActivity extends Activity {
  @Override public WebResourceResponse shouldInterceptRequest(WebView v,WebResourceRequest r){
  if(!"appassets.androidplatform.net".equals(r.getUrl().getHost()))return new WebResourceResponse("text/plain","UTF-8",new java.io.ByteArrayInputStream(new byte[0]));
  WebResourceResponse response=loader.shouldInterceptRequest(r.getUrl());
- if(response!=null&&r.getUrl().getPath()!=null&&r.getUrl().getPath().endsWith(".mjs"))response.setMimeType("text/javascript");
+ if(response!=null&&r.getUrl().getPath()!=null){String path=r.getUrl().getPath();if(path.endsWith(".mjs"))response.setMimeType("text/javascript");else if(path.endsWith(".glb"))response.setMimeType("model/gltf-binary");else if(path.endsWith(".json"))response.setMimeType("application/json");}
  return response;
  }
  @Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest r){return !"appassets.androidplatform.net".equals(r.getUrl().getHost());}

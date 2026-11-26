@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,6 +21,26 @@ jobs:
           node --check crownfall/web/app.mjs
           node --check crownfall/web/sw.js
           for f in crownfall/web/*.mjs; do node --check "$f"; done
+      - name: Download verified 3D assets v0.3
+        uses: actions/download-artifact@v4
+        with:
+          name: Crownfall_3D_Assets_v0.3
+          run-id: 45841769836
+          github-token: ${{ github.token }}
+          path: crownfall/web/assets3d
+      - name: Verify packaged models and bundle renderer
+        run: |
+          node crownfall/tools/asset3d/validate.mjs crownfall/web/assets3d
+          npm install --prefix crownfall/tools/renderer --no-audit --no-fund
+          crownfall/tools/renderer/node_modules/.bin/esbuild crownfall/tools/renderer/scene.mjs --bundle --format=esm --minify --target=es2020 --outfile=crownfall/web/renderer.bundle.mjs
+      - name: Browser 3D smoke test
+        run: |
+          crownfall/tools/renderer/node_modules/.bin/playwright install chromium
+          node crownfall/tools/renderer/smoke.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crownfall-3d-smoke-screenshot
+          path: crownfall-3d-smoke.png
       - name: Generate PWA icons
         run: python3 crownfall/tools/icons.py crownfall/web
       - uses: actions/upload-artifact@v4
@@ -45,6 +66,11 @@ jobs:
           test -f "$SDK/platforms/android-35/android.jar"
       - name: Build standalone Android APK
         run: gradle -p crownfall/android assembleDebug
+      - name: Verify APK contains engine and assets
+        run: |
+          APK=crownfall/android/app/build/outputs/apk/debug/app-debug.apk
+          unzip -tq "$APK"
+          python3 -c "import zipfile; z=zipfile.ZipFile('$APK'); n=z.namelist(); assert 'assets/renderer.bundle.mjs' in n; assert 'assets/assets3d/manifest.json' in n; assert sum(x.endswith('.glb') for x in n)==691; print('APK includes all 691 GLBs')"
       - uses: actions/upload-artifact@v4
         with:
           name: crownfall-debug-apk
