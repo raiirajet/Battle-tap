@@ -1,7 +1,7 @@
 name: Crownfall 3D asset pack
 on:
   push:
-    branches: ['crownfall-v0.2']
+    branches: ['crownfall-v0.1']
     paths: ['crownfall/tools/asset3d/**', '.github/workflows/crownfall-assets.yml']
   workflow_dispatch:
 permissions:
