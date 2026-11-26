@@ -42,3 +42,5 @@ Adds non-destructive planar wall intersection/T-junction splitting for room dete
 0.9.7: Android native safe-area margins, web safe-area layout, live dashed drawing preview and measurements, release-position commit rather than discarding drawing drags, dedicated persistent Finish/Undo point/Cancel controls, landscape rectangle and free polygon with closure normalization, precise rotated rectangular building parcel and free parcel boundary, parcel statistics and PDF boundaries. Native status-bar fix still needs a real-device check. Parcel stats are geometric, not legal zoning calculations.
 
 0.9.8: exact numerical length/angle for walls and measurements, signed X/Y dimensions for rooms and rectangular exterior surfaces, direct numeric exterior-surface creation, correct gravel preset and landscape layer below indoor finished floor. Native safe-area and physical touch behaviour still need device testing.
+
+0.9.9: live line heading and previous-segment interior angle, angular guide, persistent 2D display preferences and detail presets, optional ghost of the preceding level. Display options are visualization only.

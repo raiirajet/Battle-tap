@@ -67,3 +67,6 @@ test('free parcel normalizes closure and rejects bow tie',()=>{const p=project()
 
 import {endpointAt,landscapeFinish} from '../src/core.js';
 test('exact line endpoint preserves length and angle',()=>{const a={x:2,y:3},q=endpointAt(a,4,30);assert.ok(Math.abs(Math.hypot(q.x-a.x,q.y-a.y)-4)<1e-9);assert.ok(Math.abs(q.y-5)<1e-9);assert.throws(()=>endpointAt(a,0,0));assert.equal(landscapeFinish('gravel'),'gravel-1')});
+
+import {lineAngle,cornerAngle,displaySettings,elementDimensions} from '../src/core.js';
+test('drawing angle uses clockwise plan coordinates and interior corner',()=>{const a={x:0,y:0};assert.equal(lineAngle(a,{x:0,y:1}),90);assert.equal(lineAngle(a,{x:0,y:-1}),270);assert.equal(cornerAngle(a,{x:2,y:0},{x:2,y:2}),90)});test('display settings accept only boolean flags',()=>{const d=displaySettings({grid:false,angles:'bad'});assert.equal(d.grid,false);assert.equal(d.angles,true)});
