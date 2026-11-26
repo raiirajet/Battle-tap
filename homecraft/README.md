@@ -44,3 +44,5 @@ Adds non-destructive planar wall intersection/T-junction splitting for room dete
 0.9.8: exact numerical length/angle for walls and measurements, signed X/Y dimensions for rooms and rectangular exterior surfaces, direct numeric exterior-surface creation, correct gravel preset and landscape layer below indoor finished floor. Native safe-area and physical touch behaviour still need device testing.
 
 0.9.9: live line heading and previous-segment interior angle, angular guide, persistent 2D display preferences and detail presets, optional ghost of the preceding level. Display options are visualization only.
+
+0.9.10: 520 ms long press in selection mode (right click on desktop), context actions tailored to walls, openings, furniture, rooms, routes, roof and parcel surfaces. Manual dimensions added as snapshots, duplicate suppression, wall length/angle editor, wall direction flip, color and surface changes, object rename/rotation/duplication/lock. Context gesture cancels on drag or multi-touch. 2D visibility settings are separate from project geometry. Physical Android long-press verification remains outstanding.

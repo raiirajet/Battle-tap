@@ -70,3 +70,6 @@ test('exact line endpoint preserves length and angle',()=>{const a={x:2,y:3},q=e
 
 import {lineAngle,cornerAngle,displaySettings,elementDimensions} from '../src/core.js';
 test('drawing angle uses clockwise plan coordinates and interior corner',()=>{const a={x:0,y:0};assert.equal(lineAngle(a,{x:0,y:1}),90);assert.equal(lineAngle(a,{x:0,y:-1}),270);assert.equal(cornerAngle(a,{x:2,y:0},{x:2,y:2}),90)});test('display settings accept only boolean flags',()=>{const d=displaySettings({grid:false,angles:'bad'});assert.equal(d.grid,false);assert.equal(d.angles,true)});
+
+import {dimensionNotes} from '../src/core.js';
+test('context measurements use wall and rotated furniture geometry without duplicates',()=>{const p=project(),l=p.levels[0];rectangle(l,{x:0,y:0},{x:6,y:4});const w=l.walls[0];assert.equal(dimensionNotes(l,{type:'wall',id:w.id},p),1);assert.equal(dimensionNotes(l,{type:'wall',id:w.id},p),0);const o=object('table',{x:2,y:2});o.rotation=37;l.objects.push(o);assert.equal(dimensionNotes(l,{type:'object',id:o.id},p),2);assert.equal(l.notes.length,3)});
