@@ -36,3 +36,9 @@ test('kitchen layouts generate grouped modules and worktops',()=>{for(const shap
 test('bathroom layout has required fixtures',()=>{const a=bathroomLayout({x:0,y:0},{bath:true});assert.ok(a.some(x=>x.kind==='bath'));assert.ok(a.some(x=>x.kind==='toilet'));assert.throws(()=>bathroomLayout({x:0,y:0},{width:1}))});
 test('rotated overlap respects vertical separation',()=>{const a=object('table',{x:0,y:0}),b=object('chair',{x:.2,y:0});b.rotation=45;assert.ok(overlap(a,b));b.elevation=2;assert.equal(overlap(a,b),false)});
 test('cost rates are calculated per level',()=>{const p=template('studio','Test'),q=roomCosts(p,{floor:40,waste:10,labor:20})[0];assert.ok(Math.abs(q.cost-q.floor*64)<1e-8)});
+
+import {polygonValid,addLandscape,addRoute,solarPosition,moveGroup} from '../src/core.js';
+test('landscape polygon rejects self crossing and preserves valid concave shape',()=>{const p=project(),pts=[{x:0,y:0},{x:4,y:0},{x:4,y:4},{x:2,y:2},{x:0,y:4}];assert.ok(polygonValid(pts));addLandscape(p,'grass',pts);assert.equal(validate(p),p);assert.equal(polygonValid([{x:0,y:0},{x:3,y:3},{x:0,y:3},{x:3,y:0}]),false)});
+test('schematic route length and invalid system',()=>{const p=project(),l=p.levels[0],r=addRoute(l,'water',[{x:0,y:0},{x:3,y:0},{x:3,y:4}]);assert.equal(r.length,7);assert.equal(validate(p),p);assert.throws(()=>addRoute(l,'invalid',r.points))});
+test('solar elevation in Swiss summer exceeds winter and night is below horizon',()=>{const a=solarPosition('2026-06-21',12,47,8,2),b=solarPosition('2026-12-21',12,47,8,1),n=solarPosition('2026-06-21',0,47,8,2);assert.ok(a.altitude>b.altitude&&a.altitude>50&&n.altitude<0)});
+test('module group moves as one',()=>{const p=project(),l=p.levels[0];l.objects=kitchenLayout({x:0,y:0});const old=l.objects.map(o=>o.x);moveGroup(l,l.objects[0].groupId,2,1);assert.ok(l.objects.every((o,i)=>Math.abs(o.x-old[i]-2)<1e-8))});
