@@ -28,7 +28,7 @@ test('all 60 parametric presets create valid nonempty projects',()=>{assert.equa
 import {editWall,angleSnap,catalogStats} from '../src/core.js';
 test('moving wall endpoints keeps adjacent endpoints joined',()=>{const p=project(),l=p.levels[0];rectangle(l,{x:0,y:0},{x:6,y:4});editWall(l,l.walls[0],{a:{x:0,y:-1},b:{x:6,y:-1}});assert.deepEqual(l.walls[1].a,{x:6,y:-1});assert.deepEqual(l.walls[3].b,{x:0,y:-1});assert.equal(rooms(l).length,1)});
 test('angle snapping preserves length',()=>{const a={x:0,y:0},b={x:3,y:.1},p=angleSnap(a,b,90);assert.ok(Math.abs(p.y)<1e-9);assert.ok(Math.abs(Math.hypot(p.x,p.y)-Math.hypot(b.x,b.y))<1e-9)});
-test('catalog count separates base types from finish variants',()=>{const s=catalogStats();assert.equal(s.base,74);assert.equal(s.entries,s.base+s.variants)});
+test('catalog count separates base types from finish variants',()=>{const s=catalogStats();assert.equal(s.base,77);assert.equal(s.entries,s.base+s.variants)});
 
 import {materials,finish,kitchenLayout,bathroomLayout,overlap,roomCosts} from '../src/core.js';
 test('128 finish presets have unique identifiers and valid descriptors',()=>{assert.equal(materials.length,128);assert.equal(new Set(materials.map(x=>x.id)).size,128);assert.ok(materials.every(x=>/^#[0-9a-f]{6}$/i.test(finish(x.id).color)))});
@@ -48,3 +48,9 @@ test('opening styles generate correctly dimensioned voids',()=>{const w=wall({x:
 
 import {validCamera,storeCamera} from '../src/core.js';
 test('camera positions persist with valid level and finite geometry',()=>{const p=project(),c={position:[1,2,3],target:[0,0,0],quaternion:[0,0,0,1],fov:55,level:p.levels[0].id,walk:false};assert.ok(validCamera(c));storeCamera(p,'Wohnzimmer',c);assert.equal(validate(p),p);assert.throws(()=>storeCamera(p,'Invalid',{...c,level:'missing'}))});
+
+import {stairSteps,isStair,addRoofPatch,terrainHeight,furnishRoom} from '../src/core.js';
+test('all staircase shapes have rising treads and maximum height',()=>{for(const kind of ['stair','stairL','stairU','stairSpiral']){const o=object(kind,{x:0,y:0}),s=stairSteps(o,2.7);assert.ok(isStair(o));assert.ok(s.every((v,i)=>v.height>0&&(!i||v.height>s[i-1].height)));assert.equal(s.at(-1).height,2.7);assert.ok(s.every(v=>v.polygon.length===4))}});
+test('custom roof patches preserve vertex heights and valid level reference',()=>{const p=project();addRoofPatch(p,p.levels[0].id,[{x:0,y:0,z:0},{x:4,y:0,z:1},{x:4,y:4,z:1},{x:0,y:4,z:0}]);assert.equal(validate(p),p);assert.throws(()=>addRoofPatch(p,'missing',p.roofPatches[0].points))});
+test('terrain gradient is anchored at first polygon vertex',()=>{assert.equal(terrainHeight({points:[{x:1,y:1}],elevation:2,slopeX:.1,slopeY:.2},{x:4,y:3}),2.7)});
+test('automatic furnishing proposes in-room placements without overlaps',()=>{const p=project(),l=p.levels[0];rectangle(l,{x:0,y:0},{x:6,y:6});const r=rooms(l)[0],q=furnishRoom(l,r,'living');assert.ok(q.objects.length>=3);for(let i=0;i<q.objects.length;i++)for(let j=i+1;j<q.objects.length;j++)assert.equal(overlap(q.objects[i],q.objects[j]),false);assert.equal(l.objects.length,0)});
