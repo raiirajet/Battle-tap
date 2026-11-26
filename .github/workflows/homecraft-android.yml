@@ -3,9 +3,10 @@ on:
   push:
     branches: [homecraft-3d, main]
     paths: ['homecraft/**', '.github/workflows/homecraft-android.yml']
-  pull_request:
-    paths: ['homecraft/**', '.github/workflows/homecraft-android.yml']
   workflow_dispatch:
+concurrency:
+  group: homecraft-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -23,6 +24,13 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: homecraft-gradle-${{ runner.os }}-${{ hashFiles('homecraft/package.json') }}
+          restore-keys: homecraft-gradle-${{ runner.os }}-
       - name: Verify Android SDK
         run: |
           SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
