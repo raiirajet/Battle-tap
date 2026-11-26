@@ -5,7 +5,7 @@ const $=id=>document.getElementById(id),canvas=$('map'),ctx=canvas.getContext('2
 let slot=activeSlot(storage),key=slotKey(slot);
 let s;try{s=E.load(localStorage.getItem(key))}catch{}let fresh=!s;s=s||E.create();let mapAction=null,speed=1,filter='',techBranch='W',tab='build',pending=null,paused=false,zoom=1,pan={x:0,y:0},notice='',last=performance.now(),acc=0,drag=null,hover=null;
 function say(v){notice=v;$('notice').textContent=v}
-function save(show=false){try{localStorage.setItem(key,JSON.stringify(s));if(show)say('Reich gespeichert.')}catch{say('Speichern fehlgeschlagen. Speicher prüfen.')}}
+function save(show=false){if(fresh&&$('found').open)return;try{localStorage.setItem(key,JSON.stringify(s));if(show)say('Reich gespeichert.')}catch{say('Speichern fehlgeschlagen. Speicher prüfen.')}}
 function btn(label,fn,disabled=false){const b=document.createElement('button');b.textContent=label;b.disabled=disabled;b.onclick=fn;return b}
 function entry(title,description,buttons){const row=document.createElement('div');row.className='entry';const text=document.createElement('div'),b=document.createElement('b'),sm=document.createElement('small');b.textContent=title;sm.textContent=description;text.append(b,sm);const controls=document.createElement('div');controls.className='controls';controls.append(...buttons);row.append(text,controls);$('panel').append(row)}
 const cost=c=>Object.entries(c).map(([k,v])=>v+' '+k).join(' · ');
@@ -41,7 +41,7 @@ document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.
 $('save').onclick=()=>save(true);$('pause').onclick=()=>{paused=!paused;$('pause').textContent=paused?'▶':'Ⅱ';say(paused?'Spiel pausiert.':'Spiel läuft.')};$('new').onclick=()=>{if(confirm('Ein neues Reich ersetzt deinen lokalen Spielstand. Fortfahren?')){$('cancelFound').hidden=false;$('found').showModal()}};$('cancelFound').onclick=()=>$('found').close();
 $('foundForm').onsubmit=e=>{e.preventDefault();s=E.create($('name').value.trim(),$('hero').value);s.culture=$('culture').value;s.mode=$('mode').value;$('found').close();fresh=false;paused=false;$('pause').textContent='Ⅱ';pending=null;mapAction=null;save();refresh();say('Dein Reich wurde gegründet. Wähle Bauen.')};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(pending||mapAction)){pending=null;mapAction=null;say('Bauplanung abgebrochen.');refresh()}});document.addEventListener('visibilitychange',()=>{if(document.hidden)save();last=performance.now();acc=0});
-setInterval(()=>{const now=performance.now(),dt=Math.min(1000,now-last);last=now;if(paused||document.hidden||$('found').open){acc=0;return}acc+=dt;while(acc>=1000){for(let i=0;i<speed;i++)E.tick(s);acc-=1000;if(s.t%5===0)save();if(!document.activeElement?.matches('input,select'))refresh()}},100);
+setInterval(()=>{const now=performance.now(),dt=Math.min(1000,now-last);last=now;if(paused||document.hidden||$('found').open||$('slotDialog').open){acc=0;return}acc+=dt;while(acc>=1000){for(let i=0;i<speed;i++)E.tick(s);acc-=1000;if(s.t%5===0)save();if(!document.activeElement?.matches('input,select'))refresh()}},100);
 if(fresh)$('found').showModal();refresh();draw();
 if('serviceWorker'in navigator&&location.protocol==='https:'&&!location.hostname.endsWith('androidplatform.net'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
 
@@ -64,7 +64,9 @@ for(const c of E.cultures){const o=document.createElement('option');o.textConten
 
 function fillSlots(){const select=$('slotSelect');select.replaceChildren();for(const n of slots){let loaded;try{loaded=E.load(storage.getItem(slotKey(n)))}catch{}const o=document.createElement('option');o.value=n;o.textContent=n+' · '+(loaded?loaded.name+' ('+(loaded.mode==='campaign'?'Kampagne':'Kingdom')+')':'Leer');select.append(o)}select.value=String(slot);}
 $('slots').onclick=()=>{save();fillSlots();$('slotDialog').showModal();};
-$('switchSlot').onclick=()=>{const n=Number($('slotSelect').value);if(!setSlot(storage,n))return say('Spielstandwechsel nicht möglich.');save();slot=n;key=slotKey(n);let loaded;try{loaded=E.load(storage.getItem(key))}catch{}$('slotDialog').close();if(loaded){s=loaded;pending=null;mapAction=null;refresh();say('Spielstand geladen.')}else{s=E.create();$('cancelFound').hidden=true;$('found').showModal();refresh();}};
+$('switchSlot').onclick=()=>{const n=Number($('slotSelect').value);if(!setSlot(storage,n))return say('Spielstandwechsel nicht möglich.');save();slot=n;key=slotKey(n);let loaded;try{loaded=E.load(storage.getItem(key))}catch{}$('slotDialog').close();if(loaded){s=loaded;fresh=false;pending=null;mapAction=null;refresh();say('Spielstand geladen.')}else{s=E.create();fresh=true;$('cancelFound').hidden=true;$('found').showModal();refresh();}};
 $('exportSave').onclick=()=>{$('saveText').value=encodeSave(s);$('saveText').focus();$('saveText').select();};
-$('importSave').onclick=()=>{const candidate=decodeSave($('saveText').value,E.load);if(!candidate){say('Ungültiger Export.');return;}if(!confirm('Diesen Spielstand im ausgewählten aktiven Slot ersetzen?'))return;s=candidate;save();$('slotDialog').close();pending=null;mapAction=null;refresh();say('Spielstand importiert.');};
+$('importSave').onclick=()=>{const candidate=decodeSave($('saveText').value,E.load);if(!candidate){say('Ungültiger Export.');return;}if(!confirm('Diesen Spielstand im ausgewählten aktiven Slot ersetzen?'))return;s=candidate;fresh=false;save();$('slotDialog').close();pending=null;mapAction=null;refresh();say('Spielstand importiert.');};
 $('closeSlots').onclick=()=>$('slotDialog').close();
+
+$('found').addEventListener('cancel',e=>{if(fresh)e.preventDefault()});
