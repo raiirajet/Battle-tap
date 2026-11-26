@@ -76,3 +76,5 @@ body.dark .tileIcon,body.dark .menuGroupIcon{background:#31463e;color:#8ed9bf}bo
 @media(max-height:520px){.toolTabs button{min-height:44px;flex-direction:row;font-size:10px}.toolTabs button .uiIcon{width:16px;height:16px}.toolDock .tools button{min-height:44px;flex-direction:row}.quickStrip button{min-height:36px}.quickStrip{padding:0 4px}}
 
 #vertexHandles [data-vertex]{cursor:grab;touch-action:none}#vertexHandles [data-vertex]:active{cursor:grabbing}#draftPreview{pointer-events:none}
+
+.multiActions{width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:6px}.multiActions button{font-size:12px;display:flex;align-items:center;gap:6px;padding:6px}.multiActions .uiIcon{width:17px;height:17px}.objectRow{display:flex;align-items:center;gap:6px;margin:6px 0}.objectRow>button:first-child{flex:1;display:flex;align-items:center;gap:9px;text-align:left}.objectRow small{display:block;font-size:11px;color:var(--ui-muted);margin-top:3px}.objectRow>button:last-child{min-width:44px}.objectRow span{min-width:0;overflow-wrap:anywhere}

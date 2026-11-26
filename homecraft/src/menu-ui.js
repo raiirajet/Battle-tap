@@ -8,7 +8,7 @@ export const menuGroups=[
 ['Entwurf','home','mint',[['rename','Umbenennen','Projektname ändern'],['compare','Entwürfe vergleichen','Grundrisse überlagern'],['variant','Entwurfsvariante speichern','Alternative als Kopie']]],
 ['Gebäude','wall','blue',[['level','Geschoss bearbeiten','Höhe und Bezeichnung'],['duplicateLevel','Etage kopieren'],['basement','Keller hinzufügen'],['slab','Deckenstärke'],['roof','Dach','Form und Neigung'],['layers','Technische Ebenen']]],
 ['Grundstück','landscape','green',[['parcel','Bauland nach Mass'],['exactLandscape','Aussenfläche nach Mass'],['land','Standardgelände'],['siteStats','Grundstücksübersicht']]],
-['Einrichtung','furniture','sand',[['kitchen','Küchenplaner'],['bathroom','Badplaner'],['materials','Materialbibliothek'],['model','Eigenes GLB'],['myModels','Meine 3D-Modelle']]],
+['Einrichtung','furniture','sand',[['kitchen','Küchenplaner'],['bathroom','Badplaner'],['materials','Materialbibliothek'],['model','Eigenes GLB'],['myModels','Meine 3D-Modelle'],['objectsList','Objektverwaltung'],['groupTemplates','Eigene Möbelgruppen']]],
 ['Ansicht & Präzision','settings','blue',[['display','Anzeigeeinstellungen'],['grid','Raster'],['angle','Winkelfang'],['fit2d','Plan zentrieren'],['views','3D-Ansichten'],['daylight','Sonnenstand'],['quality','Grafikqualität'],['cameras','Kamerapositionen']]],
 ['Vorlagen & Import','import','mint',[['blueprint','Bild / PDF importieren'],['calibrate','Vorlage kalibrieren'],['moveBlueprint','Vorlage ausrichten']]],
 ['Flächen & Kosten','budget','sand',[['cost','Flächen / Kosten'],['budget','Kostenplaner'],['csv','Mengen CSV']]],
