@@ -59,6 +59,7 @@ jobs:
       - run: npx cap add android
       - run: npx cap sync android
       - run: python3 scripts/icons.py android
+      - run: python3 scripts/install-native.py
       - run: chmod +x gradlew && ./gradlew assembleDebug --no-daemon
         working-directory: homecraft/android
       - run: cp android/app/build/outputs/apk/debug/app-debug.apk HomeCraft-3D-debug.apk
