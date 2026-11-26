@@ -19,6 +19,7 @@ jobs:
           node --test crownfall/tests/*.test.mjs
           node --check crownfall/web/app.mjs
           node --check crownfall/web/sw.js
+          node --check crownfall/web/catalog.mjs
       - name: Generate PWA icons
         run: python3 crownfall/tools/icons.py crownfall/web
       - uses: actions/upload-artifact@v4
@@ -33,9 +34,15 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-      - uses: android-actions/setup-android@v3
       - name: Install Android SDK
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+        run: |
+          SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
+          test -d "$SDK"
+          if [[ ! -f "$SDK/platforms/android-35/android.jar" || ! -d "$SDK/build-tools/35.0.0" ]]; then
+            "$SDK/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
+          fi
+          test -f "$SDK/platforms/android-35/android.jar"
       - name: Build standalone Android APK
         run: gradle -p crownfall/android assembleDebug
       - uses: actions/upload-artifact@v4
