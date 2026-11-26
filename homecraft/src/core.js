@@ -131,3 +131,6 @@ export function polygonMetrics(points){return {area:Math.abs(area(points)),perim
 export function setParcel(p,options){const points=parcelPoints(options);p.parcel={...options,points};return p.parcel}
 export function setPolygonParcel(p,points){points=normalizePolygon(points);if(!polygonValid(points))throw Error('Grundstücksgrenze ist ungültig');p.parcel={points};return p.parcel}
 export function parcelCoverage(p){if(!p.parcel)return null;const l=p.levels.slice().sort((a,b)=>Math.abs(a.z)-Math.abs(b.z))[0],metrics=polygonMetrics(p.parcel.points),floor=rooms(l).reduce((s,r)=>s+r.area,0);return {...metrics,netFloor:floor,netRatio:metrics.area?floor/metrics.area*100:0}}
+
+export function endpointAt(a,length,angle){if(!a||![a.x,a.y,length,angle].every(Number.isFinite)||length<.05||length>500)throw Error('Ungültige Wandlänge');const rad=angle*Math.PI/180;return{x:a.x+Math.cos(rad)*length,y:a.y+Math.sin(rad)*length}}
+export const landscapeFinish=id=>id==='gravel'?'gravel-1':id;

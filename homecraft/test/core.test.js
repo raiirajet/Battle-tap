@@ -64,3 +64,6 @@ import {normalizePolygon,rectanglePoints,setParcel,setPolygonParcel,polygonMetri
 test('closed landscape accepts repeated first vertex and preserves exact area',()=>{const p=project(),pts=rectanglePoints({x:0,y:0},{x:5,y:4});const a=addLandscape(p,'grass',[...pts,pts[0]]);assert.equal(a.points.length,4);assert.equal(polygonMetrics(a.points).area,20);assert.equal(validate(p),p)});
 test('dimensioned rotated parcel keeps exact area and perimeter',()=>{const p=project();setParcel(p,{x:2,y:3,width:20,depth:30,rotation:37});const q=parcelCoverage(p);assert.ok(Math.abs(q.area-600)<1e-7);assert.ok(Math.abs(q.perimeter-100)<1e-7);assert.equal(validate(p),p)});
 test('free parcel normalizes closure and rejects bow tie',()=>{const p=project(),a=rectanglePoints({x:0,y:0},{x:4,y:5});setPolygonParcel(p,[...a,a[0]]);assert.equal(p.parcel.points.length,4);assert.throws(()=>setPolygonParcel(p,[a[0],a[2],a[1],a[3]]))});
+
+import {endpointAt,landscapeFinish} from '../src/core.js';
+test('exact line endpoint preserves length and angle',()=>{const a={x:2,y:3},q=endpointAt(a,4,30);assert.ok(Math.abs(Math.hypot(q.x-a.x,q.y-a.y)-4)<1e-9);assert.ok(Math.abs(q.y-5)<1e-9);assert.throws(()=>endpointAt(a,0,0));assert.equal(landscapeFinish('gravel'),'gravel-1')});
