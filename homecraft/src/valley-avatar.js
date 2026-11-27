@@ -44,10 +44,10 @@ export function avatarMesh(input,{detail=true}={}){
  let phase=0,weight=0,clock=0,glb=null;const legacySkin=[];root.traverse(o=>{if(o.isMesh&&(o.material===skin&&o.parent!==head||o.material?.userData?.valleyFace))legacySkin.push(o)});function useRig(src){if(src&&!glb&&!root.userData.disposed){glb=attachValleyRig(root,src,p,legacySkin);if(glb)root.userData.disposeRig=()=>glb.dispose()}}if(typeof document!=='undefined'){const src=getValleyRig(detail);if(src)useRig(src);else preloadValleyRig(detail).then(useRig)}
  return {root,update(state,dx,dz,moving,dt,action=null,motion={}){
  dt=Math.max(0,Math.min(.1,Number.isFinite(dt)?dt:0));root.position.set(state.x,state.height+.025,state.z);
- if(moving&&Math.hypot(dx,dz)>.001){const target=Math.atan2(dx,dz),delta=Math.atan2(Math.sin(target-root.rotation.y),Math.cos(target-root.rotation.y));root.rotation.y+=delta*(1-Math.exp(-dt*14));phase+=dt*(motion.run?14:9.5)}
+ if(moving&&Math.hypot(dx,dz)>.001){const target=Math.atan2(dx,dz),delta=Math.atan2(Math.sin(target-root.rotation.y),Math.cos(target-root.rotation.y));root.rotation.y+=delta*(1-Math.exp(-dt*14))}phase+=dt*(motion.run?14:9.5)*Math.max(weight,moving?.35:0);
  weight+=(Number(moving)-weight)*(1-Math.exp(-dt*12));const pose=poseFor(action),walk=pose==='idle'?weight:0;clock+=dt;const jump=Math.max(0,motion.jump||0),run=motion.run?1.28:1;
- body.rotation.x=pose==='sleep'?-Math.PI/2:0;body.rotation.z=walk*Math.sin(phase)*.027;body.position.y=pose==='sleep'?.31:pose==='sit'?-.32:Math.abs(Math.sin(phase))*walk*.034+(1-walk)*Math.sin(clock*2)*.006+jump;
- head.rotation.y=walk*Math.sin(phase*.5)*.045;face.update(clock,{pose,jump,moving,seed:root.userData.expressionSeed});hairstyle.update(clock,walk);
+ body.rotation.x=pose==='sleep'?-Math.PI/2:0;body.rotation.z=walk*Math.sin(phase)*.027;body.rotation.y=walk*Math.sin(phase)*.035;body.position.y=pose==='sleep'?.31:pose==='sit'?-.32:Math.abs(Math.sin(phase))*walk*.034+(1-walk)*Math.sin(clock*2)*.006+jump;
+ head.rotation.y=walk*Math.sin(phase*.5)*.045;head.rotation.z=-body.rotation.z*.55;face.update(clock,{pose,jump,moving,seed:root.userData.expressionSeed});hairstyle.update(clock,walk);
  for(let i=0;i<2;i++){const t=phase+i*Math.PI,s=Math.sin(t),{hip,knee}=legs[i],{a,elbow,hand}=arms[i];hip.rotation.x=pose==='sit'?-Math.PI/2:walk*s*.51*run-jump*.6;knee.rotation.x=pose==='sit'?Math.PI/2:Math.max(0,-s)*walk*.65+jump*1.3;a.rotation.x=pose==='use'?-.82:pose==='sit'?-.35:-walk*s*.40*run-jump*.5;elbow.rotation.x=pose==='use'?-1.05:pose==='sit'?-.35:-.12-Math.max(0,s)*walk*.37;a.rotation.z=(i?1:-1)*.055;hand.update(pose==='use'?.78:pose==='sit'?.22:.16+walk*(motion.run?.48:.16),t)}glb?.update(dt,{moving,run:motion.run,jump,pose});
  }};
 }
