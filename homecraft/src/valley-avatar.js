@@ -10,7 +10,7 @@ function joint(parent,x,y,z){const b=new T.Bone();b.position.set(x,y,z);parent.a
 export function avatarMesh(input,{detail=true}={}){
  const p=profile(input);if(p.style==='cartoon')return toonAvatar(p,{detail});const root=new T.Group(),body=joint(root,0,0,0);body.name='ValleyBody';
  const skin=material(p.skin,{roughness:.65}),shirt=material(p.shirt),pants=material(p.pants,{roughness:.96}),shoe=material({dark:0x292c30,white:0xe5e4dd,brown:0x6c4a37}[p.shoes]),sole=material(0x4a4945),hair=material(p.hair),seam=material(new T.Color(p.shirt).multiplyScalar(.76)),denim=material(new T.Color(p.pants).multiplyScalar(.78));
- applySkinDetail(skin,detail);skin.userData.valleyLegacySkin=true;body.scale.x={slim:.86,regular:1,athletic:1.12,stocky:1.19}[p.build];applyTextile(shirt,p.outfit==='cardigan'?'knit':p.outfit==='jacket'?'denim':'cotton',detail);applyTextile(pants,p.bottom==='jeans'?'denim':'cotton',detail);applyTextile(shoe,'leather',detail);
+ applySkinDetail(skin,detail);skin.userData.valleyLegacySkin=true;body.scale.x={slim:.89,regular:1,athletic:1.10,stocky:1.17}[p.build];body.scale.z={slim:.94,regular:1,athletic:1.03,stocky:1.08}[p.build];applyTextile(shirt,p.outfit==='cardigan'?'knit':p.outfit==='jacket'?'denim':'cotton',detail);applyTextile(pants,p.bottom==='jeans'?'denim':'cotton',detail);applyTextile(shoe,'leather',detail);
  mesh(body,silhouette([[.73,.13,.093],[.81,.166,.112],[.88,.151,.105],[.96,.135,.095]],20),pants);
  garment(body,shirt,seam,p,detail);mesh(body,silhouette([[1.30,.066,.064],[1.39,.059,.059],[1.45,.056,.053]],20),skin);
  const head=joint(body,0,1.53,0);head.name='ValleyHead';const face=makeFace(head,p,skin,hair,detail),hairstyle=makeHair(head,p,hair,detail);
@@ -19,7 +19,7 @@ export function avatarMesh(input,{detail=true}={}){
  const k=sideKey(s),a=joint(body,s*.195,1.25,0),elbow=joint(a,0,-.25,0);a.name=k+'UpperArm';elbow.name=k+'Forearm';
  mesh(a,silhouette([[-.26,.047,.043],[-.19,.055,.052],[-.09,.067,.065],[.00,.063,.060],[.04,.039,.041]],20),shirt);
  const long=['jacket','cardigan','hoodie','coat','blouse','pajamas'].includes(p.outfit);mesh(elbow,silhouette([[-.205,.024,.023],[-.16,.035,.033],[-.08,.043,.042],[0,.045,.044]],20),long?shirt:skin);
- if(long)mesh(elbow,silhouette([[-.207,.030,.028],[-.175,.034,.031]],16),seam);
+ if(long){mesh(elbow,silhouette([[-.207,.030,.028],[-.175,.034,.031]],16),seam);if(detail)for(let j=0;j<3;j++){const y=-.09-j*.022;curveDetail(elbow,seam,[[-.028,y,.030],[0,y+.008,.041],[.030,y,.025]],.0015,8)}}
  else mesh(a,silhouette([[-.252,.046,.045],[-.219,.051,.048]],16),seam);
  const hand=makeHand(elbow,skin,s,detail);if(p.accessory==='watch'&&s<0){const band=mesh(elbow,new T.TorusGeometry(.032,.006,6,16),shoe,0,-.168,0);band.rotation.x=Math.PI/2;box(elbow,sole,0,-.168,.030,.035,.031,.009)}arms.push({a,elbow,hand});
  const hip=joint(body,s*.095,.79,0),knee=joint(hip,0,-.345,0);hip.name=k+'Thigh';knee.name=k+'Shin';

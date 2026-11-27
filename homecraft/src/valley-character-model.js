@@ -1,3 +1,4 @@
+import {smoothRingSeam} from './valley-anatomy.js';
 import {sideKey} from './valley-rig-spec.js';
 import {faceGeometry,irisGeometry,irisTexture} from './valley-character-assets.js';
 import * as T from 'three';
@@ -12,14 +13,14 @@ export function silhouette(rings,segments=24){
  const pos=[],uv=[],idx=[];
  for(let i=0;i<rings.length;i++){const [y,w,d,front=0]=rings[i];for(let j=0;j<=segments;j++){const a=j/segments*Math.PI*2;pos.push(Math.sin(a)*w,y,Math.cos(a)*d+front);uv.push(j/segments,i/(rings.length-1))}}
  for(let i=0;i<rings.length-1;i++)for(let j=0;j<segments;j++){const a=i*(segments+1)+j,b=a+segments+1;idx.push(a,a+1,b,b,a+1,b+1)}
- const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();return g;
+ const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();return smoothRingSeam(g,rings.length,segments);
 }
 export function taperedLock(points,radius,segments=12,sides=6){
  const curve=new T.CatmullRomCurve3(points.map(p=>new T.Vector3(...p))),pos=[],uv=[],idx=[];
  const frames=curve.computeFrenetFrames(segments,false);
  for(let i=0;i<=segments;i++){const t=i/segments,p=curve.getPointAt(t),r=radius*Math.max(.045,Math.pow(1-t,.65))*(.8+.2*Math.sin(t*Math.PI));for(let j=0;j<=sides;j++){const a=j/sides*Math.PI*2;const q=p.clone().addScaledVector(frames.normals[i],Math.cos(a)*r).addScaledVector(frames.binormals[i],Math.sin(a)*r*.64);pos.push(q.x,q.y,q.z);uv.push(j/sides,t)}}
  for(let i=0;i<segments;i++)for(let j=0;j<sides;j++){const a=i*(sides+1)+j,b=a+sides+1;idx.push(a,a+1,b,b,a+1,b+1)}
- const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();return g;
+ const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();return smoothRingSeam(g,segments+1,sides);
 }
 export function curveDetail(parent,mat,points,r=.003,steps=12){return mesh(parent,new T.TubeGeometry(new T.CatmullRomCurve3(points.map(p=>new T.Vector3(...p))),steps,r,5,false),mat)}
 function bone(parent,x,y,z){const b=new T.Bone();b.position.set(x,y,z);parent.add(b);return b}
@@ -34,7 +35,7 @@ export function makeHand(parent,skin,side,detail=true){
  const r=thumb?.0095:.008;const l1=l*(thumb?.52:.43),l2=l*(thumb?.24:.32),l3=l-l1-l2;
  function part(parent,len,rad,last=false){mesh(parent,silhouette([[-len-.002,last?.001:rad*.70,last?.001:rad*.71],[-len*.76,rad*.84,rad*.80],[-len*.18,rad,rad*.93],[.003,rad*.74,rad*.73]],detail?14:8),skin)}
  part(finger,l1,r);const middle=bone(finger,0,-l1,0);part(middle,l2,r*.88);const tip=bone(middle,0,-l2,0);middle.name=finger.name+'Mid';tip.name=finger.name+'Tip';part(tip,l3,r*.76,true);
- if(detail){ell(tip,nail,0,-l3*.43,r*.67,r*.56,l3*.36,.0018);ell(finger,skin,0,-l1*.93,0,r*.84,.005,r*.88)}
+ if(detail){ell(tip,nail,0,-l3*.43,r*.67,r*.56,l3*.36,.0014);ell(finger,skin,0,-l1*.93,0,r*.84,.005,r*.88);curveDetail(middle,crease,[[-r*.55,-l2*.65,-r*.69],[0,-l2*.69,-r*.81],[r*.55,-l2*.65,-r*.69]],.0006,5)}
  bake(finger);bake(middle);bake(tip);digits.push({finger,middle,tip,thumb});
  }
  if(!detail){nail.dispose();crease.dispose()}bake(hand);
@@ -43,12 +44,12 @@ export function makeHand(parent,skin,side,detail=true){
 export function makeFace(head,p,skin,hair,detail=true){
  const faceMat=skin.clone();faceMat.vertexColors=true;faceMat.roughness=.60;faceMat.userData.valleyFace=true;mesh(head,faceGeometry(p.face,detail),faceMat);
  const dark=material(0x30272a,{roughness:.72}),white=material(0xfff6ed,{roughness:.42}),iris=material({brown:0x72513e,blue:0x547da3,green:0x54826c,grey:0x777f89}[p.eyes],{roughness:.3}),pupil=material(0x1b2028,{roughness:.3}),catchlight=material(0xfff9ed,{emissive:0xffffff,emissiveIntensity:.35}),lip=material(new T.Color(p.skin).lerp(new T.Color(0xb45f60),.40),{roughness:.58}),earMat=material(new T.Color(p.skin).multiplyScalar(.83));
- const eyes=[];const irisMat=iris.clone();irisMat.color.set(0xffffff);irisMat.map=irisTexture(iris.color);iris.dispose();const gaze=[];for(const side of [-1,1]){const x=side*.045;ell(head,skin,side*.109,-.014,-.002,.019,.038,.019);ell(head,earMat,side*.119,-.012,.006,.006,.023,.010);
+ const eyes=[];const irisMat=iris.clone();irisMat.color.set(0xffffff);irisMat.map=irisTexture(iris.color);iris.dispose();const gaze=[];for(const side of [-1,1]){const x=side*.045;ell(head,skin,side*.109,-.014,-.002,.019,.038,.019);ell(head,earMat,side*.119,-.012,.006,.006,.023,.010);if(detail){curveDetail(head,skin,[[side*.119,.011,.009],[side*.124,.001,.012],[side*.122,-.016,.014],[side*.114,-.030,.010]],.003,10);ell(head,skin,side*.113,-.016,.014,.004,.008,.004)}
  const eye=new T.Group();eye.position.set(x,.018,.084);eye.rotation.y=side*.14;head.add(eye);ell(eye,white,0,0,0,.030,.017,.014);const look=new T.Group();eye.add(look);const ring=mesh(look,irisGeometry(.013,detail),irisMat,0,0,.0144);ring.scale.y=1.05;ell(look,pupil,0,0,.0155,.0058,.0088,.0022);ell(look,catchlight,-.004,.006,.018,.003,.003,.0015);ell(look,catchlight,.004,-.005,.018,.0015,.0015,.001);bake(look);gaze.push(look);curveDetail(eye,dark,[[-.03,-.001,0],[-.018,.012,.010],[0,.017,.012],[.018,.012,.010],[.03,-.001,0]],.0025);curveDetail(eye,earMat,[[-.028,-.002,0],[0,-.015,.010],[.028,-.002,0]],.0018);if(detail)for(let i=0;i<4;i++){const x=side*(.012+i*.0045),y=.015-i*.0025;curveDetail(eye,dark,[[x,y,.010],[x+side*.003,y+.006,.008],[x+side*.005,y+.009,.006]],.0011,5)}bake(eye);eyes.push(eye);
- curveDetail(head,hair,[[x-.028,.050,.079],[x-.009,.058,.090],[x+.013,.055,.093],[x+.028,.047,.079]],.0042);
+ curveDetail(head,hair,[[x-.028,.050,.079],[x-.009,.058,.090],[x+.013,.055,.093],[x+.028,.047,.079]],.0031);if(detail)for(let j=0;j<10;j++){const u=j/9,xx=x-.025+u*.05,yy=.050+Math.sin(u*Math.PI)*.008,zz=.080+Math.sin(u*Math.PI)*.012;curveDetail(head,hair,[[xx,yy-.002,zz],[xx+.002,yy+.002,zz+.001],[xx+.005,yy+.004,zz]],.0008,4)}
  }
  for(const s of [-1,1]){ell(head,skin,s*.012,-.044,.118,.008,.007,.007);ell(head,earMat,s*.010,-.050,.119,.0035,.0021,.0017)}
- const mouth=new T.Group();head.add(mouth);curveDetail(mouth,lip,[[-.025,-.077,.083],[-.011,-.074,.094],[0,-.078,.100],[.011,-.074,.094],[.025,-.077,.083]],.0028);ell(mouth,lip,0,-.082,.097,.017,.0035,.004);bake(mouth);
+ const mouth=new T.Group();head.add(mouth);curveDetail(mouth,lip,[[-.025,-.077,.083],[-.011,-.074,.094],[0,-.078,.100],[.011,-.074,.094],[.025,-.077,.083]],.0028);ell(mouth,lip,0,-.082,.097,.017,.0035,.004);if(detail){const lower=material(new T.Color(p.skin).lerp(new T.Color(0xba7770),.32),{roughness:.49});curveDetail(mouth,lower,[[-.020,-.080,.086],[-.010,-.085,.095],[0,-.086,.101],[.010,-.085,.095],[.020,-.080,.086]],.002,12)}bake(mouth);
  curveDetail(head,earMat,[[-.020,-.082,.085],[0,-.084,.100],[.020,-.082,.085]],.0018);
  if(p.accessory==='glasses'){const frame=material(0x3a3130,{metalness:.35});for(const s of [-1,1]){const ring=mesh(head,new T.TorusGeometry(.033,.0028,6,24),frame,s*.045,.018,.107);ring.scale.y=.66;box(head,frame,s*.096,.020,.054,.006,.006,.10)}box(head,frame,0,.023,.112,.027,.006,.006)}
  bake(head);return {eyes,update(t){const phase=t%5.8,blink=phase>5.60?Math.max(.07,Math.abs(phase-5.70)/.10):1;for(const eye of eyes)eye.scale.y=blink;for(const look of gaze){look.position.x=Math.sin(t*.67)*.003;look.position.y=Math.sin(t*.38)*.0014}mouth.scale.y=1+.10*Math.sin(t*1.7)}};
@@ -68,12 +69,17 @@ export function makeHair(head,p,hair,detail=true){
  const wave=p.hairStyle==='wavy'?.018:0;
  mesh(hairRoot,taperedLock([[s*.054+shift,.149,-.029],[s*.103+shift,.124,c*.073-.014],[s*.119+shift+wave,.081,c*.083-.025],[s*.108+shift+wave,.047,c*.089-.026]],.0045,14,5),i%6===0?highlight:hair)}
  if(p.hairStyle==='fringe'||p.hairStyle==='sidepart'){for(let i=0;i<7;i++){const x=(i-3)*.022,dx=p.hairStyle==='sidepart'?.038:.005;mesh(hairRoot,taperedLock([[x*.5,.139,.045],[x,.111,.086],[x+dx,.081,.106],[x+dx,.062+(i%3)*.008,.101]],.017,detail?16:8,6),i%4===0?highlight:hair)}}
- const tails=[];if(['long','wavy','ponytail','bob','braid'].includes(p.hairStyle)){
+ const tails=[];if(['long','wavy','bob'].includes(p.hairStyle)){
  for(const side of [-1,1]){const tail=bone(hairRoot,side*.085,.02,-.055);const count=detail?12:5;for(let i=0;i<count;i++){const dx=(i-(count-1)/2)*.014,len=p.hairStyle==='bob'?.13:p.hairStyle==='ponytail'?.27:p.hairStyle==='braid'?.34:.33+(i%3)*.035;mesh(tail,taperedLock([[dx,0,0],[dx+side*.027,-.085,-.035],[dx-side*.012,-len*.63,-.055],[dx+side*.019,-len,-.025]],.026,12,6),i%4===0?highlight:hair)}bake(tail);tails.push(tail)}
  }
  if(p.hairStyle==='spiky'){for(let i=0;i<6;i++){const a=i*1.047;mesh(hairRoot,taperedLock([[Math.cos(a)*.045,.131,Math.sin(a)*.04],[Math.cos(a)*.072,.166,Math.sin(a)*.071],[Math.cos(a)*.103,.186,Math.sin(a)*.09]],.023,10,6),hair)}}
+ if(p.hairStyle==='ponytail'){
+ const tail=bone(hairRoot,0,.070,-.112),count=detail?17:7;
+ for(let i=0;i<count;i++){const a=i/count*Math.PI*2,x=Math.cos(a)*.025,z=Math.sin(a)*.021;mesh(tail,taperedLock([[x,0,z],[x*1.4,-.065,-.055+z],[x*1.2,-.17,-.09+z],[x*.5,-.29,-.061+z],[0,-.34,-.025]],.018,detail?20:10,6),i%5===0?highlight:hair)}
+ const tie=material(0x433b38);const band=mesh(tail,new T.TorusGeometry(.029,.004,6,18),tie,0,-.014,-.013);band.rotation.x=Math.PI/2;bake(tail);tails.push(tail);
+ }
  if(p.hairStyle==='braid'){const tail=bone(hairRoot,0,.025,-.112);for(let i=0;i<(detail?16:10);i++){const y=-i*.022;const l=ell(tail,i%3?hair:highlight,(i%2?1:-1)*.015,y,-.012,.028,.022,.024);l.rotation.z=(i%2?1:-1)*.40}ell(tail,highlight,0,-.34,-.011,.024,.012,.025);bake(tail);tails.push(tail)}
- if(p.hairStyle==='bun'||p.hairStyle==='ponytail'){ell(hairRoot,hair,0,.078,-.13,.072,.063,.065);for(let i=0;i<5;i++)curveDetail(hairRoot,highlight,[[-.053,.08+i*.005,-.13],[0,.11+i*.004,-.184],[.053,.08+i*.005,-.13]],.004)}
+ if(p.hairStyle==='bun'){ell(hairRoot,hair,0,.078,-.13,.064,.056,.061);for(let i=0;i<5;i++)curveDetail(hairRoot,highlight,[[-.053,.08+i*.005,-.13],[0,.11+i*.004,-.184],[.053,.08+i*.005,-.13]],.004)}
  bake(hairRoot);return {update(clock,walk){for(const [i,t] of tails.entries()){t.rotation.x=Math.sin(clock*5+i)*walk*.09;t.rotation.z=Math.sin(clock*4+i)*(.035+walk*.045)}}};
 }
 export function garment(parent,shirt,seam,p,detail){
@@ -93,6 +99,9 @@ export function garment(parent,shirt,seam,p,detail){
  curveDetail(parent,thread,[[s*.12,.868,.080],[s*.09,.864,.105],[s*.035,.862,.112]],.0016,10);
  if(jacket){for(let j=0;j<7;j++){const y=.94+j*.037;curveDetail(parent,thread,[[s*.094,y,.122],[s*.094,y+.012,.122]],.0011,3)}}
  if(p.outfit==='jacket'||p.outfit==='cardigan'||p.outfit==='blouse'||p.outfit==='coat'){curveDetail(parent,thread,[[s*.175,1.245,.058],[s*.145,1.284,.073],[s*.103,1.302,.075]],.002,12)}
+ }
+ if(['jacket','coat','cardigan','blouse'].includes(p.outfit)){
+ for(const side of [-1,1]){curveDetail(parent,seam,[[side*.063,1.324,.083],[side*.139,1.263,.092],[side*.075,1.205,.123],[side*.038,1.285,.102]],.008,16);}
  }
  if(p.outfit==='sport'){const zip=material(0xb9b8b3,{metalness:.55,roughness:.42});curveDetail(parent,zip,[[0,1.30,.086],[0,1.255,.105],[0,1.21,.116]],.0028);box(parent,zip,0,1.264,.114,.011,.021,.006)}
  }
