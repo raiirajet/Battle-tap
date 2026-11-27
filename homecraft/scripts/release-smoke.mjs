@@ -10,6 +10,7 @@ await page.locator('#vScene canvas').waitFor();
 await page.locator('#vName').fill('Valley D3 smoke');
 await page.locator('#vCreate').click();
 await page.locator('#vStartLife').click();
+await page.locator('#vFamily').click();assert.match(await page.locator('#vEconomyInfo').textContent(),/0 Haushaltsmitglieder/);assert.ok(await page.locator('#vEconomyActions button').filter({hasText:'Katze adoptieren'}).isDisabled());await page.locator('#vEconomyClose').click();
 await page.locator('#vJobs').click();assert.match(await page.locator('#vEconomyInfo').textContent(),/Tagesziel 0\/3/);assert.equal(await page.locator('#vEconomyActions button').count(),5);await page.locator('#vEconomyClose').click();
 await page.locator('#vWeather').click();assert.match(await page.locator('#vEconomyInfo').textContent(),/Frühling/);await page.locator('#vEconomyClose').click();
 await page.locator('#vPeople').click();
