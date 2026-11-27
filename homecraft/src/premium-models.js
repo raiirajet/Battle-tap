@@ -8,7 +8,7 @@ const R=(x,y,z,w,h,d,c='body')=>B(x,y,z,w,h,d,c,'ring');
 const glass='#80b5c7',dark='#30383b',metal='#92999b',wood='#9b7351',white='#f2eee6',green='#557e4a';
 const feet=(y=.16)=>[-1,1].flatMap(x=>[-1,1].map(z=>B(x*.38,y/2,z*.36,.07,y,.07,wood)));
 const shelf=(n=3)=>[B(-.47,.5,0,.06,1,.96),B(.47,.5,0,.06,1,.96),B(0,.5,-.46,.9,1,.06),...Array.from({length:n+1},(_,i)=>B(0,.04+i*.92/n,0,.9,.06,.92))];
-const wheels=(y=.22)=>[-1,1].flatMap(x=>[-1,1].flatMap(z=>[R(x*.43,y,z*.30,.15,.36,.24,dark),C(x*.43,y,z*.30,.12,.19,.19,metal)]));
+const wheels=(y=.22)=>[-1,1].flatMap(x=>[-1,1].flatMap(z=>[B(x*.43,y,z*.30,.15,.36,.24,dark,'wheel'),B(x*.43,y,z*.30,.12,.19,.13,metal,'hub')]));
 const defs=[
  ['chaise','Chaiselongue','Wohnen',1.8,.85,.85,'#a29a88',[...feet(.12),S(0,.30,0,.94,.34,.88),S(-.35,.62,-.17,.28,.70,.60),S(-.12,.53,-.40,.72,.35,.15),S(.21,.48,0,.42,.12,.80,white)]],
  ['beanbag','Sitzsack','Wohnen',.95,.95,.85,'#8d9c92',[E(0,.32,0,.96,.64,.98),E(0,.61,-.15,.65,.66,.66),S(0,.35,.18,.60,.13,.52)]],
