@@ -1,6 +1,6 @@
 # D8 – Grafik, Orientierung und Leistung (erste Ausbaustufe)
 - 4 lokale Grafikprofile: unterschiedliche Pixelratio, Partikelbudgets, Detail-Instanzen, Anzahl sichtbarer Nachtlichter, Hausmaterialqualität sowie optional 1024/2048-Schattenkarten. Mittel ist Standard. Persistenz im Gerätebrowser; kein Cloud-Sync. FPS-Momentaufnahme, keine gemessene Gerätebenchmark.
-- Minimap Dorf/Gesamtwelt, eigene Position, Parzellen, Strassen, See, Ziele für Haus, Arbeit, Markt, Park, Autohaus, Tankstelle und eigenes Auto/Auftrag. Luftlinienanzeige mit Himmelsrichtung; keine Hindernis- oder Strassenroutenberechnung.
+- Minimap Dorf/Gesamtwelt, eigene Position, Parzellen, Strassen, See, Ziele für Haus, Arbeit, Markt, Park, Autohaus, Tankstelle und eigenes Auto/Auftrag. Automatischer Gesamtwelt-Ausschnitt bei Zielen ausserhalb des Dorfs, Luftlinienanzeige mit Himmelsrichtung; keine Hindernis- oder Strassenroutenberechnung.
 - Strassenmarkierungen, Gras-/Blumen-/Busch-Instanzen, mehrstufige Nadelbäume, einfache Spielplatzelemente, Ladenfronten, Wasser-Bumptextur mit Bewegung, lokale Schatten. Details sind dekorativ und ändern die Kollisionsregeln nicht.
 - Verbesserte prozedurale Gesichter und Tierdetails, keine externen fotorealistischen Assets. Kein Echtzeit-Spiegelungsrendering, keine vollständige LOD-/Streaming-Engine.
 - D7-Hausintegrations-Test korrigiert (gültiger Ausseneingang statt fensterloser Testbox); bestehende Hausvalidierung unverändert. D8 Unit- und Browser-Smoke-Tests ergänzt. Physische Android-Geräteabnahme und Grafikvergleich offen.
