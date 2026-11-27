@@ -2,7 +2,7 @@ import * as T from 'three';
 import {build,poseDoorLeaf} from './scene.js';
 import {disposeMaterial} from './graphics.js';
 import {enrichInterior} from './valley-interior-detail.js';
-export function disposeHouse(root){if(!root)return;const geometries=new Set(),materials=new Set();root.traverse(o=>{o.userData.disposed=true;if(o.geometry)geometries.add(o.geometry);for(const m of [].concat(o.material||[]))materials.add(m)});geometries.forEach(g=>g.dispose());materials.forEach(disposeMaterial);root.removeFromParent()}
+export function disposeHouse(root){if(!root)return;const geometries=new Set(),materials=new Set();root.traverse(o=>{o.userData.disposeRig?.();o.userData.disposed=true;if(o.geometry)geometries.add(o.geometry);for(const m of [].concat(o.material||[]))materials.add(m)});geometries.forEach(g=>g.dispose());materials.forEach(disposeMaterial);root.removeFromParent()}
 const houseParts=new WeakMap();
 const doorKey=(levelId,wallId,openingId)=>JSON.stringify([levelId,wallId,openingId]);
 

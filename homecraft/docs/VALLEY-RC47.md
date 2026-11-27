@@ -1,0 +1,3 @@
+# RC47 — GLB skinning pipeline
+
+Original generated GLB asset `assets/characters/valley-human.glb` (created before Vite build, shipped in PWA and APK). Indexed smooth-union body skin with blended four-influence bone weights, detailed head and digit geometry, six relative morph targets and eight authored keyframe clips. Runtime rebinds to named character skeleton; existing personalized hair, clothing and facial details retained as attachment geometry. GLB load fallback retains RC46. No external asset licence or runtime network dependency. The skin asset is procedurally generated, not an artist-sculpted or motion-captured production model. Clothing is still separate attached geometry. Device visual clipping and animation QA remain required.

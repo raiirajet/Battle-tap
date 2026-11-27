@@ -1,3 +1,4 @@
+import {preloadValleyRig} from './valley-rig-runtime.js';
 import * as T from 'three';
 import {avatarMesh} from './valley-avatar.js';
 import {disposeHouse} from './valley-house-render.js';
@@ -8,5 +9,5 @@ export function characterPreview(host){
  function turn(e){view=e.deltaY<0?1:0;zoom.textContent=['Ansicht: Ganzkörper','Ansicht: Gesicht'][view];render();e.preventDefault()}
  let pointer=null;function down(e){pointer=e.clientX;renderer.domElement.setPointerCapture(e.pointerId)}function move(e){if(pointer===null)return;angle+=(e.clientX-pointer)*.018;pointer=e.clientX;render()}function up(){pointer=null}
  const canvas=renderer.domElement;canvas.setAttribute('aria-label','Drehbare 3D-Charaktervorschau');canvas.addEventListener('wheel',turn,{passive:false});canvas.addEventListener('pointerdown',down);canvas.addEventListener('pointermove',move);canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',up);canvas.addEventListener('lostpointercapture',up);
- return {update(p){disposeHouse(actor?.root);actor=avatarMesh(p);actor.update({x:0,z:0,height:0},0,0,false,0);scene.add(actor.root);render()},destroy(){disposeHouse(actor?.root);renderer.dispose();renderer.forceContextLoss();canvas.remove();zoom.remove()}};
+ return {update(p){disposeHouse(actor?.root);actor=avatarMesh(p);actor.update({x:0,z:0,height:0},0,0,false,0);scene.add(actor.root);render();const current=actor;preloadValleyRig().then(()=>{if(actor===current&&!actor.root.userData.disposed)render()})},destroy(){disposeHouse(actor?.root);actor=null;renderer.dispose();renderer.forceContextLoss();canvas.remove();zoom.remove()}};
 }

@@ -1,0 +1,4 @@
+import {mkdir,writeFile} from 'node:fs/promises';import {GLTFExporter} from 'three/addons/exporters/GLTFExporter.js';import {createSkinCharacter} from './valley-skin-builder.mjs';
+// GLTFExporter uses FileReader in browsers. Node's Blob supplies the same bytes.
+globalThis.FileReader??=class {readAsArrayBuffer(blob){blob.arrayBuffer().then(v=>{this.result=v;this.onloadend?.()})}readAsDataURL(blob){blob.arrayBuffer().then(v=>{this.result='data:'+blob.type+';base64,'+Buffer.from(v).toString('base64');this.onloadend?.()})}};
+const {skin,animations}=createSkinCharacter();const glb=await new GLTFExporter().parseAsync(skin,{binary:true,animations,onlyVisible:false});await mkdir('public/assets/characters',{recursive:true});await writeFile('public/assets/characters/valley-human.glb',Buffer.from(glb));console.log('Valley GLB generated:',glb.byteLength,'bytes,',skin.geometry.attributes.position.count,'vertices,',skin.skeleton.bones.length,'bones,',animations.length,'clips');

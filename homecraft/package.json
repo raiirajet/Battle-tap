@@ -1,11 +1,11 @@
 {
   "name": "homecraft-3d",
-  "version": "1.0.0-rc.46",
+  "version": "1.0.0-rc.47",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
-    "build": "python3 scripts/icons.py public && vite build && node scripts/cache-assets.mjs",
+    "dev": "node scripts/build-valley-glb.mjs && vite --host 0.0.0.0",
+    "build": "node scripts/build-valley-glb.mjs && python3 scripts/icons.py public && vite build && node scripts/cache-assets.mjs",
     "test": "node --test",
     "preview": "vite preview --host 0.0.0.0"
   },
