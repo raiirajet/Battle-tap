@@ -1,0 +1,7 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {project,object,validate} from '../src/core.js';
+import {bathroomModels,bathroomSettings,bathroomComponents,bathroomFrontZone,bathroomQuantities} from '../src/bathroom.js';
+test('all eight defaults are valid and have positive geometry',()=>{const p=project();for(const [kind] of bathroomModels){const o=object(kind,{x:2,y:3});p.levels[0].objects.push(o);const parts=bathroomComponents(o);assert.ok(parts.length>0);assert.ok(parts.every(q=>[q.x,q.y,q.z,q.width,q.height,q.depth].every(Number.isFinite)&&Math.min(q.width,q.height,q.depth)>0))}validate(p)});
+test('walk-in shower has glass and drain, invalid dimensions fail',()=>{const o=object('sanWalkin',{x:0,y:0});assert.ok(bathroomComponents(o).some(q=>q.role==='drain'));assert.ok(bathroomQuantities(o).glass>0);o.width=.4;assert.throws(()=>bathroomComponents(o))});
+test('double basin has two water points, price survives project validation',()=>{const p=project(),o=object('sanDouble',{x:0,y:0});o.bathroom={...bathroomSettings(o),price:1250};p.levels[0].objects.push(o);validate(p);assert.equal(bathroomQuantities(o).price,1250);assert.equal(bathroomQuantities(o).waterPoints,2);assert.equal(bathroomComponents(o).filter(q=>q.role==='drain').length,2);o.bathroom.price=-1;assert.throws(()=>validate(p))});
+test('front clearance follows rotation and mirroring',()=>{const o=object('sanWC',{x:2,y:3});o.rotation=90;assert.ok(bathroomFrontZone(o).x<o.x);o.mirrorY=true;assert.ok(bathroomFrontZone(o).x>o.x)});
