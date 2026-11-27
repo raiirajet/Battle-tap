@@ -1,8 +1,8 @@
 import {height,plots} from './valley-core.js';
 import {HOMES} from './valley-town.js';
-export const PROFILE_DEFAULT=Object.freeze({skin:'#c68c65',shirt:'#367f82',pants:'#344457',hair:'#332924',hairStyle:'short',build:'regular',outfit:'casual',accessory:'none',shoes:'dark'});
+export const PROFILE_DEFAULT=Object.freeze({skin:'#c68c65',shirt:'#367f82',pants:'#344457',hair:'#332924',hairStyle:'short',build:'regular',outfit:'casual',accessory:'none',shoes:'dark',eyes:'brown'});
 export const PROFILE_COLORS=Object.freeze({skin:['#f2c4a0','#d9a076','#c68c65','#a66f50','#70452f'],shirt:['#367f82','#476ca8','#a84f55','#bc8a43','#64784d','#ece2d3'],pants:['#344457','#38383e','#80674d','#64808b'],hair:['#332924','#805739','#c49c54','#231f20','#a84d35']});
-export const PROFILE_OPTIONS=Object.freeze({hairStyle:['short','long','bald','bun','wavy'],build:['slim','regular','athletic'],outfit:['casual','jacket','sport'],accessory:['none','glasses','watch'],shoes:['dark','white','brown']});
+export const PROFILE_OPTIONS=Object.freeze({hairStyle:['short','long','bald','bun','wavy','ponytail'],build:['slim','regular','athletic'],outfit:['casual','jacket','sport','cardigan'],accessory:['none','glasses','watch'],shoes:['dark','white','brown'],eyes:['brown','blue','green','grey']});
 export function profile(value){if(value==null)return {...PROFILE_DEFAULT};const p={};for(const [k,colors] of Object.entries(PROFILE_COLORS)){if(!colors.includes(value[k]))throw Error('Ungültige Charakterfarbe: '+k);p[k]=value[k]}for(const [k,options] of Object.entries(PROFILE_OPTIONS)){const v=value[k]??PROFILE_DEFAULT[k];if(!options.includes(v))throw Error('Ungültiges Charaktermerkmal: '+k);p[k]=v}return p}
 export const SITES=Object.freeze({work:{x:296,z:300,w:15,d:11,door:{x:296,z:306.6},name:'Werkstatt'},meal:{x:344,z:303,w:14,d:11,door:{x:344,z:309.6},name:'Markt'}});
 export function siteNear(x,z){for(const [type,s] of Object.entries(SITES))if(Math.hypot(x-s.door.x,z-s.door.z)<=3.2)return type;return null}

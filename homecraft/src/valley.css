@@ -47,3 +47,5 @@
  .valley-playing #vLifeNotice{bottom:105px;max-width:38%}
  .valley-playing .vDashGrid{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
 }
+
+.valley #vProfilePreview{height:auto;min-height:260px;padding:8px;gap:4px;background:radial-gradient(ellipse at 50% 30%,#dfeee4,#8ca99c)}.valley #vProfilePreview canvas{width:300px;max-width:100%;height:auto}.valley #vProfilePreview button{margin:0;min-height:44px;font-size:12px}
