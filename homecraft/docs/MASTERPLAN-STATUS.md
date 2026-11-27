@@ -58,3 +58,5 @@ RC17 second pack: 67 additional original recipes with 650 components. Separate f
 RC17 third pack: 68 additional original recipes with 806 components, focused on wellness, outdoor kitchens, workshops, garage, furniture, plants and architectural accessories. 283 base IDs expected, 512 remaining. Separate pack filter and catalog regression tests; no Valley changes. Static planning geometry, no operational equipment simulation or structural certification.
 
 RC17 fourth pack: 72 additional original recipes with 903 components, focused on playgrounds, recreation, premium living, transport, plants, retail/hospitality, office and architecture. 355 base IDs expected, 440 remaining. Separate filter and browser regression; no Valley changes. Static procedural planning objects, not certified playground equipment or animated vehicles.
+
+RC17 fifth pack: 68 additional original recipes with 548 components, covering residential furnishings, bathroom, wellness, kitchen, smart home, pet equipment, urban furniture, terrace and garden. 423 base IDs expected, 372 remaining. Static objects; smart home models are visual only, no device connectivity or monitoring. No Valley changes.
