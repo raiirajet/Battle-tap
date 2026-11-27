@@ -9,7 +9,7 @@ export const JOBS=Object.freeze({
  builder:define('Bauarbeiter',420,-20,-12,75,[step(302,320,'Material prüfen','Was gehört auf die Materialliste?',['Benötigte Mengen','Nur Farben','Keine Angaben'],0),step(307,329,'Materialtransport','Wie transportierst du Material?',['Ungesichert','Gesichert und geordnet','Über Personen'],1),step(303,340,'Baukontrolle','Was wird abschliessend geprüft?',['Nur Musik','Nur Farbe','Masse und Ausführung'],2)])
 });
 export const LEVELS=Object.freeze(['Einsteiger','Fachkraft','Profi']);
-export function jobRule(type){const m=/^job_([a-z]+)_([012])_([01])$/.exec(type);if(!m||!Object.hasOwn(JOBS,m[1]))return null;const job=JOBS[m[1]],level=+m[2],perfect=+m[3];return {job:m[1],level,perfect,amount:Math.round(job.base*(1+level*.15))+perfect*50}}
+export function jobRule(type){const m=/^job_([a-z]+)_([012])_([01])$/.exec(type);if(!m||!Object.hasOwn(JOBS,m[1]))return null;const job=JOBS[m[1]],level=+m[2],perfect=+m[3];return {job:m[1],level,perfect,amount:Math.round(job.base*(100+level*15)/100)+perfect*50}}
 export function career(ledger,id){const count=ledger.reduce((n,e)=>n+(jobRule(e.type)?.job===id?1:0),0);const level=count>=8?2:count>=3?1:0;return {count,level,xp:count*100,title:LEVELS[level]}}
 export function dailyCount(ledger,day){return ledger.filter(e=>jobRule(e.type)&&e.id.startsWith('job:'+day+':')).length}
 export function rewardType(ledger,id,errors){return 'job_'+id+'_'+career(ledger,id).level+'_'+(errors===0?1:0)}
