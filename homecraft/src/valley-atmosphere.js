@@ -11,38 +11,44 @@ export function surfaceMaps(kind='grass',size=128){
   const u=x/size*Math.PI*2,v=y/size*Math.PI*2,n=rand()-.5;
   let value=.5+.08*Math.sin(u*6+v*3)+n*.14;
   if(kind==='roof')value=.52+.09*Math.sin(u*8)-((y%16)<2?.21:0)-((x+(Math.floor(y/16)%2)*8)%16<2?.12:0)+n*.025;
-  if(kind==='plaster')value=.5+n*.10+.045*Math.sin(u*12+v*7);
+  if(kind==='plaster')value=.5+n*.09+.035*Math.sin(u*12+v*7)+.028*Math.cos(u*17-v*11);
+  if(kind==='grass')value=.47+.12*Math.sin(u*6+v*3)+.08*Math.cos(u*13-v*9)+n*.18;
+  if(kind==='stone'){const row=Math.floor(y/24),xx=(x+(row%2)*24)%48,yy=y%24,edge=Math.min(xx,48-xx,yy,24-yy);value=edge<2?.19:.62+n*.16+.055*Math.cos(u*17+v*13)}
   if(kind==='asphalt')value=.5+n*.28+.025*Math.sin(u*4+v*6);
   h[at(x,y)]=value;
  }
  const strength=kind==='roof'?2.4:kind==='asphalt'?1.2:1.7;
  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
   const i=at(x,y),k=i*4,v=h[i],dx=(h[at(x-1,y)]-h[at(x+1,y)])*strength,dy=(h[at(x,y-1)]-h[at(x,y+1)])*strength,len=Math.hypot(dx,dy,1);
-  const grey=Math.round(T.MathUtils.clamp(.77+v*.26,0,1)*255);
-  rgba.set([grey,grey,grey,255],k);normal.set([Math.round(127.5+127.5*dx/len),Math.round(127.5+127.5*dy/len),Math.round(127.5+127.5/len),255],k);
-  const r=Math.round(T.MathUtils.clamp((kind==='roof'?.70:.90)+(v-.5)*.26,0,1)*255);rough.set([r,r,r,255],k);
+  const grey=Math.round(T.MathUtils.clamp(.72+v*.34,0,1)*255);
+  rgba.set(kind==='grass'?[Math.min(255,grey+3),grey,Math.round(grey*.86),255]:kind==='stone'?[grey,Math.round(grey*.96),Math.round(grey*.88),255]:[grey,grey,grey,255],k);normal.set([Math.round(127.5+127.5*dx/len),Math.round(127.5+127.5*dy/len),Math.round(127.5+127.5/len),255],k);
+  const r=Math.round(T.MathUtils.clamp((kind==='roof'?.70:kind==='stone'?.82:.90)+(v-.5)*.26,0,1)*255);rough.set([r,r,r,255],k);
  }
  function tex(data,srgb=false){const t=new T.DataTexture(data,size,size,T.RGBAFormat);t.wrapS=t.wrapT=T.RepeatWrapping;t.minFilter=T.LinearMipmapLinearFilter;t.magFilter=T.LinearFilter;t.generateMipmaps=true;if(srgb)t.colorSpace=T.SRGBColorSpace;t.needsUpdate=true;return t}
  return {map:tex(rgba,true),normalMap:tex(normal),roughnessMap:tex(rough)};
 }
 export function setSurface(mat,maps,repeatX,repeatY,detail=true){for(const t of Object.values(maps))t.repeat.set(repeatX,repeatY);mat.map=maps.map;mat.normalMap=detail?maps.normalMap:null;mat.roughnessMap=detail?maps.roughnessMap:null;mat.normalScale.set(.65,.65);mat.needsUpdate=true}
 export function lightState(minute,climate={}){
- const a=seasonalDaylight(minute,climate.season||0),cloud=T.MathUtils.clamp(climate.cloud||0,0,1),twilight=Math.max(0,1-a.day*4)*Math.max(0,1-Math.min(Math.abs(a.angle),Math.abs(a.angle-Math.PI))*2);
+ const a=seasonalDaylight(minute,climate.season||0),cloud=T.MathUtils.clamp(climate.cloud||0,0,1),twilight=Math.max(0,1-Math.min(Math.abs(a.angle),Math.abs(a.angle-Math.PI))*3.2);
  return {day:a.day,night:1-a.day,angle:a.angle,cloud,twilight,wet:climate.type==='rain'||climate.type==='storm',sunColor:new T.Color(0xfff3dc).lerp(new T.Color(0xffaa68),twilight),sky:new T.Color(0x14243d).lerp(new T.Color(cloud>.65?0x9caebd:0xbcd9eb),a.brightness)};
 }
 // World-space sky gradient, sun disc and stars; no network assets.
 export function atmosphere(scene){
- const uniforms={top:{value:new T.Color(0x72a8d8)},horizon:{value:new T.Color(0xe0eced)},sunDir:{value:new T.Vector3(.3,.7,-.4).normalize()},day:{value:1},cloud:{value:.18},time:{value:0}};
+ const uniforms={top:{value:new T.Color(0x72a8d8)},horizon:{value:new T.Color(0xe0eced)},sunDir:{value:new T.Vector3(.3,.7,-.4).normalize()},day:{value:1},cloud:{value:.18},time:{value:0},twilight:{value:0},detail:{value:1}};
  const m=new T.ShaderMaterial({side:T.BackSide,depthWrite:false,fog:false,toneMapped:false,uniforms,vertexShader:'varying vec3 vDir; void main(){vDir=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:`
- varying vec3 vDir;uniform vec3 top,horizon,sunDir;uniform float day,cloud,time;
+ varying vec3 vDir;uniform vec3 top,horizon,sunDir;uniform float day,cloud,time,twilight,detail;
  float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+ float noise2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x),f.y);}
+ float fbm(vec2 p){float n=.52*noise2(p);p=p*2.07+12.;n+=.25*noise2(p);p=p*2.03-8.;n+=.13*noise2(p);if(detail>1.5)n+=.07*noise2(p*2.);return n;}
  void main(){vec3 d=normalize(vDir);float y=max(0.,d.y);vec3 c=mix(horizon,top,pow(y,.58));
- float s=max(0.,dot(d,sunDir));c+=vec3(1.,.65,.3)*(pow(s,55.)*.18+smoothstep(.9993,.9998,s)*.8)*day*(1.-cloud*.85);
+ float s=max(0.,dot(d,sunDir));float sunset=pow(s,9.)*twilight;c+=vec3(.62,.20,.09)*sunset*(1.-y)*.6; c+=vec3(1.,.65,.3)*(pow(s,55.)*.25+smoothstep(.9993,.9998,s)*1.2)*max(day,twilight*.65)*(1.-cloud*.85);
+ if(d.y>.005){vec2 p=d.xz/(d.y+.30)*3.8+vec2(time*.016,time*.005);float n=fbm(p);float cover=smoothstep(.66-cloud*.40,.81-cloud*.35,n)*smoothstep(.005,.15,d.y);float shade=fbm(p+vec2(.09,-.12));vec3 lit=mix(vec3(.12,.17,.25),vec3(.88,.89,.90),day);lit=mix(lit,vec3(.92,.43,.25),twilight*pow(s,.6)*.85);vec3 shadow=mix(vec3(.07,.10,.17),vec3(.30,.39,.50),day);shadow=mix(shadow,vec3(.37,.20,.36),twilight*.8);c=mix(c,mix(shadow,lit,smoothstep(.34,.75,shade)),cover*.91);}
+ vec3 moonDir=normalize(vec3(-sunDir.x,max(.28,-sunDir.y),-sunDir.z));float md=dot(d,moonDir);float moon=smoothstep(.9990,.99955,md);float crescent=smoothstep(.9990,.99955,dot(d,normalize(moonDir+vec3(.018,.007,0.))));c+=vec3(.70,.78,.94)*max(0.,moon-.62*crescent)*(1.-day)*(1.-cloud);
  vec2 uv=vec2(atan(d.z,d.x),asin(clamp(d.y,-1.,1.)))*180.;float star=step(.997,hash(floor(uv)))*(1.-smoothstep(.05,.20,length(fract(uv)-.5)));c+=star*(1.-day)*(.4+.6*y)*(1.-cloud);
  gl_FragColor=vec4(c,1.); #include <colorspace_fragment>
  }`.replace('; #include',';\n#include')});
  const dome=new T.Mesh(new T.SphereGeometry(950,32,16),m);dome.renderOrder=-1000;dome.frustumCulled=false;scene.add(dome);
- return {update(minute,c,sunDir,center,dt=0){const a=lightState(minute,c);uniforms.day.value=a.day;uniforms.cloud.value=a.cloud;uniforms.top.value.set(0x08152e).lerp(new T.Color(a.cloud>.65?0x718394:0x518ec6),a.day);uniforms.horizon.value.copy(a.sky).lerp(new T.Color(0xffb881),a.twilight*.48);uniforms.sunDir.value.copy(sunDir).normalize();uniforms.time.value+=dt;dome.position.copy(center);return a},destroy(){dome.removeFromParent();dome.geometry.dispose();m.dispose()}};
+ return {setQuality(q){uniforms.detail.value=q.detail},update(minute,c,sunDir,center,dt=0){const a=lightState(minute,c);uniforms.day.value=a.day;uniforms.cloud.value=a.cloud;uniforms.twilight.value=a.twilight;uniforms.top.value.set(0x08152e).lerp(new T.Color(a.cloud>.65?0x718394:0x518ec6),a.day);uniforms.top.value.lerp(new T.Color(0x66628b),a.twilight*.32);uniforms.horizon.value.copy(a.sky).lerp(new T.Color(0xffa365),a.twilight*.72);uniforms.sunDir.value.copy(sunDir).normalize();uniforms.time.value+=dt;dome.position.copy(center);return a},destroy(){dome.removeFromParent();dome.geometry.dispose();m.dispose()}};
 }
 // Fine town architecture stays attached to existing buildings (no new collisions).
 export function townArchitecture(scene,homes,sites){

@@ -22,7 +22,7 @@ export function makeHand(parent,skin,side,detail=true){
  const digits=[];for(let i=0;i<5;i++){const thumb=i===4,l=[.055,.065,.061,.045,.042][i],x=thumb?-side*.030:side*(i-1.5)*.016,z=thumb?.012:.004;
  const finger=bone(hand,x,thumb?-.015:-.039,z);finger.userData.digit=i;finger.rotation.z=thumb?-side*.65:side*(i-1.5)*.065;
  const r=thumb?.010:.0085;mesh(finger,silhouette([[-l*.66,r*.70,r*.76],[-l*.58,r,r],[-.004,r,r],[.003,r*.72,r*.76]],10),skin);
- const tip=bone(finger,0,-l*.59,0);mesh(tip,silhouette([[-l*.42,.001,.001],[-l*.30,r*.72,r*.7],[-.002,r*.9,r*.9],[.003,r*.73,r*.73]],10),skin);
+ const tip=detail?bone(finger,0,-l*.59,0):new T.Group();if(!detail){tip.position.y=-l*.59;finger.add(tip)}mesh(tip,silhouette([[-l*.42,.001,.001],[-l*.30,r*.72,r*.7],[-.002,r*.9,r*.9],[.003,r*.73,r*.73]],10),skin);
  if(detail){ell(tip,nail,0,-l*.23,r*.62,r*.58,l*.13,.0022)}
  bake(finger);bake(tip);digits.push({finger,tip,thumb});
  }
@@ -47,10 +47,10 @@ export function makeHair(head,p,hair,detail=true){
  if(p.hairStyle==='bald')return {update(){}};
  const hairRoot=new T.Group();head.add(hairRoot);const highlight=material(new T.Color(p.hair).lerp(new T.Color(0xcba47f),.13),{roughness:.57});hair.roughness=.59;
  // Scalp cap is confined to the top/back, leaving the face clear.
- const cap=new T.SphereGeometry(1,detail?28:18,12,0,Math.PI*2,0,Math.PI*.56);cap.scale(.114,.133,.112);cap.translate(0,.027,-.018);mesh(hairRoot,cap,hair);
+ const cap=new T.SphereGeometry(1,detail?28:18,12,0,Math.PI*2,0,Math.PI*.39);cap.scale(.114,.133,.112);cap.translate(0,.027,-.018);mesh(hairRoot,cap,hair);const back=new T.SphereGeometry(1,detail?24:16,10,0,Math.PI,Math.PI*.23,Math.PI*.47);back.scale(.112,.135,.108);back.rotateY(Math.PI);back.translate(0,.025,-.021);mesh(hairRoot,back,hair);
  const count=detail?17:10;
  for(let i=0;i<count;i++){const a=(i/(count-1)-.5)*Math.PI*1.62,s=Math.sin(a),c=Math.cos(a),sweep=p.hairStyle==='wavy'?.035:.017;
- const points=[[s*.045,.146,-.028],[s*.104,.112,c*.067-.012],[s*.111+sweep,.060,c*.088-.018],[s*.100+sweep,p.hairStyle==='short'?.015:.005,c*.092-.020]];
+ const points=[[s*.045,.146,-.028],[s*.104,.112,c*.067-.012],[s*.111+sweep,.060,c*.077-.025],[s*.100+sweep,p.hairStyle==='short'?.057:.043,c*.082-.026]];
  mesh(hairRoot,taperedLock(points,.028,detail?12:8,7),i%5===0?highlight:hair);
  }
  const tails=[];if(['long','wavy','ponytail'].includes(p.hairStyle)){
