@@ -1,4 +1,5 @@
 import {smoothRingSeam} from './valley-anatomy.js';
+import {springStep} from './valley-secondary-motion.js';
 import {characterExpression} from './valley-character-motion.js';
 import {sideKey} from './valley-rig-spec.js';
 import {faceGeometry,irisGeometry,irisTexture} from './valley-character-assets.js';
@@ -81,7 +82,7 @@ export function makeHair(head,p,hair,detail=true){
  }
  if(p.hairStyle==='braid'){const tail=bone(hairRoot,0,.025,-.112);for(let i=0;i<(detail?16:10);i++){const y=-i*.022;const l=ell(tail,i%3?hair:highlight,(i%2?1:-1)*.015,y,-.012,.028,.022,.024);l.rotation.z=(i%2?1:-1)*.40}ell(tail,highlight,0,-.34,-.011,.024,.012,.025);bake(tail);tails.push(tail)}
  if(p.hairStyle==='bun'){ell(hairRoot,hair,0,.078,-.13,.064,.056,.061);for(let i=0;i<5;i++)curveDetail(hairRoot,highlight,[[-.053,.08+i*.005,-.13],[0,.11+i*.004,-.184],[.053,.08+i*.005,-.13]],.004)}
- bake(hairRoot);return {update(clock,walk){for(const [i,t] of tails.entries()){t.rotation.x=Math.sin(clock*5+i)*walk*.09;t.rotation.z=Math.sin(clock*4+i)*(.035+walk*.045)}}};
+ bake(hairRoot);const springs=tails.map(()=>({x:{value:0,velocity:0},z:{value:0,velocity:0}}));return {update(clock,walk,dt=0,wind=0){for(const [i,t] of tails.entries()){t.rotation.x=springStep(springs[i].x,Math.sin(clock*5+i)*walk*.16,dt);t.rotation.z=springStep(springs[i].z,Math.sin(clock*4+i)*(.025+walk*.09)+wind*.012,dt)}}};
 }
 export function garment(parent,shirt,seam,p,detail){
  const lining=material(new T.Color(p.shirt).lerp(new T.Color(0xe6ded0),.55),{roughness:.94}),button=material(0x827465,{roughness:.55});shirt.roughness=.94;

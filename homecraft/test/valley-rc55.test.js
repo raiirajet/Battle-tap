@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {springStep} from '../src/valley-secondary-motion.js';
+test('secondary spring stays bounded and settles',()=>{const s={value:0,velocity:0};for(let i=0;i<300;i++){assert.ok(Math.abs(springStep(s,.16,.016))<=.24)}assert.ok(Math.abs(s.value-.16)<.002);for(let i=0;i<300;i++)springStep(s,0,.016);assert.ok(Math.abs(s.value)<.002)});

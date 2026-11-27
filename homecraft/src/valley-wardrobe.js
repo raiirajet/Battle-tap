@@ -1,4 +1,5 @@
 import * as T from 'three';
+import {springStep} from './valley-secondary-motion.js';
 import {mesh,ell,box,material,bake} from './valley-realism.js';
 import {curveDetail,silhouette} from './valley-character-model.js';
 // Separate bone-attached accessories, not external assets.
@@ -11,5 +12,5 @@ export function wardrobeLayers(body,head,p,detail){
  if(p.outfit==='cardigan'||p.outfit==='blouse'){for(const s of [-1,1]){const e=mesh(head,new T.TorusGeometry(.007,.0017,6,12),metal,s*.119,-.048,.006);e.rotation.y=s*.2}}
  if(p.outfit==='coat'){curveDetail(pieces,fabric,[[-.065,1.326,.075],[0,1.285,.103],[.060,1.327,.075]],.012,12)}
  if(!belt&&!bag)leather.dispose();if(!bag&&p.outfit!=='coat')fabric.dispose();if(!belt&&!bag&&!['cardigan','blouse'].includes(p.outfit))metal.dispose();
- bake(pieces);return pieces;
+ bake(pieces);if(p.outfit==='coat'){const panels=[];for(const side of [-1,1]){const panel=new T.Group();panel.position.set(side*.105,.86,.01);pieces.add(panel);const mat=material(p.shirt,{roughness:.93});const geom=silhouette([[-.13,.067,.018],[-.07,.072,.026],[0,.064,.025]],16);mesh(panel,geom,mat,0,0,.075);bake(panel);panels.push({panel,side,spring:{value:0,velocity:0}})}pieces.userData.updateSecondary=(clock,walk,dt,wind)=>{for(const o of panels)o.panel.rotation.x=springStep(o.spring,Math.sin(clock*6+o.side)*walk*.12+wind*.01,dt,{limit:.18})}}return pieces;
 }
