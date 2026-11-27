@@ -22,3 +22,5 @@
 .valley .vGift{background:#e1efd9;color:#245b47;border-color:#abcba1}.valley-submenu-open .vLifeControls,.valley-submenu-open .vContextActions{visibility:hidden}.valley #vEconomyDashboard{margin-top:6px;background:#e1efd9;color:#245b47}.valley-playing #vLifeHud{font-family:Arial,system-ui,sans-serif}.valley-playing #vDashboardPanel{padding-bottom:24px}.valley-playing #vLifeNotice:not(:empty){max-width:calc(100% - 140px)}
 
 .valley .vContextActions #vWalkCamera,.valley .vContextActions #vRun,.valley .vContextActions #vJump{min-height:44px;touch-action:manipulation}.valley .vContextActions{max-width:calc(100% - 12px);flex-wrap:wrap}.valley #vProfileFields select{width:100%;min-height:44px}
+
+.valley #vProfilePreview canvas{width:220px;max-width:100%;height:auto;touch-action:none;cursor:grab}.valley #vProfilePreview{min-height:188px;display:grid;place-items:center}
