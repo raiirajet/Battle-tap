@@ -1,3 +1,4 @@
+import {wardrobeLayers} from './valley-wardrobe.js';
 import {bodyShape} from './valley-body-shape.js';
 import {characterSeed} from './valley-character-motion.js';
 import {toonAvatar} from './valley-toon.js';
@@ -16,7 +17,7 @@ export function avatarMesh(input,{detail=true}={}){
  mesh(body,silhouette([[.73,.13,.093],[.81,.166,.112],[.88,.151,.105],[.96,.135,.095]],20),pants);
  garment(body,shirt,seam,p,detail);mesh(body,silhouette([[1.30,.066,.064],[1.39,.059,.059],[1.45,.056,.053]],20),skin);
  const head=joint(body,0,1.53,0);head.name='ValleyHead';const face=makeFace(head,p,skin,hair,detail),hairstyle=makeHair(head,p,hair,detail);
- const arms=[],legs=[];
+ const wardrobe=wardrobeLayers(body,head,p,detail);const arms=[],legs=[];
  for(const s of [-1,1]){
  const k=sideKey(s),a=joint(body,s*.195,1.25,0),elbow=joint(a,0,-.25,0);a.name=k+'UpperArm';elbow.name=k+'Forearm';
  mesh(a,silhouette([[-.26,.047,.043],[-.19,.055,.052],[-.09,.067,.065],[.00,.063,.060],[.04,.039,.041]],20),shirt);
