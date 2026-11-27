@@ -80,3 +80,5 @@ Roof quantity report: visible gross/net sloped surface, cutout area, vertical-la
 RC5 — phase 2: exact polygon rooms, wall role, parallel copies and wall shifts/splits, room metadata and geometric volume schedule, adjustable room ceilings, opening model/frame/sill/swing, custom stair count. No structural wall classification, sloped-ceiling volume, or general topology remapping guarantee.
 
 RC5 refinement: attached T-junction endpoints follow wall offsets; linked opening measurements follow a split into the new wall. Room and opening schedules are accessible from the project menu, with separate CSV exports. Geometry changes with ambiguous room correspondence may still require reassignment.
+
+RC6 phase 2: editable polygon slab cutouts with optional railings, matching lower ceiling cutouts, net floor area and PDF/section integration, independent split-level elevations and explicit stair destinations. Overlapping holes are rejected, not unioned. Headroom is a sampled slab clearance, not a certified stair design. Galleries with mismatched room boundaries need manual planning.
