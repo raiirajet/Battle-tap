@@ -1,0 +1,37 @@
+import * as T from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
+import {plots,roads,chunks,height,buildingZone} from './valley-core.js';
+const green=0x65bd83, gold=0xe8be64;
+export function valleyScene(host,seed,onSelect){
+ const scene=new T.Scene();scene.background=new T.Color(0xd1e4ea);scene.fog=new T.FogExp2(0xd1e4ea,.0011);
+ const renderer=new T.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.outputColorSpace=T.SRGBColorSpace;host.append(renderer.domElement);
+ const camera=new T.PerspectiveCamera(48,1,.5,2200);camera.position.set(610,290,740);
+ const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(425,0,440);controls.enableDamping=true;controls.maxPolarAngle=Math.PI*.48;controls.minDistance=15;controls.maxDistance=1250;controls.zoomSpeed=1.15;
+ scene.add(new T.HemisphereLight(0xfff7df,0x607d62,2.2));const sun=new T.DirectionalLight(0xffe6c7,2.5);sun.position.set(-200,400,-120);scene.add(sun);
+ const geom=[];for(const c of chunks()){const g=new T.PlaneGeometry(64,64,8,8);g.rotateX(-Math.PI/2);g.translate(c.x+32,0,c.z+32);const p=g.attributes.position,colors=[];for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),y=height(x,z,seed);p.setY(i,y);const col=new T.Color().setHSL(.25+Math.sin(x*.17+z*.09)*.018,.27+Math.sin(z*.11)*.045,.37+Math.sin(x*.07+z*.1)*.035);colors.push(col.r,col.g,col.b)}g.setAttribute('color',new T.Float32BufferAttribute(colors,3));g.computeVertexNormals();geom.push(g)}
+ const terrain=mergeGeometries(geom);geom.forEach(g=>g.dispose());scene.add(new T.Mesh(terrain,new T.MeshStandardMaterial({vertexColors:true,roughness:1})));
+ const shared=new Map();function material(c){if(!shared.has(c))shared.set(c,new T.MeshStandardMaterial({color:c,roughness:.88}));return shared.get(c)}
+ function box(x,z,w,d,h,c,y=0){const m=new T.Mesh(new T.BoxGeometry(w,h,d),material(c));m.position.set(x,y+h/2,z);scene.add(m);return m}
+ function strip(a,b,w,c,y=.025){const dx=b.x-a.x,dz=b.z-a.z;const m=box((a.x+b.x)/2,(a.z+b.z)/2,w,Math.hypot(dx,dz)+w,.025,c,y);m.rotation.y=Math.atan2(dx,dz);return m}
+ const graph=roads(),nodes=Object.fromEntries(graph.nodes.map(n=>[n.id,n]));for(const e of graph.edges){strip(nodes[e.a],nodes[e.b],9,0xb9b9ad);strip(nodes[e.a],nodes[e.b],6,0x60696a,.065)}
+ for(const p of plots()){strip(p.anchor,{x:p.anchor.x,z:p.reserve.z},1.8,0xc7bdab,.09);const a=p.anchor;box(a.x+2,a.z, .35,.35,2.8,0x35464c,.05);box(a.x+2,a.z,.7,.45,.22,0xffe6ac,2.85)}
+ box(320,315,27,25,.09,0xc7bdab);box(288,352,34,55,.055,0x85aa70);strip({x:320,z:345.5},{x:288,z:345.5},2,0xbeb5a0,.1);strip({x:288,z:329},{x:288,z:378},2,0xbeb5a0,.1);
+ for(const z of [337,367]){box(285,z,3,.7,.12,0x80674b,.55);box(284,z,.2,.6,.55,0x4b4b48);box(286,z,.2,.6,.55,0x4b4b48)}
+ for(const [x,z,w,d,h,c] of [[296,300,15,11,5,0xd6c2a1],[344,303,14,11,4,0xe9d6bb]]){box(x,z,w,d,h,c);box(x,z,w+1,d+1,.6,0x674f43,h)}
+ const water=new T.Mesh(new T.CircleGeometry(1,64),new T.MeshStandardMaterial({color:0x649cae,roughness:.3}));water.rotation.x=-Math.PI/2;water.scale.set(70,48,1);water.position.set(760,.2,390);scene.add(water);
+ const rand=(()=>{let a=seed>>>0;return()=>((a=(Math.imul(a,1664525)+1013904223)>>>0)/4294967296)})();const treePositions=[];for(let i=0;i<700;i++){const x=25+rand()*974,z=25+rand()*974;if(x>265&&x<575&&z>270&&z<620||Math.hypot((x-760)/110,(z-390)/85)<1||height(x,z,seed)<.4)continue;treePositions.push({x,z,h:3+rand()*5,t:Math.floor(rand()*3)})}
+ const dummy=new T.Object3D();const trunk=new T.InstancedMesh(new T.CylinderGeometry(.12,.2,1,7),material(0x76604a),treePositions.length);treePositions.forEach((t,i)=>{dummy.position.set(t.x,height(t.x,t.z,seed)+t.h*.22,t.z);dummy.scale.set(1,t.h*.44,1);dummy.updateMatrix();trunk.setMatrixAt(i,dummy.matrix)});scene.add(trunk);
+ for(let type=0;type<3;type++){const list=treePositions.filter(t=>t.t===type),g=type===0?new T.ConeGeometry(1,2,8):new T.IcosahedronGeometry(1,1),mesh=new T.InstancedMesh(g,material([0x42704a,0x64834f,0x8c9f5c][type]),list.length);list.forEach((t,i)=>{dummy.position.set(t.x,height(t.x,t.z,seed)+t.h*.68,t.z);dummy.scale.set(t.h*.29,t.h*.43,t.h*.29);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)});scene.add(mesh)}
+ const selectable=[],overlay=new T.Group();scene.add(overlay);
+ function fill(r,c,opacity,y=.12){const m=new T.Mesh(new T.PlaneGeometry(r.w,r.d),new T.MeshBasicMaterial({color:c,transparent:true,opacity,depthWrite:false,side:T.DoubleSide}));m.rotation.x=-Math.PI/2;m.position.set(r.x+r.w/2,y,r.z+r.d/2);return m}
+ function border(r,c,dashed=false,y=.19){const points=[[r.x,r.z],[r.x+r.w,r.z],[r.x+r.w,r.z+r.d],[r.x,r.z+r.d],[r.x,r.z]].map(([x,z])=>new T.Vector3(x,y,z));const m=new T.Line(new T.BufferGeometry().setFromPoints(points),dashed?new T.LineDashedMaterial({color:c,dashSize:1.4,gapSize:.8}):new T.LineBasicMaterial({color:c}));if(dashed)m.computeLineDistances();return m}
+ for(const p of plots()){const m=fill(p.starter,0xe1d99a,.25);m.userData.plotId=p.id;scene.add(m,border(p.reserve,0xd7d0a8,true),border(p.starter,0xe4e4c0));selectable.push(m)}
+ function clear(){for(const m of [...overlay.children]){overlay.remove(m);m.geometry.dispose();m.material.dispose()}}
+ function update(s,selected,q){clear();const p=plots().find(p=>p.id===(s?.plotId||selected));if(!p)return;const r=s?.rect||p.starter;overlay.add(fill(r,green,.33,.16),border(r,green,false,.24),border(buildingZone(r),0xffffff,true,.27));if(q){overlay.add(fill(q.target,gold,.18,.29),border(q.target,gold,true,.35))}}
+ function focus(id){const p=plots().find(p=>p.id===id);if(!p)return;const x=p.starter.x+10,z=p.starter.z+12.5;controls.target.set(x,0,z);camera.position.set(x+48,65,z+70);controls.update()}
+ function overview(){controls.target.set(425,0,440);camera.position.set(610,290,740);controls.update()}
+ let down;const canvas=renderer.domElement;canvas.addEventListener('pointerdown',e=>{down=[e.clientX,e.clientY]});canvas.addEventListener('pointerup',e=>{if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>5)return;const r=canvas.getBoundingClientRect(),ray=new T.Raycaster();ray.setFromCamera(new T.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);const hit=ray.intersectObjects(selectable)[0];if(hit)onSelect(hit.object.userData.plotId)});
+ const resize=()=>{const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix()};const observer=new ResizeObserver(resize);observer.observe(host);resize();renderer.setAnimationLoop(()=>{controls.update();renderer.render(scene,camera)});
+ return {update,focus,overview,destroy(){renderer.setAnimationLoop(null);observer.disconnect();controls.dispose();clear();const gs=new Set(),ms=new Set();scene.traverse(o=>{if(o.geometry)gs.add(o.geometry);if(o.material)ms.add(o.material)});gs.forEach(g=>g.dispose());ms.forEach(m=>m.dispose());renderer.dispose();canvas.remove()}};
+}
