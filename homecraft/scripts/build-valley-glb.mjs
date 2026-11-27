@@ -1,3 +1,4 @@
+import {toonAvatar,toonClips} from '../src/valley-toon.js';
 import {mkdir,writeFile} from 'node:fs/promises';import {GLTFExporter} from 'three/addons/exporters/GLTFExporter.js';import {createSkinCharacter} from './valley-skin-builder.mjs';import {avatarMesh} from '../src/valley-avatar.js';import {attachValleyRig} from '../src/valley-rig-runtime.js';import {PROFILE_DEFAULT,profile} from '../src/valley-world-life.js';
 // GLTFExporter uses FileReader in browsers. Node's Blob supplies the same bytes.
 globalThis.FileReader??=class {readAsArrayBuffer(blob){blob.arrayBuffer().then(v=>{this.result=v;this.onloadend?.()})}readAsDataURL(blob){blob.arrayBuffer().then(v=>{this.result='data:'+blob.type+';base64,'+Buffer.from(v).toString('base64');this.onloadend?.()})}};
@@ -12,5 +13,10 @@ for(const [name,p] of [['valley-adventurer',{...PROFILE_DEFAULT,face:'angular',h
  // Keep export independent of DOM/canvas. Export coloured geometry, not procedural raster maps.
  root.traverse(o=>{o.userData={};if(o.isMesh){for(const k of ['map','normalMap','roughnessMap','metalnessMap','emissiveMap','alphaMap','aoMap'])if(o.material[k])o.material[k]=null}});
  root.name=name;manifest.push(await write(name,root,low.animations));attached.dispose();
+}
+for(const [name,overrides] of [['valley-toon-scout',{hairStyle:'short',outfit:'sport',bottom:'shorts',shirt:'#bc8a43'}],['valley-toon-artist',{hairStyle:'bob',outfit:'hoodie',shirt:'#a84f55',eyes:'green'}],['valley-toon-explorer',{hairStyle:'ponytail',outfit:'cardigan',build:'stocky',shoeStyle:'boot'}]]){
+ const p=profile({...PROFILE_DEFAULT,...overrides,style:'cartoon'}),a=toonAvatar(p);a.root.traverse(o=>{o.userData={}});a.root.name=name;
+ const glb=await new GLTFExporter().parseAsync(a.root,{binary:true,animations:toonClips(),onlyVisible:true});const dv=new DataView(glb),j=JSON.parse(new TextDecoder().decode(new Uint8Array(glb,20,dv.getUint32(12,true))));
+ if(dv.getUint32(0,true)!==0x46546c67||j.animations?.length!==8||!j.meshes?.length)throw Error('Cartoon export incomplete');await writeFile(dir+'/'+name+'.glb',Buffer.from(glb));manifest.push({file:name+'.glb',bytes:glb.byteLength,clips:j.animations.map(a=>a.name),rig:'articulated',style:'round-cartoon'});
 }
 await writeFile(dir+'/manifest.json',JSON.stringify(manifest,null,2));

@@ -1,3 +1,4 @@
+import {toonAvatar} from './valley-toon.js';
 import {sideKey} from './valley-rig-spec.js';
 import {getValleyRig,attachValleyRig,preloadValleyRig} from './valley-rig-runtime.js';
 import {applyTextile,shoeAsset} from './valley-character-assets.js';
@@ -7,7 +8,7 @@ import {material,mesh,ell,box,bake} from './valley-realism.js';
 import {silhouette,curveDetail,makeHand,makeFace,makeHair,garment} from './valley-character-model.js';
 function joint(parent,x,y,z){const b=new T.Bone();b.position.set(x,y,z);parent.add(b);return b}
 export function avatarMesh(input,{detail=true}={}){
- const p=profile(input),root=new T.Group(),body=joint(root,0,0,0);body.name='ValleyBody';
+ const p=profile(input);if(p.style==='cartoon')return toonAvatar(p,{detail});const root=new T.Group(),body=joint(root,0,0,0);body.name='ValleyBody';
  const skin=material(p.skin,{roughness:.65}),shirt=material(p.shirt),pants=material(p.pants,{roughness:.96}),shoe=material({dark:0x292c30,white:0xe5e4dd,brown:0x6c4a37}[p.shoes]),sole=material(0x4a4945),hair=material(p.hair),seam=material(new T.Color(p.shirt).multiplyScalar(.76)),denim=material(new T.Color(p.pants).multiplyScalar(.78));
  skin.userData.valleyLegacySkin=true;body.scale.x={slim:.86,regular:1,athletic:1.12,stocky:1.19}[p.build];applyTextile(shirt,p.outfit==='cardigan'?'knit':p.outfit==='jacket'?'denim':'cotton',detail);applyTextile(pants,p.bottom==='jeans'?'denim':'cotton',detail);applyTextile(shoe,'leather',detail);
  mesh(body,silhouette([[.73,.13,.093],[.81,.166,.112],[.88,.151,.105],[.96,.135,.095]],20),pants);
