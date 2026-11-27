@@ -19,3 +19,6 @@ Release candidate for the implemented local-first planner. Not a claim of 100% c
 | Delivery | CI debug APK + offline PWA, manual signed release workflow | stable owner-controlled keystore; physical install/update and performance tests; workflow access on default branch |
 
 No cloud required for core planning. No building-code or structural certification. The release candidate is a usable scope, not the final signed store release. Backup before uninstalling/debug signature changes. No claim that the original 795-model target or every future feature has been delivered.
+
+## Roof phase 1 — RC2
+Wall-supported thick roof shell, exterior room boundary extraction, asymmetrical overhangs, ridge axis, rise and knee-wall adjustments, parapet, materials, pyramid, chimney and preview. Irregular connected outlines supported for flat/shed and continuous gable/mansard/butterfly profile; independent intersecting ridges, courtyard and disconnected components remain open. Manual roof surfaces retain their explicit level-based elevations and override automatic roof unless replaced. No building engineering certification. RC APK version parsing corrected.
