@@ -51,3 +51,5 @@
 .valley #vProfilePreview{height:auto;min-height:260px;padding:8px;gap:4px;background:radial-gradient(ellipse at 50% 30%,#dfeee4,#8ca99c)}.valley #vProfilePreview canvas{width:300px;max-width:100%;height:auto}.valley #vProfilePreview button{margin:0;min-height:44px;font-size:12px}
 
 .valley #vProfileFields{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px}.valley #vProfileFields label{margin:2px 0;font-size:12px}.valley #vProfileFields select{font-size:13px}.valley #vProfilePreview{background:radial-gradient(ellipse at 50% 26%,#edf0ed,#738c8e)}
+
+.valley #vProfileFields .vPresetActions{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-self:end}.valley #vCharacterPanel .vPresetActions button{margin:0;min-height:44px;padding:6px;font-size:12px}.valley #vProfilePreview canvas{width:min(360px,100%);height:auto}

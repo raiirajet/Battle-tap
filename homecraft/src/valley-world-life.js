@@ -24,3 +24,9 @@ export const CHARACTER_PRESETS=Object.freeze([
  {name:'Sam · Streetwear',profile:{...PROFILE_DEFAULT,skin:'#f2c4a0',hair:'#332924',hairStyle:'fringe',shirt:'#476ca8',pants:'#64808b',build:'slim',outfit:'hoodie',shoes:'white',eyes:'green'}},
  {name:'Ava · Elegant',profile:{...PROFILE_DEFAULT,skin:'#a66f50',hair:'#231f20',hairStyle:'bun',shirt:'#a84f55',pants:'#38383e',build:'slim',outfit:'coat',accessory:'glasses',shoes:'dark',shoeStyle:'loafer',bottom:'chinos'}}
 ].map(x=>Object.freeze({name:x.name,profile:Object.freeze(profile(x.profile))})));
+
+export function randomCharacter(random=Math.random){
+ const pick=values=>values[Math.min(values.length-1,Math.max(0,Math.floor((Number(random())||0)*values.length)))];
+ const out={...PROFILE_DEFAULT};for(const [key,colors] of Object.entries(PROFILE_COLORS))out[key]=pick(colors);
+ for(const [key,options] of Object.entries(PROFILE_OPTIONS))if(key!=='style')out[key]=pick(options);return profile(out);
+}
