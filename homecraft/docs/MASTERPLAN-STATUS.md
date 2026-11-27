@@ -34,3 +34,5 @@ RC6: polygon slab voids, guarded walking at voids, railings, matched ceiling hol
 RC7: nine parametrized architecture elements, configurable decks and roofed terraces, railings, facade panels, posts and beams, component-aware walk collision and geometric quantity CSV. Planning visualization only; no structural support calculation, code-compliant rail certification, or fully integrated stair landing geometry.
 
 RC8: room-specific finish overlays, skirting, crown mouldings, ceiling lining and interior quantity CSV. No automatic mitred junctions, individual edge selection or structural lining design yet.
+
+RC9: eleven kitchen module types, custom dimensions/fronts/worktops and handles, row builder, geometric warnings and module cost/mengen CSV. Legacy kitchen presets remain. No certified appliance installation, automatic corner joints or continuous custom worktop union.
