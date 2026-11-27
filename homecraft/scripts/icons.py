@@ -26,6 +26,6 @@ elif mode=='android':
     for density,n in [('mdpi',48),('hdpi',72),('xhdpi',96),('xxhdpi',144),('xxxhdpi',192)]:
         for name in ('ic_launcher','ic_launcher_round'):png(root/f'mipmap-{density}'/(name+'.png'),n)
     for path in (root/'mipmap-anydpi-v26').glob('ic_launcher*.xml'):path.unlink()
-    version=json.loads(pathlib.Path('package.json').read_text())['version'];parts=[int(x) for x in version.split('.')];code=parts[0]*1000000+parts[1]*1000+parts[2]
+    version=json.loads(pathlib.Path('package.json').read_text())['version'];parts=[int(x) for x in version.split('-')[0].split('.')];code=parts[0]*1000000+parts[1]*1000+parts[2]
     gradle=pathlib.Path('android/app/build.gradle');s=gradle.read_text();s=re.sub(r'versionCode\s+\d+',f'versionCode {code}',s);s=re.sub(r'versionName\s+"[^"]+"',f'versionName "{version}"',s);gradle.write_text(s)
 else:raise SystemExit('Unknown mode')

@@ -65,3 +65,6 @@ Graphics refinement: tangent-space normal maps derived from height fields, textu
 
 ## 1.0.0-rc.1
 Finalization of the implemented planner scope: onboarding, backup from project list, revision-safe IndexedDB writes, save indicators, input hardening, project checks, offline PWA regression test, APK signature/checksum verification and Android version metadata. See docs/MASTERPLAN-STATUS.md for remaining masterplan and production-release gates.
+
+## 1.0.0-rc.2 — roof phase 1
+Automatic roof derives a single closed exterior from detected rooms, includes wall half-thickness and four independent overhangs, rests on actual wall tops, adds roof shell thickness and facade infill at wall lines, ridge axis, knee wall, rise override, flat parapet, roof finishes, pyramid and chimney. Flat/shed/gable/mansard/butterfly can follow a connected irregular contour; hip/pyramid require aligned rectangular outline. No automatic intersecting ridges, courtyards or disconnected wings yet; use manual roof patches. Existing manual patches remain explicit and override automatic roof. RC version parser corrected.
