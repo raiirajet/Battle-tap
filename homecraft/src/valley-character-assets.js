@@ -4,7 +4,7 @@ import {mesh,ell,box,material,bake} from './valley-realism.js';
 // Repeatable offline textile microstructure, independent textures per avatar.
 export function textileMaps(kind='cotton',size=64){
  const data=new Uint8Array(size*size*4),normal=new Uint8Array(data.length),rough=new Uint8Array(data.length);
- const freq=kind==='knit'?8:kind==='denim'?16:12;
+ const freq=kind==='knit'?8:kind==='denim'?16:kind==='leather'?8:12;
  const height=(x,y)=>{const u=x/size*6.28318530718*freq,v=y/size*6.28318530718*freq;
   return kind==='knit'?.5+.17*Math.cos(u+Math.sin(v)*.9)+.11*Math.cos(v*2):kind==='denim'?.5+.13*Math.sin(u+v*2)+.06*Math.cos(v):kind==='leather'?.5+.10*Math.sin(u*1.25)*Math.cos(v*.75):.5+.09*Math.cos(u)+.09*Math.cos(v)};
  for(let y=0;y<size;y++)for(let x=0;x<size;x++){const i=(y*size+x)*4,h=height(x,y),dx=(height(x-1,y)-height(x+1,y))*.9,dy=(height(x,y-1)-height(x,y+1))*.9,n=Math.hypot(dx,dy,1),g=Math.round(220+h*30);data.set([g,g,g,255],i);normal.set([Math.round(127.5+127.5*dx/n),Math.round(127.5+127.5*dy/n),Math.round(127.5+127.5/n),255],i);const r=kind==='leather'?135:Math.round(210+h*35);rough.set([r,r,r,255],i)}
@@ -35,7 +35,7 @@ export function shoeAsset(parent,style,color,sole,skin,detail=true){
  const g=new T.Group();g.userData.shoeStyle=style;parent.add(g);
  const stitch=material(new T.Color(color.color).lerp(new T.Color(0xe4d8c5),.35)),rubber=material(0xb6b0a5,{roughness:.94}),hardware=material(0x8a9091,{metalness:.6,roughness:.35});
  const soleGeo=new T.Shape();soleGeo.moveTo(-.044,-.049);soleGeo.bezierCurveTo(-.067,-.016,-.065,.095,-.038,.155);soleGeo.quadraticCurveTo(0,.177,.047,.152);soleGeo.bezierCurveTo(.067,.10,.06,-.027,.044,-.049);soleGeo.closePath();
- const extrude=new T.ExtrudeGeometry(soleGeo,{depth:.022,bevelEnabled:true,bevelSegments:1,steps:1,bevelSize:.004,bevelThickness:.003,curveSegments:10});extrude.rotateX(Math.PI/2);extrude.scale(1,1,-1);
+ const extrude=new T.ExtrudeGeometry(soleGeo,{depth:.022,bevelEnabled:true,bevelSegments:1,steps:1,bevelSize:.004,bevelThickness:.003,curveSegments:10});extrude.rotateX(Math.PI/2);
  mesh(g,extrude,sole,0,-.361,0);
  if(style==='sandal'){ell(g,skin,0,-.333,.061,.052,.031,.108);for(const z of [.04,.095]){const strap=box(g,color,0,-.310,z,.108,.018,.032);strap.rotation.x=.10}box(g,color,0,-.32,-.019,.092,.023,.027)}
  else{ell(g,color,0,-.329,.069,.058,.037,.099);ell(g,color,0,-.306,-.014,.054,style==='boot'?.091:.050,.047);if(style==='boot'){mesh(g,new T.CylinderGeometry(.056,.049,.11,18),color,0,-.246,-.01);for(let i=0;i<3;i++)box(g,hardware,0,-.222-i*.027,.043,.027,.006,.009)}

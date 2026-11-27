@@ -20,11 +20,11 @@ export function avatarMesh(input,{detail=true}={}){
  else mesh(a,silhouette([[-.252,.046,.045],[-.219,.051,.048]],16),seam);
  const hand=makeHand(elbow,skin,s,detail);if(p.accessory==='watch'&&s<0){const band=mesh(elbow,new T.TorusGeometry(.032,.006,6,16),shoe,0,-.168,0);band.rotation.x=Math.PI/2;box(elbow,sole,0,-.168,.030,.035,.031,.009)}arms.push({a,elbow,hand});
  const hip=joint(body,s*.095,.79,0),knee=joint(hip,0,-.345,0);
- const shorts=p.bottom==='shorts',legMat=shorts?skin:pants;mesh(hip,silhouette([[-.35,.058,.058],[-.26,.065,.064],[-.14,.081,.076],[-.055,.088,.084],[.05,.074,.080]],22),shorts?skin:pants);if(shorts)mesh(hip,silhouette([[-.19,.082,.079],[-.10,.085,.082],[.05,.080,.084]],22),pants);
- mesh(knee,silhouette([[-.315,.047,.043],[-.24,.051,.047],[-.14,.065,.061],[-.04,.063,.058],[.02,.058,.058]],20),legMat);
- if(!shorts){curveDetail(hip,denim,[[s*.073,.025,.048],[s*.079,-.14,.043],[s*.052,-.34,.031]],.003);
+ const shorts=p.bottom==='shorts',joggers=p.bottom==='joggers',chinos=p.bottom==='chinos',legMat=shorts?skin:pants;mesh(hip,silhouette([[-.35,joggers?.065:.058,.058],[-.26,joggers?.078:.065,.064],[-.14,joggers?.090:.081,.076],[-.055,chinos?.083:.088,.084],[.05,.074,.080]],22),shorts?skin:pants);if(shorts)mesh(hip,silhouette([[-.19,.082,.079],[-.10,.085,.082],[.05,.080,.084]],22),pants);
+ mesh(knee,silhouette([[-.315,joggers?.043:chinos?.054:.047,.043],[-.24,joggers?.067:chinos?.059:.051,.047],[-.14,joggers?.074:.065,.061],[-.04,.063,.058],[.02,.058,.058]],20),legMat);
+ if(joggers)mesh(knee,silhouette([[-.315,.046,.045],[-.285,.052,.049]],16),denim);if(!shorts){curveDetail(hip,denim,[[s*.073,.025,.048],[s*.079,-.14,.043],[s*.052,-.34,.031]],.003);
  curveDetail(knee,denim,[[s*.056,-.02,.025],[s*.059,-.15,.022],[s*.043,-.30,.016]],.0027);
- for(let j=0;j<3;j++)curveDetail(knee,denim,[[s*.052,-.08-j*.023,.035],[0,-.065-j*.023,.061],[-s*.034,-.08-j*.023,.043]], .0024);}
+ if(chinos)curveDetail(knee,denim,[[0,-.025,.056],[0,-.16,.062],[0,-.29,.043]],.0021);for(let j=0;j<3;j++)curveDetail(knee,denim,[[s*.052,-.08-j*.023,.035],[0,-.065-j*.023,.061],[-s*.034,-.08-j*.023,.043]], .0024);}
  shoeAsset(knee,p.shoeStyle,shoe,sole,skin,detail); legs.push({hip,knee});
  bake(a);bake(elbow);bake(hip);bake(knee);
  }

@@ -57,9 +57,11 @@ export function makeHair(head,p,hair,detail=true){
  const fringe=p.hairStyle==='bob'||p.hairStyle==='fringe',spiky=p.hairStyle==='spiky',sidepart=p.hairStyle==='sidepart',shift=sidepart?.025:0;const points=[[s*.045+shift,.146+(spiky?.012*Math.cos(i*2):0),-.028],[s*.104+shift,.112+(spiky?.025*Math.sin(i):0),c*.067-.012],[s*.111+sweep,.060,c*.077-.025],[s*.100+sweep,(fringe?.029:p.hairStyle==='short'?.057:.043)+(spiky?.034*Math.sin(i*1.7):0),c*.082-.026]];
  mesh(hairRoot,taperedLock(points,detail?.020:.027,detail?16:8,8),i%5===0?highlight:hair);
  }
+ if(p.hairStyle==='fringe'||p.hairStyle==='sidepart'){for(let i=0;i<7;i++){const x=(i-3)*.022,dx=p.hairStyle==='sidepart'?.038:.005;mesh(hairRoot,taperedLock([[x*.5,.139,.045],[x,.111,.086],[x+dx,.081,.106],[x+dx,.062+(i%3)*.008,.101]],.017,detail?16:8,6),i%4===0?highlight:hair)}}
  const tails=[];if(['long','wavy','ponytail','bob','braid'].includes(p.hairStyle)){
  for(const side of [-1,1]){const tail=bone(hairRoot,side*.085,.02,-.055);const count=detail?12:5;for(let i=0;i<count;i++){const dx=(i-(count-1)/2)*.014,len=p.hairStyle==='bob'?.13:p.hairStyle==='ponytail'?.27:p.hairStyle==='braid'?.34:.33+(i%3)*.035;mesh(tail,taperedLock([[dx,0,0],[dx+side*.027,-.085,-.035],[dx-side*.012,-len*.63,-.055],[dx+side*.019,-len,-.025]],.026,12,6),i%4===0?highlight:hair)}bake(tail);tails.push(tail)}
  }
+ if(p.hairStyle==='spiky'){for(let i=0;i<6;i++){const a=i*1.047;mesh(hairRoot,taperedLock([[Math.cos(a)*.045,.131,Math.sin(a)*.04],[Math.cos(a)*.072,.166,Math.sin(a)*.071],[Math.cos(a)*.103,.186,Math.sin(a)*.09]],.023,10,6),hair)}}
  if(p.hairStyle==='braid'){const tail=bone(hairRoot,0,.025,-.112);for(let i=0;i<(detail?16:10);i++){const y=-i*.022;const l=ell(tail,i%3?hair:highlight,(i%2?1:-1)*.015,y,-.012,.028,.022,.024);l.rotation.z=(i%2?1:-1)*.40}ell(tail,highlight,0,-.34,-.011,.024,.012,.025);bake(tail);tails.push(tail)}
  if(p.hairStyle==='bun'||p.hairStyle==='ponytail'){ell(hairRoot,hair,0,.078,-.13,.072,.063,.065);for(let i=0;i<5;i++)curveDetail(hairRoot,highlight,[[-.053,.08+i*.005,-.13],[0,.11+i*.004,-.184],[.053,.08+i*.005,-.13]],.004)}
  bake(hairRoot);return {update(clock,walk){for(const [i,t] of tails.entries()){t.rotation.x=Math.sin(clock*5+i)*walk*.09;t.rotation.z=Math.sin(clock*4+i)*(.035+walk*.045)}}};
@@ -71,7 +73,7 @@ export function garment(parent,shirt,seam,p,detail){
  if(jacket){mesh(parent,silhouette([[.84,.107,.103],[.95,.103,.118],[1.14,.111,.121],[1.27,.085,.092],[1.32,.065,.07]],20),lining);for(const side of [-1,1]){curveDetail(parent,seam,[[side*.11,1.30,.065],[side*.065,1.17,.121],[side*.09,1.04,.119],[side*.087,.86,.108]],.009);box(parent,seam,side*.12,.96,.103,.082,.067,.012);curveDetail(parent,lining,[[side*.08,.995,.116],[side*.158,.995,.099]],.003);for(let i=0;i<4;i++)ell(parent,button,side*.075,.91+i*.09,.121,.006,.006,.003)}}else{curveDetail(parent,seam,[[-.08,1.33,.065],[0,1.294,.089],[.08,1.33,.065]],.007);if(p.outfit==='sport')for(const s of [-1,1])curveDetail(parent,lining,[[s*.165,1.23,.064],[s*.15,1.1,.095],[s*.13,.87,.09]],.012)}
  if(p.outfit==='hoodie'){ell(parent,shirt,0,1.27,-.094,.116,.113,.066);for(const s of [-1,1])curveDetail(parent,lining,[[s*.050,1.31,.073],[s*.044,1.19,.120],[s*.038,1.13,.122]],.004);box(parent,seam,0,.94,.113,.18,.075,.016)}
  if(p.outfit==='blouse'){for(const s of [-1,1]){const collar=box(parent,lining,s*.048,1.294,.084,.072,.060,.012);collar.rotation.z=s*.48}}
- if(p.outfit==='coat'){for(const s of [-1,1])box(parent,seam,s*.115,.854,.098,.070,.035,.015)}
+ if(p.outfit==='coat'){mesh(parent,silhouette([[.758,.177,.116],[.80,.180,.119],[.88,.166,.110]],24),shirt);for(const s of [-1,1])box(parent,seam,s*.115,.854,.098,.070,.035,.015)}
  if(p.outfit==='pajamas'){for(let i=0;i<4;i++)ell(parent,seam,0,.93+i*.085,.122,.006,.006,.003)}
  for(const side of [-1,1])for(let i=0;i<(detail?4:2);i++){const y=.89+i*.045;curveDetail(parent,seam,[[side*.135,y,.074],[side*.106,y+.013,.105],[side*.075,y+.020,.111]],.0023)}
  if(!jacket&&p.outfit!=='sport')lining.dispose();if(!jacket)button.dispose();
