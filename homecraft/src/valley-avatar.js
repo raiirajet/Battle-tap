@@ -9,7 +9,7 @@ function joint(parent,x,y,z){const b=new T.Bone();b.position.set(x,y,z);parent.a
 export function avatarMesh(input,{detail=true}={}){
  const p=profile(input),root=new T.Group(),body=joint(root,0,0,0);body.name='ValleyBody';
  const skin=material(p.skin,{roughness:.65}),shirt=material(p.shirt),pants=material(p.pants,{roughness:.96}),shoe=material({dark:0x292c30,white:0xe5e4dd,brown:0x6c4a37}[p.shoes]),sole=material(0x4a4945),hair=material(p.hair),seam=material(new T.Color(p.shirt).multiplyScalar(.76)),denim=material(new T.Color(p.pants).multiplyScalar(.78));
- body.scale.x={slim:.86,regular:1,athletic:1.12,stocky:1.19}[p.build];applyTextile(shirt,p.outfit==='cardigan'?'knit':p.outfit==='jacket'?'denim':'cotton',detail);applyTextile(pants,p.bottom==='jeans'?'denim':'cotton',detail);applyTextile(shoe,'leather',detail);
+ skin.userData.valleyLegacySkin=true;body.scale.x={slim:.86,regular:1,athletic:1.12,stocky:1.19}[p.build];applyTextile(shirt,p.outfit==='cardigan'?'knit':p.outfit==='jacket'?'denim':'cotton',detail);applyTextile(pants,p.bottom==='jeans'?'denim':'cotton',detail);applyTextile(shoe,'leather',detail);
  mesh(body,silhouette([[.73,.13,.093],[.81,.166,.112],[.88,.151,.105],[.96,.135,.095]],20),pants);
  garment(body,shirt,seam,p,detail);mesh(body,silhouette([[1.30,.066,.064],[1.39,.059,.059],[1.45,.056,.053]],20),skin);
  const head=joint(body,0,1.53,0);head.name='ValleyHead';const face=makeFace(head,p,skin,hair,detail),hairstyle=makeHair(head,p,hair,detail);
@@ -31,7 +31,7 @@ export function avatarMesh(input,{detail=true}={}){
  bake(a);bake(elbow);bake(hip);bake(knee);
  }
  if(p.bottom==='shorts')denim.dispose();bake(body);root.userData.rig='articulated-bones';root.userData.style='semi-realistic-anime';root.userData.hands=arms.map(a=>a.hand.hand);
- let phase=0,weight=0,clock=0,glb=null;const legacySkin=[];root.traverse(o=>{if(o.isMesh&&(o.material===skin&&o.parent!==head||o.material?.userData?.valleyFace))legacySkin.push(o)});function useRig(src){if(src&&!glb&&!root.userData.disposed){glb=attachValleyRig(root,src,p,legacySkin);if(glb)root.userData.disposeRig=()=>glb.dispose()}}if(typeof document!=='undefined'){const src=getValleyRig();if(src)useRig(src);else preloadValleyRig().then(useRig)}
+ let phase=0,weight=0,clock=0,glb=null;const legacySkin=[];root.traverse(o=>{if(o.isMesh&&(o.material===skin&&o.parent!==head||o.material?.userData?.valleyFace))legacySkin.push(o)});function useRig(src){if(src&&!glb&&!root.userData.disposed){glb=attachValleyRig(root,src,p,legacySkin);if(glb)root.userData.disposeRig=()=>glb.dispose()}}if(typeof document!=='undefined'){const src=getValleyRig(detail);if(src)useRig(src);else preloadValleyRig(detail).then(useRig)}
  return {root,update(state,dx,dz,moving,dt,action=null,motion={}){
  dt=Math.max(0,Math.min(.1,Number.isFinite(dt)?dt:0));root.position.set(state.x,state.height+.025,state.z);
  if(moving&&Math.hypot(dx,dz)>.001){const target=Math.atan2(dx,dz),delta=Math.atan2(Math.sin(target-root.rotation.y),Math.cos(target-root.rotation.y));root.rotation.y+=delta*(1-Math.exp(-dt*14));phase+=dt*(motion.run?14:9.5)}
