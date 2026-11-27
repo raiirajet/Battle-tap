@@ -1,6 +1,7 @@
 import * as T from 'three';
 import {build,poseDoorLeaf} from './scene.js';
 import {disposeMaterial} from './graphics.js';
+import {enrichInterior} from './valley-interior-detail.js';
 export function disposeHouse(root){if(!root)return;const geometries=new Set(),materials=new Set();root.traverse(o=>{o.userData.disposed=true;if(o.geometry)geometries.add(o.geometry);for(const m of [].concat(o.material||[]))materials.add(m)});geometries.forEach(g=>g.dispose());materials.forEach(disposeMaterial);root.removeFromParent()}
 const houseParts=new WeakMap();
 const doorKey=(levelId,wallId,openingId)=>JSON.stringify([levelId,wallId,openingId]);
@@ -8,7 +9,7 @@ const doorKey=(levelId,wallId,openingId)=>JSON.stringify([levelId,wallId,opening
 export function makeHouseMesh(d,{source=d.source,quality='medium',playable=false}={}){
  const p={...source,graphics:{...source.graphics,quality:quality==='medium'?'standard':quality,contact:false}};
  const g=build(p,p.levels[0].id,true,false,{electric:false,water:false,hot:false,drain:false,heat:false,vent:false});
- const pivot=new T.Group();
+ enrichInterior(g,p,quality);const pivot=new T.Group();
  g.position.set(-d.origin.x,0,-d.origin.z);
  pivot.add(g);
  const doors=new Map();
