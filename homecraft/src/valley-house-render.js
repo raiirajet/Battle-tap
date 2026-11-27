@@ -1,0 +1,7 @@
+import * as T from 'three';
+import {build} from './scene.js';
+import {disposeMaterial} from './graphics.js';
+export function disposeHouse(root){if(!root)return;const geometries=new Set(),materials=new Set();root.traverse(o=>{o.userData.disposed=true;if(o.geometry)geometries.add(o.geometry);for(const m of [].concat(o.material||[]))materials.add(m)});geometries.forEach(g=>g.dispose());materials.forEach(disposeMaterial);root.removeFromParent()}
+export function makeHouseMesh(d){const p={...d.source,graphics:{...d.source.graphics,quality:'medium',contact:false}};const g=build(p,p.levels[0].id,true,false,{electric:false,water:false,hot:false,drain:false,heat:false,vent:false});const pivot=new T.Group();g.position.set(-d.origin.x,0,-d.origin.z);pivot.add(g);pivot.traverse(o=>{if(o.isLight)o.visible=false});return pivot}
+export function moveHouse(root,t){root.position.set(t.x,.015,t.z);root.rotation.y=-t.rotation*Math.PI/180;root.updateMatrixWorld(true);const b=new T.Box3().setFromObject(root);return {minX:b.min.x,maxX:b.max.x,minZ:b.min.z,maxZ:b.max.z}}
+export function ghostHouse(root,valid){root.traverse(o=>{if(!o.isMesh)return;for(const m of [].concat(o.material||[])){m.transparent=true;m.opacity=.55;m.depthWrite=false;if(!m.userData.valleyOriginal)m.userData.valleyOriginal=m.color?.clone();if(m.color&&m.userData.valleyOriginal){m.color.copy(m.userData.valleyOriginal);m.color.lerp(new T.Color(valid?0x4eb780:0xf66b66),.28)}}})}
