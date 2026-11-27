@@ -3,6 +3,7 @@ import {advanceClock} from './valley-climate.js';
 import {MODELS,vehicleRule} from './valley-vehicle.js';
 import {JOBS,jobRule} from './valley-jobs.js';
 import {FAMILY_COSTS} from './valley-family.js';
+import {STARTER_RULES} from './valley-starter.js';
 const entries={
  work:{label:'Werkstattschicht',amount:350,site:'work',energy:-15,hunger:-10,minute:60,cooldown:true},
  garden:{label:'Gartenpflege',amount:240,site:'work',energy:-10,hunger:-8,minute:40,cooldown:true},
@@ -18,6 +19,7 @@ entries.carFuel={label:'5 Liter tanken',amount:-15,vehicle:true};entries.carServ
 for(const [id,j] of Object.entries(JOBS))for(let l=0;l<3;l++)for(let p=0;p<2;p++){const key='job_'+id+'_'+l+'_'+p;entries[key]={label:j.name+' · Auftrag',amount:jobRule(key).amount,energy:j.energy,hunger:j.hunger,minute:j.minute,cooldown:true,contract:true}}
 entries.jobDaily={label:'Tagesziel · 3 Aufträge',amount:250,contract:true};
 for(const [key,amount] of Object.entries(FAMILY_COSTS))entries[key]={label:({familyPartner:'Einzug',familyChild:'Familienzuwachs',familyCat:'Katze adoptieren',familyDog:'Hund adoptieren',familyMeal:'Familienmahlzeit',familyFeed:'Tierfutter',familyCare:'Pflege',familyPlay:'Freizeit'})[key],amount,family:true};
+for(const [key,rule] of Object.entries(STARTER_RULES))entries[key]={...rule,starter:true};
 export const ECONOMY=Object.freeze(Object.fromEntries(Object.entries(entries).map(([k,v])=>[k,Object.freeze(v)])));
 export const ITEMS=Object.freeze({snack:'Proviant',coffee:'Kaffee'});
 export const CAPACITY=12;
