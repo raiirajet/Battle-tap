@@ -76,3 +76,5 @@ RC3 refinement: clipped exterior wall infill for roof bodies, 2D outline overlay
 RC4: roof-body-specific skylights, simple dormers, chimney and solar details; planar fit and overlap checks, clipped roof holes through full shell, schematic four-layer edges, junction profiles and exposed eave drainage, invalid detail diagnostics. Dimensions are projected plan metres. Junctions are schematic, not waterproof structural assemblies.
 
 Roof quantity report: visible gross/net sloped surface, cutout area, vertical-layer geometric volume, eave/ridge/valley/step lengths and CSV export. Quantities are estimates, not procurement or structural specifications.
+
+RC5 — phase 2: exact polygon rooms, wall role, parallel copies and wall shifts/splits, room metadata and geometric volume schedule, adjustable room ceilings, opening model/frame/sill/swing, custom stair count. No structural wall classification, sloped-ceiling volume, or general topology remapping guarantee.

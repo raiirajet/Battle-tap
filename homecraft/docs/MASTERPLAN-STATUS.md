@@ -26,3 +26,5 @@ Wall-supported thick roof shell, exterior room boundary extraction, asymmetrical
 RC3: independent rectangular roof bodies and planar visible-surface clipping, touch picking, optional schematic rafters. Intersections are an upper envelope, not watertight volumetric CSG; body-specific openings and true structural members remain open.
 
 RC4: individual body accessories, full shell cutouts, four adjustable vertical layers shown at exposed edges, ridge/valley/step profiles and optional eave drainage. No certified structural or watertight CSG, no physical Android verification.
+
+RC5 phase 2: free polygon rooms, exact wall offset/split/parallel copies, room use/clear height/perimeter/volume and CSV, editable door/window models and frame geometry, stair count. Stair void remains rectangular footprint and arbitrary topology edits may require manual room metadata reassignment.
