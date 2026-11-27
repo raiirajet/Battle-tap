@@ -56,3 +56,5 @@ RC17 first model pack: 42 distinct original procedural component models, catalog
 RC17 second pack: 67 additional original recipes with 650 components. Separate filter for both model packs; 215 base IDs expected, 580 remaining toward target 795. Retains original version 1.0.0-rc.17 while iterating; geometry validation and browser regression added. No new GLB downloads or Valley changes.
 
 RC17 third pack: 68 additional original recipes with 806 components, focused on wellness, outdoor kitchens, workshops, garage, furniture, plants and architectural accessories. 283 base IDs expected, 512 remaining. Separate pack filter and catalog regression tests; no Valley changes. Static planning geometry, no operational equipment simulation or structural certification.
+
+RC17 fourth pack: 72 additional original recipes with 903 components, focused on playgrounds, recreation, premium living, transport, plants, retail/hospitality, office and architecture. 355 base IDs expected, 440 remaining. Separate filter and browser regression; no Valley changes. Static procedural planning objects, not certified playground equipment or animated vehicles.
