@@ -32,3 +32,5 @@ RC5 phase 2: free polygon rooms, exact wall offset/split/parallel copies, room u
 RC6: polygon slab voids, guarded walking at voids, railings, matched ceiling holes, net areas, split-level creation and explicit upper stair target, approximate sampled headroom. Physical QA and exact sloped roof/headroom calculations remain open.
 
 RC7: nine parametrized architecture elements, configurable decks and roofed terraces, railings, facade panels, posts and beams, component-aware walk collision and geometric quantity CSV. Planning visualization only; no structural support calculation, code-compliant rail certification, or fully integrated stair landing geometry.
+
+RC8: room-specific finish overlays, skirting, crown mouldings, ceiling lining and interior quantity CSV. No automatic mitred junctions, individual edge selection or structural lining design yet.
