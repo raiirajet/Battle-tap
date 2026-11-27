@@ -1,0 +1,6 @@
+# D7 – Familie und Haustiere (erste spielbare Stufe)
+- Partnerschaft ab 90 Beziehungspunkten bei persönlichem Gespräch, eigenes platziertes Haus erforderlich. Partner zieht zum Haushalt und verschwindet aus der bisherigen öffentlichen NPC-Route.
+- Bis drei benennbare Kinder und drei Haustiere (Hund/Katze), gemeinsames Guthaben. Aufnahme Kind 500 HC, Katze 180 HC, Hund 250 HC. Pflege 8 HC, Mahlzeiten 20 HC, Tierfutter 12 HC, Freizeit kostenlos.
+- Sättigung, Pflege und Freude sinken mit Spielzeit; Aktionen im eigenen Wohnbereich verbessern sie. Kein Sterben, keine Krankheit, keine Offline-Fortschreibung. Kinder wachsen über beschleunigte Spieltage vom Kleinkind zum Teenager; keine Erwachsenenphase, Schwangerschaft oder Vererbung.
+- Haushaltsfiguren und animierte prozedurale Hunde/Katzen im Aussenbereich vor dem Grundstück. Keine freie Innenraum-Navigation, keine eigenständige Haushalts-KI oder spielbare Familienmitglieder. Pflege/Freizeit über Menü, keine komplexen Interaktionsanimationen.
+- Haushaltsdaten, Kosten und Einzugsmeilensteine atomar gespeichert. Alte Saves ohne Familie kompatibel. Unit-Tests für Regeln, Alter, Bedürfnisse und Journal. Gerätetest und visuelle Abnahme offen.

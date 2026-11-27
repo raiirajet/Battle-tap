@@ -11,3 +11,5 @@
 .valley #vCarHud{background:#173c37e8;color:white;font-weight:700;border-radius:9px;padding:9px 12px;width:fit-content;max-width:100%}.valley #vDrive{background:#deebda;color:#173c37}
 
 .valley #vJobHud{align-self:flex-start;background:#3e3824ed;color:#fff4ce;border-radius:9px;padding:7px 10px;font-size:12px;max-width:100%}.valley #vJobStep{background:#f4d477;color:#352b15}.valley #vEconomyActions .vResidentRow+button{margin-bottom:7px}
+
+.valley .vFamilyMember{display:grid;gap:5px;padding:12px;background:#eef4e8;color:#234e48;border:1px solid #b8c8b3;border-radius:12px;margin-top:10px}.valley .vFamilyMember label{font-size:12px;margin:0}.valley .vFamilyMember progress{display:block;width:100%;accent-color:#51936a}
