@@ -101,3 +101,6 @@ Default-enabled synthesized offline Web Audio after user gesture. Dashboard cont
 
 ## RC26 Audiowiedergabe
 Das Tonmenü meldet, ob der Testton gestartet wurde, der Ton stummgeschaltet ist, die Lautstärke auf null steht oder der Audiokontext nicht läuft. Nach der Rückkehr zur App wird die Wiedergabe erneut aktiviert, bei Bedarf mit der nächsten Berührung oder Taste. Der Browser-Smoke-Test prüft Stummschaltung, Testton und die Anzeige des eigenen Autos. Die Medienausgabe bleibt auf einem Android-Gerät zu prüfen.
+
+## RC27 3D-Haus und Begehung
+Valley blendet das Dach, das aktive Zimmerdach und höhere Geschosse über die Sichtbarkeit des bestehenden Modells aus. Türflügel ändern ihre Position am bestehenden Modell. Die Geometrie wird beim Geschosswechsel oder Türöffnen nicht neu erstellt. Obergeschoss-Terrassen tragen die Spielfigur, und der Positionsspeicher verwendet beim Laden die tatsächliche begehbare Höhe. Die Medien- und Performance-Prüfung auf einem physischen Android-Gerät bleibt offen.

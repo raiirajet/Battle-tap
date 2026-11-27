@@ -84,5 +84,45 @@ await page.locator('#valleyEntry').waitFor();
 await page.setViewportSize({width:900,height:700});await page.locator('#plannerEntry').click();await page.locator('[data-open]').first().click();
 await page.locator('#menu').click();await page.locator('[data-act="valleyDirect"]').click();await page.locator('#vName').fill('Unified house smoke');await page.locator('#vMode').selectOption('sandbox');await page.locator('#vCreate').click();await page.locator('#vOwned').waitFor();
 assert.notEqual(await page.locator('#vDesign').inputValue(),'');await page.locator('#vPreviewHouse').click();await page.locator('#vPlacement').waitFor();assert.match(await page.locator('#vHouseCheck').textContent(),/Platzierung gültig/);await page.locator('#vPlaceHouse').click();await page.waitForFunction(()=>document.querySelector('#vMessage')?.textContent.includes('Hausrevision 1 gespeichert'));assert.match(await page.locator('#vHouseCurrent').textContent(),/Hausrevision 1/);
+// Reopen a placed home at known walkable positions to exercise the door and cutaway.
+const valleyHome='Unified house smoke';
+for(const [local,expected] of [[{x:4.5,z:5.65},'Draussen'],[{x:1,z:3.6},'Erdgeschoss']]){
+  await page.locator('#vBack').click();
+  await page.locator('#valleyEntry').waitFor();
+  await page.evaluate(({name,local})=>new Promise((resolve,reject)=>{
+    const open=indexedDB.open('homecraft-valley',1);
+    open.onerror=()=>reject(open.error);
+    open.onsuccess=()=>{
+      const db=open.result,tx=db.transaction('saves','readwrite'),store=tx.objectStore('saves'),all=store.getAll();
+      all.onsuccess=()=>{
+        const save=all.result.find(s=>s.name===name),house=save?.building;
+        if(!house){tx.abort();return}
+        const {x,z,rotation}=house.transform,angle=rotation*Math.PI/180;
+        const dx=local.x-house.design.origin.x,dz=local.z-house.design.origin.z;
+        const state={x:x+dx*Math.cos(angle)-dz*Math.sin(angle),z:z+dx*Math.sin(angle)+dz*Math.cos(angle),height:0,level:house.design.source.levels[0].id};
+        save.life={revision:1,...save.life,checkpoint:{buildingRevision:house.revision,state}};
+        store.put(save);
+      };
+      tx.oncomplete=()=>{db.close();resolve()};
+      tx.onabort=tx.onerror=()=>{db.close();reject(tx.error||new Error('Placed home fixture failed'))};
+    };
+  }),{name:valleyHome,local});
+  await page.locator('#valleyEntry').click();
+  const saveOption=page.locator('#vSaves option').filter({hasText:valleyHome});
+  await saveOption.waitFor({state:'attached'});
+  await page.locator('#vSaves').selectOption(await saveOption.getAttribute('value'));
+  await page.locator('#vLoad').click();
+  await page.locator('#vStartLife').click();
+  await page.locator('#vLifeLocation').filter({hasText:expected}).waitFor();
+  if(expected==='Draussen'){
+    await page.locator('#vInteract').filter({hasText:'Tür öffnen'}).click();
+    await page.locator('#vLifeNotice').filter({hasText:'Tür geöffnet.'}).waitFor();
+    await page.locator('#vInteract').filter({hasText:'Tür schliessen'}).click();
+    await page.locator('#vLifeNotice').filter({hasText:'Tür geschlossen.'}).waitFor();
+  }
+  await page.locator('#vDashboard').click();
+  await page.locator('#vDashBuild').click();
+  await page.locator('#vOwned').waitFor();
+}
 await page.locator('#vRenovate').click();await page.locator('#name').waitFor();assert.match(await page.locator('#name').textContent(),/Umbau/);await page.locator('#back').click();await page.locator('#valleyEntry').waitFor();assert.equal(await page.locator('[data-open]').count(),3);
 assert.deepEqual(errors,[]);console.log('Mobile viewport, offline PWA, persistence and stale-tab conflict passed')}finally{await browser.close()}
