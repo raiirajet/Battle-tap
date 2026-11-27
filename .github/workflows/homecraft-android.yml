@@ -74,7 +74,7 @@ jobs:
           unzip -tq HomeCraft-3D-debug.apk
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose HomeCraft-3D-debug.apk
           sha256sum HomeCraft-3D-debug.apk > HomeCraft-3D-debug.apk.sha256
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging HomeCraft-3D-debug.apk | head -n 1 > /tmp/homecraft-package.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging HomeCraft-3D-debug.apk > /tmp/homecraft-package.txt
           cat /tmp/homecraft-package.txt
           grep -F "name='ch.homecraft.planner'" /tmp/homecraft-package.txt
           grep -F "versionName='$(node -p 'require(\"./package.json\").version')'" /tmp/homecraft-package.txt
