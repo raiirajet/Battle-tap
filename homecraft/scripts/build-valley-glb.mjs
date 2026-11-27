@@ -1,5 +1,5 @@
 import {toonAvatar,toonClips} from '../src/valley-toon.js';
-import {mkdir,writeFile} from 'node:fs/promises';import {GLTFExporter} from 'three/addons/exporters/GLTFExporter.js';import {createSkinCharacter} from './valley-skin-builder.mjs';import {avatarMesh} from '../src/valley-avatar.js';import {attachValleyRig} from '../src/valley-rig-runtime.js';import {PROFILE_DEFAULT,profile} from '../src/valley-world-life.js';
+import {mkdir,writeFile} from 'node:fs/promises';import {GLTFExporter} from 'three/addons/exporters/GLTFExporter.js';import {createSkinCharacter} from './valley-skin-builder.mjs';import {avatarMesh} from '../src/valley-avatar.js';import {attachValleyRig} from '../src/valley-rig-runtime.js';import {PROFILE_DEFAULT,profile,CHARACTER_PRESETS} from '../src/valley-world-life.js';
 // GLTFExporter uses FileReader in browsers. Node's Blob supplies the same bytes.
 globalThis.FileReader??=class {readAsArrayBuffer(blob){blob.arrayBuffer().then(v=>{this.result=v;this.onloadend?.()})}readAsDataURL(blob){blob.arrayBuffer().then(v=>{this.result='data:'+blob.type+';base64,'+Buffer.from(v).toString('base64');this.onloadend?.()})}};
 const dir='public/assets/characters';await mkdir(dir,{recursive:true});
@@ -8,11 +8,11 @@ async function write(name,root,animations){const glb=await new GLTFExporter().pa
 const high=createSkinCharacter({step:.006}),low=createSkinCharacter({step:.009}),manifest=[];
 manifest.push(await write('valley-human',high.skin,high.animations));manifest.push(await write('valley-human-npc',low.skin,low.animations));
 // Two self-contained dressed reference characters. Their accessory meshes are bone-attached.
-for(const [name,p] of [['valley-adventurer',{...PROFILE_DEFAULT,face:'angular',hairStyle:'sidepart',outfit:'jacket',shoeStyle:'boot',build:'athletic'}],['valley-explorer',{...PROFILE_DEFAULT,face:'soft',hairStyle:'ponytail',outfit:'cardigan',shoeStyle:'sneaker',build:'slim',eyes:'green'}]]){
- const a=avatarMesh(p,{detail:false}),root=a.root;const legacy=[];root.traverse(o=>{if(o.isMesh&&(o.material?.userData?.valleyLegacySkin||o.material?.userData?.valleyFace))legacy.push(o)});const attached=attachValleyRig(root,{skin:low.skin,clips:low.animations},profile(p),legacy);if(!attached)throw Error('Standalone character rig mismatch');
+for(const [name,p] of [['valley-adventurer',{...PROFILE_DEFAULT,face:'angular',hairStyle:'sidepart',outfit:'jacket',shoeStyle:'boot',build:'athletic'}],['valley-explorer',{...PROFILE_DEFAULT,face:'soft',hairStyle:'ponytail',outfit:'cardigan',shoeStyle:'sneaker',build:'slim',eyes:'green'}],...CHARACTER_PRESETS.map((p,i)=>['valley-preset-'+['mila','lina','noah','leon','sam','ava'][i],p.profile])]){
+ const a=avatarMesh(p,{detail:false}),root=a.root;const legacy=[];root.traverse(o=>{if(o.isMesh&&((o.material?.userData?.valleyLegacySkin&&o.parent?.name!=='ValleyHead')||o.material?.userData?.valleyFace))legacy.push(o)});const attached=attachValleyRig(root,{skin:low.skin,clips:low.animations,detail:false},profile(p),legacy);if(!attached)throw Error('Standalone character rig mismatch');
  // Keep export independent of DOM/canvas. Export coloured geometry, not procedural raster maps.
  root.traverse(o=>{o.userData={};if(o.isMesh){for(const k of ['map','normalMap','roughnessMap','metalnessMap','emissiveMap','alphaMap','aoMap'])if(o.material[k])o.material[k]=null}});
- root.name=name;manifest.push(await write(name,root,low.animations));attached.dispose();
+ root.name=name;const entry=await write(name,root,low.animations);manifest.push({...entry,profile:profile(p),style:'semi-realistic-anime'});attached.dispose();
 }
 for(const [name,overrides] of [['valley-toon-scout',{hairStyle:'short',outfit:'sport',bottom:'shorts',shirt:'#bc8a43'}],['valley-toon-artist',{hairStyle:'bob',outfit:'hoodie',shirt:'#a84f55',eyes:'green'}],['valley-toon-explorer',{hairStyle:'ponytail',outfit:'cardigan',build:'stocky',shoeStyle:'boot'}]]){
  const p=profile({...PROFILE_DEFAULT,...overrides,style:'cartoon'}),a=toonAvatar(p);a.root.traverse(o=>{o.userData={}});a.root.name=name;
