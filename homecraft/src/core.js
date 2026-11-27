@@ -1,3 +1,4 @@
+import {premiumCatalog} from './premium-models.js';
 import {validateWallConstruction} from './construction.js';
 import {validateFacade} from './facade.js';
 import {validateTechnical} from './technical.js';
@@ -180,3 +181,6 @@ export function floorHoles(p,l,r,links=stairLinks(p),state=voidState(p,links)){r
 export function ceilingHoles(p,l,r,state=voidState(p),links=stairLinks(p)){const z=l.z+r.clearHeight,structural=l.z+Math.min(l.height,...r.edgeWallIds.map(id=>l.walls.find(w=>w.id===id)?.height??l.height)),upper=p.levels.filter(q=>q.z>l.z+.1&&(Math.abs(q.z-(q.slab??.2)-z)<.35||r.interior?.ceilingThickness>0&&Math.abs(q.z-(q.slab??.2)-structural)<.35)).sort((a,b)=>a.z-b.z)[0];if(!upper)return [];return [...state.active.filter(q=>q.levelId===upper.id).map(q=>q.points),...links.filter(q=>q.upper===upper.id).map(q=>q.polygon)].filter(q=>polygonInside(r.points,q))}
 export function netFloor(p,l,r,links=stairLinks(p),state=voidState(p,links)){return Math.max(0,r.area-floorHoles(p,l,r,links,state).reduce((s,q)=>s+Math.abs(area(q)),0))}
 export function stairHeadroom(p,l,o){const links=stairLinks(p),link=links.find(q=>q.lower===l.id&&q.object.id===o.id),rise=link?.rise??o.height,steps=stairSteps(o,rise),state=voidState(p,links),angle=o.rotation*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle);let min=Infinity;const upperRooms=p.levels.filter(u=>u.z>l.z+.1).map(u=>({u,rooms:rooms(u).map(r=>({r,holes:floorHoles(p,u,r,links,state)}))}));for(const step of steps){const q=step.polygon.reduce((a,b)=>({x:a.x+b.x/step.polygon.length,y:a.y+b.y/step.polygon.length}),{x:0,y:0}),at={x:o.x+q.x*c-q.y*s,y:o.y+q.x*s+q.y*c},z=l.z+(o.elevation||0)+step.height;for(const {u:upper,rooms:rr} of upperRooms){const r=rr.find(q=>contains(q.r.points,at));if(!r||r.holes.some(poly=>contains(poly,at)))continue;const bottom=upper.z-(upper.slab??.2);if(bottom>=l.z)min=Math.min(min,bottom-z)}}return Number.isFinite(min)?min:null}
+
+// Append original models after legacy catalog initialization: no automatic colour variants.
+catalog.push(...premiumCatalog);
