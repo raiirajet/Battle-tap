@@ -80,3 +80,12 @@ RC18.2–10 integrated garden studio: rectangular pools and 32-segment elliptica
 RC18 finishing: adjustable rim width and water freeboard; estimated path material volume and rim area; warning for stairs buried in terrain or mismatch at top landing, basin foundation and more than eight lights; bounds for water count and total planting/outlets. Model is straight paths/stairs and grid plants, not detailed civil engineering or curved-route editor.
 
 RC18 validation checkpoint: 17 selected site, terrain and garden tests passed in a standalone JS harness with the unrelated premium catalog import stubbed; main, scene, menu, tool and project-check syntax passed. Browser smoke extended, not executed; no confirmed Android build. RC18 feature implementation checkpoint complete; RC18.10 visual/device acceptance still pending. Next planned phase RC19 graphics. Package release version retained until verified release build.
+
+
+## RC19–23 first integrated candidate (not final acceptance)
+RC18.10 CI build e3d94dc succeeded (run 45990938328), debug APK and PWA produced. Physical device verification remains open.
+RC19: four selectable lighting palettes and environment reflection intensity, persisted per project; classic preserves existing palette. No photorealistic lighting engine or new texture scans.
+RC20: role-scoped batch wall height preview, net face area comparison and opening-fit protection, with normal transaction undo/redo; not structural verification, no automatic roof or facade redesign.
+RC21: Eco frame pacing to approximately 30fps. No measured battery or performance benchmark yet.
+RC22: versioned portable house JSON, guarded import and explicit placement; terrain and RC18 garden data stripped from transferred snapshots. Existing unsupported custom GLB restriction remains.
+RC23: direct editor-to-Valley selection plus imported package preview and existing confirmation/placement/renovation flows. Encrypted projects not automatically transferred. No newer external Valley branch was visible in this repository; this integrates the existing A–D2 implementation only. Dashboard/vehicle/pet/NPC expansion, full scene/architecture work, real-device tests and stable signing remain separate acceptance work. Package RC23 is a candidate, not a claim that all five phases are complete.
