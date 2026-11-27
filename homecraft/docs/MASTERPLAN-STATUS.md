@@ -30,3 +30,5 @@ RC4: individual body accessories, full shell cutouts, four adjustable vertical l
 RC5 phase 2: free polygon rooms, exact wall offset/split/parallel copies, room use/clear height/perimeter/volume and CSV, editable door/window models and frame geometry, stair count. Stair void remains rectangular footprint and arbitrary topology edits may require manual room metadata reassignment.
 
 RC6: polygon slab voids, guarded walking at voids, railings, matched ceiling holes, net areas, split-level creation and explicit upper stair target, approximate sampled headroom. Physical QA and exact sloped roof/headroom calculations remain open.
+
+RC7: nine parametrized architecture elements, configurable decks and roofed terraces, railings, facade panels, posts and beams, component-aware walk collision and geometric quantity CSV. Planning visualization only; no structural support calculation, code-compliant rail certification, or fully integrated stair landing geometry.
