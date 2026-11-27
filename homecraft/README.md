@@ -78,3 +78,5 @@ RC4: roof-body-specific skylights, simple dormers, chimney and solar details; pl
 Roof quantity report: visible gross/net sloped surface, cutout area, vertical-layer geometric volume, eave/ridge/valley/step lengths and CSV export. Quantities are estimates, not procurement or structural specifications.
 
 RC5 — phase 2: exact polygon rooms, wall role, parallel copies and wall shifts/splits, room metadata and geometric volume schedule, adjustable room ceilings, opening model/frame/sill/swing, custom stair count. No structural wall classification, sloped-ceiling volume, or general topology remapping guarantee.
+
+RC5 refinement: attached T-junction endpoints follow wall offsets; linked opening measurements follow a split into the new wall. Room and opening schedules are accessible from the project menu, with separate CSV exports. Geometry changes with ambiguous room correspondence may still require reassignment.
