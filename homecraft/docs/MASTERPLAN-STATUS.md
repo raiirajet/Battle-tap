@@ -36,3 +36,5 @@ RC7: nine parametrized architecture elements, configurable decks and roofed terr
 RC8: room-specific finish overlays, skirting, crown mouldings, ceiling lining and interior quantity CSV. No automatic mitred junctions, individual edge selection or structural lining design yet.
 
 RC9: eleven kitchen module types, custom dimensions/fronts/worktops and handles, row builder, geometric warnings and module cost/mengen CSV. Legacy kitchen presets remain. No certified appliance installation, automatic corner joints or continuous custom worktop union.
+
+RC10: eight configurable bathroom fixture types, component geometry including transparent shower screens, sanitary colours, fixture dimensions, mounting and clearance settings, editable fixture list and bathroom CSV. Existing bathroom templates remain. Clearance is a schematic rectangular check, not a building-code or plumbing certification. No automatic pipe routing or tile layout.
