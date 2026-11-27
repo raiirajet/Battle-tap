@@ -6,7 +6,7 @@ const houseParts=new WeakMap();
 const doorKey=(levelId,wallId,openingId)=>JSON.stringify([levelId,wallId,openingId]);
 
 export function makeHouseMesh(d,{source=d.source,quality='medium',playable=false}={}){
- const p={...source,graphics:{...source.graphics,quality,contact:false}};
+ const p={...source,graphics:{...source.graphics,quality:quality==='medium'?'standard':quality,contact:false}};
  const g=build(p,p.levels[0].id,true,false,{electric:false,water:false,hot:false,drain:false,heat:false,vent:false});
  const pivot=new T.Group();
  g.position.set(-d.origin.x,0,-d.origin.z);
