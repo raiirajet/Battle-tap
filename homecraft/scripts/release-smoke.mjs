@@ -2,4 +2,39 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 const browser=await chromium.launch({headless:true,args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
-try{const context=await browser.newContext({viewport:{width:411,height:897},isMobile:true,hasTouch:true}),page=await context.newPage(),url='http://127.0.0.1:4173/';const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept('Offline test'));await page.goto(url);await page.locator('#guideSkip').click();await page.locator('#new').click();await page.locator('[data-template="studio"]').click();await page.locator('[data-wall]').first().waitFor();await page.locator('#menu').click();await page.locator('[data-act="checkProject"]').click();await page.locator('[data-close]').click();await page.locator('#back').click();await page.waitForFunction(()=>document.querySelector('#saveIndicator')?.dataset.state==='ok');await page.evaluate(async()=>{await navigator.serviceWorker.ready});await page.waitForFunction(()=>!!navigator.serviceWorker.controller);await context.setOffline(true);await page.reload();await page.locator('[data-open]').first().click();await page.locator('[data-wall]').first().waitFor();await page.locator('[data-mode="3d"]').click();await page.locator('#scene canvas').waitFor();await page.locator('[data-mode="2d"]').click();await page.locator('#back').click();await page.waitForFunction(()=>document.querySelector('#saveIndicator')?.dataset.state==='ok');await context.setOffline(false);await page.reload();await page.locator('[data-open]').first().waitFor();const second=await context.newPage();await second.goto(url);await second.locator('[data-open]').first().waitFor();await page.locator('[data-copy]').first().click();await page.waitForFunction(()=>document.querySelector('#saveIndicator')?.dataset.state==='ok');await second.locator('[data-copy]').first().click();await second.waitForFunction(()=>document.querySelector('#saveIndicator')?.dataset.state==='error');await page.reload();assert.equal(await page.locator('[data-open]').count(),2);assert.deepEqual(errors,[]);console.log('Mobile viewport, offline PWA, persistence and stale-tab conflict passed')}finally{await browser.close()}
+try{const context=await browser.newContext({viewport:{width:411,height:897},isMobile:true,hasTouch:true}),page=await context.newPage(),url='http://127.0.0.1:4173/';const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept('Offline test'));await page.goto(url);await page.locator('#guideSkip').click();await page.locator('#new').click();await page.locator('[data-template="studio"]').click();await page.locator('[data-wall]').first().waitFor();await page.locator('#menu').click();await page.locator('[data-act="checkProject"]').click();await page.locator('[data-close]').click();await page.locator('#back').click();await page.waitForFunction(()=>document.querySelector('#saveIndicator')?.dataset.state==='ok');await page.evaluate(async()=>{await navigator.serviceWorker.ready});await page.waitForFunction(()=>!!navigator.serviceWorker.controller);await context.setOffline(true);await page.reload();await page.locator('[data-open]').first().click();await page.locator('[data-wall]').first().waitFor();await page.locator('[data-mode="3d"]').click();await page.locator('#scene canvas').waitFor();await page.locator('[data-mode="2d"]').click();await page.locator('#back').click();await page.waitForFunction(()=>document.querySelector('#saveIndicator')?.dataset.state==='ok');await context.setOffline(false);await page.reload();await page.locator('[data-open]').first().waitFor();const second=await context.newPage();await second.goto(url);await second.locator('[data-open]').first().waitFor();await page.locator('[data-copy]').first().click();await page.waitForFunction(()=>document.querySelector('#saveIndicator')?.dataset.state==='ok');await second.locator('[data-copy]').first().click();await second.waitForFunction(()=>document.querySelector('#saveIndicator')?.dataset.state==='error');await page.reload();assert.equal(await page.locator('[data-open]').count(),2);await second.close();
+// Valley D3: actual mobile UI, save and load. Seed a controlled position to avoid
+// timing-dependent joystick navigation during CI software-rendered WebGL.
+await page.locator('#valleyEntry').click();
+await page.locator('#vScene canvas').waitFor();
+await page.locator('#vName').fill('Valley D3 smoke');
+await page.locator('#vCreate').click();
+await page.locator('#vStartLife').click();
+await page.locator('#vPeople').click();
+assert.equal(await page.locator('.vResidentRow').count(),6);
+await page.locator('#vEconomyClose').click();
+await page.locator('#vInventory').click();
+assert.match(await page.locator('#vEconomyInfo').textContent(),/0\/12/);
+await page.locator('#vEconomyClose').click();
+await page.locator('#vEndLife').click();
+await page.locator('#vOwned').waitFor();
+await page.locator('#vBack').click();
+await page.locator('#valleyEntry').waitFor();
+await page.evaluate(()=>new Promise((resolve,reject)=>{const req=indexedDB.open('homecraft-valley',1);req.onerror=()=>reject(req.error);req.onsuccess=()=>{const db=req.result,tx=db.transaction('saves','readwrite'),store=tx.objectStore('saves'),all=store.getAll();all.onsuccess=()=>{const s=all.result.find(x=>x.name==='Valley D3 smoke');if(!s?.life){tx.abort();return} s.life.needs.minute=600;s.life.checkpoint={buildingRevision:0,state:{x:288,z:346,height:0,level:null}};store.put(s)};tx.oncomplete=()=>{db.close();resolve()};tx.onabort=tx.onerror=()=>{db.close();reject(tx.error||new Error('Valley fixture failed'))}}}));
+await page.locator('#valleyEntry').click();
+await page.locator('#vSaves option').nth(1).waitFor({state:'attached'});
+await page.locator('#vSaves').selectOption({index:1});
+await page.locator('#vLoad').click();
+await page.locator('#vStartLife').click();
+await page.locator('#vTalk').click();
+assert.match(await page.locator('#vEconomyTitle').textContent(),/Lea/);
+await page.locator('#vEconomyActions button').filter({hasText:'Unterhalten'}).click();
+await page.waitForFunction(()=>document.querySelector('#vLifeNotice')?.textContent.includes('Bekanntschaft mit Lea gespeichert'));
+await page.locator('#vPeople').click();
+assert.match(await page.locator('.vResidentRow').filter({hasText:'Lea'}).textContent(),/8\/100/);
+await page.locator('#vEconomyClose').click();
+await page.locator('#vEndLife').click();
+await page.locator('#vOwned').waitFor();
+await page.locator('#vBack').click();
+await page.locator('#valleyEntry').waitFor();
+assert.deepEqual(errors,[]);console.log('Mobile viewport, offline PWA, persistence and stale-tab conflict passed')}finally{await browser.close()}
