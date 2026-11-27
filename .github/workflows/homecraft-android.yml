@@ -3,6 +3,9 @@ on:
   push:
     branches: [homecraft-3d, main]
     paths: ['homecraft/**', '.github/workflows/homecraft-android.yml']
+  pull_request:
+    branches: [homecraft-3d]
+    paths: ['homecraft/**', '.github/workflows/homecraft-android.yml']
   workflow_dispatch:
 concurrency:
   group: homecraft-${{ github.ref }}
@@ -40,8 +43,10 @@ jobs:
             "$SDK/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
           fi
       - run: npm install --no-audit --no-fund
-      - run: npm test
-      - run: npm run build
+      - name: HomeCraft unit tests
+        run: npm test
+      - name: HomeCraft production web bundle
+        run: npm run build
       - name: Browser 2D and WebGL smoke test
         run: |
           npx playwright install --with-deps chromium
@@ -69,6 +74,10 @@ jobs:
           unzip -tq HomeCraft-3D-debug.apk
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose HomeCraft-3D-debug.apk
           sha256sum HomeCraft-3D-debug.apk > HomeCraft-3D-debug.apk.sha256
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging HomeCraft-3D-debug.apk | head -n 1 > /tmp/homecraft-package.txt
+          cat /tmp/homecraft-package.txt
+          grep -F "name='ch.homecraft.planner'" /tmp/homecraft-package.txt
+          grep -F "versionName='$(node -p 'require(\"./package.json\").version')'" /tmp/homecraft-package.txt
           python3 -c "import zipfile; z=zipfile.ZipFile('HomeCraft-3D-debug.apk'); n=z.namelist(); assert 'assets/public/index.html' in n; assert any(x.startswith('assets/public/assets/') and x.endswith('.js') for x in n); print('HomeCraft web engine packaged')"
       - uses: actions/upload-artifact@v4
         with:
