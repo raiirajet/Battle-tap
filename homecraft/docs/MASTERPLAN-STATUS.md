@@ -1,4 +1,4 @@
-# HomeCraft 3D — masterplan status, 1.0.0-rc.16
+# HomeCraft 3D — masterplan status, 1.0.0-rc.17
 Release candidate for the implemented local-first planner. Not a claim of 100% completion of the original 38-section masterplan. The exact build and test result must be read from the HomeCraft Android/PWA workflow.
 
 | Area | Implemented | Remaining limits / release gates |
@@ -50,3 +50,5 @@ RC14: wall solid band sweep (fewer meshes with multiple openings), deduplicated 
 RC15: bounded orthogonal room-centreline decomposition into automatically intersecting rectangular roof bodies, selected floor/axis/roof type, live plan preview, explicit replacement of that floor's existing bodies, and edit existing skylights/dormers/chimneys/solar panels. Manual roofs remain available. Suggestions are not exact exterior-wall offsets or certified structural junctions; courtyard, upper/lower-floor interfaces, nonorthogonal plans, and overhang overlaps need manual checking. Independent planner branch only; Valley merge deferred.
 
 RC16: ordered wall material layers, configurable thickness and presets, section/3D display, wall-local strip foundations, quantities CSV, basement level with optional copied wall geometry and adjustable dimensions. Layer and foundation volumes are element sums, not junction-corrected union; basement single-floor 3D hides terrain for inspection, not excavation modelling. No load, soil, waterproofing or energy calculations. Complex stairs and CAD-grade junctions remain separate work.
+
+RC17 first model pack: 42 distinct original procedural component models, catalog filter and deterministic projected thumbnails. No external downloaded assets; existing model IDs retained. 148 base models expected with legacy entries; target 795 remains open. Procedural shapes are planning-grade approximations, not photorealistic individually sculpted GLBs. No Valley edits.
