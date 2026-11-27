@@ -14,3 +14,13 @@ export function worldPassable(x,z,seed,ownPlot,trees=[]){if(!Number.isFinite(x)|
 export function nearPrivateProperty(x,z,ownPlot){for(const h of HOMES)if(Math.hypot(x-h.door.x,z-h.door.z)<=2)return 'Privathaus';for(const p of plots())if(p.id!==ownPlot&&inRect(p.reserve,x,z,1.3))return 'Privatgrundstück';return null}
 export function daylight(minute){const a=(minute-360)/1440*Math.PI*2,s=Math.sin(a),day=Math.max(0,s);return {day,brightness:.12+day*.88,angle:a}}
 export function poseFor(label){if(label==='Schlafen')return 'sleep';if(label==='Entspannen'||label==='Toilette benutzen')return 'sit';if(['Essen','Waschen','Duschen','Baden'].includes(label))return 'use';return 'idle'}
+
+// Six original looks inspired by the Valley Craft visual reference. All values use existing save fields.
+export const CHARACTER_PRESETS=Object.freeze([
+ {name:'Mila · Landhaus',profile:{...PROFILE_DEFAULT,skin:'#f2c4a0',hair:'#805739',hairStyle:'bun',shirt:'#64784d',pants:'#80674d',build:'slim',outfit:'cardigan',shoes:'brown',shoeStyle:'loafer',eyes:'green',bottom:'chinos'}},
+ {name:'Lina · Outdoor',profile:{...PROFILE_DEFAULT,skin:'#d9a076',hair:'#c49c54',hairStyle:'ponytail',shirt:'#a84f55',pants:'#38383e',build:'athletic',outfit:'sport',accessory:'watch',shoes:'white',eyes:'blue',bottom:'joggers'}},
+ {name:'Noah · Abenteurer',profile:{...PROFILE_DEFAULT,skin:'#d9a076',hair:'#332924',hairStyle:'wavy',shirt:'#64784d',pants:'#80674d',build:'regular',outfit:'jacket',accessory:'watch',shoes:'brown',shoeStyle:'boot',face:'angular',bottom:'chinos'}},
+ {name:'Leon · Handwerker',profile:{...PROFILE_DEFAULT,skin:'#c68c65',hair:'#c49c54',hairStyle:'sidepart',shirt:'#ece2d3',pants:'#344457',build:'stocky',outfit:'casual',shoes:'brown',shoeStyle:'boot',face:'angular'}},
+ {name:'Sam · Streetwear',profile:{...PROFILE_DEFAULT,skin:'#f2c4a0',hair:'#332924',hairStyle:'fringe',shirt:'#476ca8',pants:'#64808b',build:'slim',outfit:'hoodie',shoes:'white',eyes:'green'}},
+ {name:'Ava · Elegant',profile:{...PROFILE_DEFAULT,skin:'#a66f50',hair:'#231f20',hairStyle:'bun',shirt:'#a84f55',pants:'#38383e',build:'slim',outfit:'coat',accessory:'glasses',shoes:'dark',shoeStyle:'loafer',bottom:'chinos'}}
+].map(x=>Object.freeze({name:x.name,profile:Object.freeze(profile(x.profile))})));

@@ -1,7 +1,7 @@
 import {toonAvatar} from './valley-toon.js';
 import {sideKey} from './valley-rig-spec.js';
 import {getValleyRig,attachValleyRig,preloadValleyRig} from './valley-rig-runtime.js';
-import {applyTextile,shoeAsset} from './valley-character-assets.js';
+import {applyTextile,shoeAsset,applySkinDetail} from './valley-character-assets.js';
 import * as T from 'three';
 import {profile,poseFor} from './valley-world-life.js';
 import {material,mesh,ell,box,bake} from './valley-realism.js';
@@ -10,7 +10,7 @@ function joint(parent,x,y,z){const b=new T.Bone();b.position.set(x,y,z);parent.a
 export function avatarMesh(input,{detail=true}={}){
  const p=profile(input);if(p.style==='cartoon')return toonAvatar(p,{detail});const root=new T.Group(),body=joint(root,0,0,0);body.name='ValleyBody';
  const skin=material(p.skin,{roughness:.65}),shirt=material(p.shirt),pants=material(p.pants,{roughness:.96}),shoe=material({dark:0x292c30,white:0xe5e4dd,brown:0x6c4a37}[p.shoes]),sole=material(0x4a4945),hair=material(p.hair),seam=material(new T.Color(p.shirt).multiplyScalar(.76)),denim=material(new T.Color(p.pants).multiplyScalar(.78));
- skin.userData.valleyLegacySkin=true;body.scale.x={slim:.86,regular:1,athletic:1.12,stocky:1.19}[p.build];applyTextile(shirt,p.outfit==='cardigan'?'knit':p.outfit==='jacket'?'denim':'cotton',detail);applyTextile(pants,p.bottom==='jeans'?'denim':'cotton',detail);applyTextile(shoe,'leather',detail);
+ applySkinDetail(skin,detail);skin.userData.valleyLegacySkin=true;body.scale.x={slim:.86,regular:1,athletic:1.12,stocky:1.19}[p.build];applyTextile(shirt,p.outfit==='cardigan'?'knit':p.outfit==='jacket'?'denim':'cotton',detail);applyTextile(pants,p.bottom==='jeans'?'denim':'cotton',detail);applyTextile(shoe,'leather',detail);
  mesh(body,silhouette([[.73,.13,.093],[.81,.166,.112],[.88,.151,.105],[.96,.135,.095]],20),pants);
  garment(body,shirt,seam,p,detail);mesh(body,silhouette([[1.30,.066,.064],[1.39,.059,.059],[1.45,.056,.053]],20),skin);
  const head=joint(body,0,1.53,0);head.name='ValleyHead';const face=makeFace(head,p,skin,hair,detail),hairstyle=makeHair(head,p,hair,detail);
@@ -28,6 +28,12 @@ export function avatarMesh(input,{detail=true}={}){
  if(joggers)mesh(knee,silhouette([[-.315,.046,.045],[-.285,.052,.049]],16),denim);if(!shorts){curveDetail(hip,denim,[[s*.073,.025,.048],[s*.079,-.14,.043],[s*.052,-.34,.031]],.003);
  curveDetail(knee,denim,[[s*.056,-.02,.025],[s*.059,-.15,.022],[s*.043,-.30,.016]],.0027);
  if(chinos)curveDetail(knee,denim,[[0,-.025,.056],[0,-.16,.062],[0,-.29,.043]],.0021);for(let j=0;j<3;j++)curveDetail(knee,denim,[[s*.052,-.08-j*.023,.035],[0,-.065-j*.023,.061],[-s*.034,-.08-j*.023,.043]], .0024);}
+ if(detail&&!shorts&&p.bottom==='jeans'){
+ const pocket=material(new T.Color(p.pants).lerp(new T.Color(0x88765e),.15),{roughness:.90});
+ // Rounded cargo pocket flap and topstitching follow the thigh.
+ ell(hip,pocket,s*.055,-.153,.061,.038,.025,.012);
+ curveDetail(hip,denim,[[s*.025,-.162,.075],[s*.047,-.178,.076],[s*.073,-.163,.066]],.0016,10);
+ }
  shoeAsset(knee,p.shoeStyle,shoe,sole,skin,detail); legs.push({hip,knee});
  bake(a);bake(elbow);bake(hip);bake(knee);
  }

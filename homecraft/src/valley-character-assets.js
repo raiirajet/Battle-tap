@@ -11,7 +11,7 @@ export function textileMaps(kind='cotton',size=64){
  function tex(bytes,srgb=false){const t=new T.DataTexture(bytes,size,size,T.RGBAFormat);t.wrapS=t.wrapT=T.RepeatWrapping;t.minFilter=T.LinearMipmapLinearFilter;t.magFilter=T.LinearFilter;t.generateMipmaps=true;if(srgb)t.colorSpace=T.SRGBColorSpace;t.repeat.set(3,3);t.needsUpdate=true;return t}
  return {map:tex(data,true),normalMap:tex(normal),roughnessMap:tex(rough)};
 }
-export function applyTextile(mat,kind,detail){if(!detail)return;Object.assign(mat,textileMaps(kind));mat.normalScale.set(.38,.38);mat.needsUpdate=true}
+export function applyTextile(mat,kind,detail){if(!detail)return;Object.assign(mat,textileMaps(kind,128));mat.normalScale.set(.27,.27);mat.needsUpdate=true}
 
 const gaussian=(v,s)=>Math.exp(-((v/s)**2));
 export function faceGeometry(form='soft',detail=true){
@@ -45,4 +45,12 @@ export function shoeAsset(parent,style,color,sole,skin,detail=true){
  for(let i=0;i<6;i++)box(g,sole,0,-.383,-.025+i*.029,.087,.007,.009);
  // Bake by material; dispose unused materials.
  const used=new Set(g.children.map(o=>o.material));for(const m of [stitch,rubber,hardware])if(!used.has(m))m.dispose();bake(g);return g;
+}
+
+// Fine deterministic skin grain; no external or photographic assets.
+export function applySkinDetail(mat,detail=true){
+ if(!detail)return;const size=128,data=new Uint8Array(size*size*4),rough=new Uint8Array(data.length);let seed=41719;
+ for(let i=0;i<data.length;i+=4){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const a=(seed>>>24)/255;seed=(Math.imul(seed,1664525)+1013904223)>>>0;const b=(seed>>>24)/255;data.set([Math.round(128+(a-.5)*18),Math.round(128+(b-.5)*18),255,255],i);const r=Math.round(151+a*15);rough.set([r,r,r,255],i)}
+ function tex(d){const t=new T.DataTexture(d,size,size,T.RGBAFormat);t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(8,8);t.minFilter=T.LinearMipmapLinearFilter;t.generateMipmaps=true;t.needsUpdate=true;return t}
+ mat.normalMap=tex(data);mat.roughnessMap=tex(rough);mat.normalScale.set(.16,.16);mat.needsUpdate=true;
 }

@@ -4,6 +4,11 @@ import * as T from 'three';
 import {mesh,ell,box,material,bake} from './valley-realism.js';
 // Shaped closed cross-sections in metres; normals and UVs for mobile PBR.
 export function silhouette(rings,segments=24){
+ // Interpolate section contours without changing the rig's dimensions.
+ const source=rings;const refined=[];const mix=(a,b,t)=>a+(b-a)*t;
+ for(let i=0;i<source.length-1;i++){const a=source[i],b=source[i+1],p=source[Math.max(0,i-1)],q=source[Math.min(source.length-1,i+2)],steps=segments>=24?4:2;
+ for(let k=0;k<steps;k++){const t=k/steps,u=t*t*(3-2*t),row=[mix(a[0],b[0],t)];for(let j=1;j<=3;j++){const av=a[j]??0,bv=b[j]??0,pv=p[j]??0,qv=q[j]??0;const v=mix(av,bv,u)+(t*(1-t)**2)*(bv-pv)*.5-(t*t*(1-t))*(qv-av)*.5;row.push(j<3?Math.max(.0005,Math.min(Math.max(av,bv)*1.05,v)):v)}refined.push(row)}}
+ refined.push(source.at(-1));rings=refined;
  const pos=[],uv=[],idx=[];
  for(let i=0;i<rings.length;i++){const [y,w,d,front=0]=rings[i];for(let j=0;j<=segments;j++){const a=j/segments*Math.PI*2;pos.push(Math.sin(a)*w,y,Math.cos(a)*d+front);uv.push(j/segments,i/(rings.length-1))}}
  for(let i=0;i<rings.length-1;i++)for(let j=0;j<segments;j++){const a=i*(segments+1)+j,b=a+segments+1;idx.push(a,a+1,b,b,a+1,b+1)}
@@ -53,11 +58,15 @@ export function makeHair(head,p,hair,detail=true){
  const hairRoot=new T.Group();head.add(hairRoot);const highlight=material(new T.Color(p.hair).lerp(new T.Color(0xcba47f),.13),{roughness:.57});hair.roughness=.59;
  // Scalp cap is confined to the top/back, leaving the face clear.
  const cap=new T.SphereGeometry(1,detail?28:18,12,0,Math.PI*2,0,Math.PI*.39);cap.scale(.114,.133,.112);cap.translate(0,.027,-.018);mesh(hairRoot,cap,hair);const back=new T.SphereGeometry(1,detail?24:16,10,0,Math.PI,Math.PI*.23,Math.PI*.47);back.scale(.112,.135,.108);back.rotateY(Math.PI);back.translate(0,.025,-.021);mesh(hairRoot,back,hair);
- const count=detail?29:14;
+ const count=detail?40:14;
  for(let i=0;i<count;i++){const a=(i/(count-1)-.5)*Math.PI*1.62,s=Math.sin(a),c=Math.cos(a),sweep=p.hairStyle==='wavy'?.035:.017;
  const fringe=p.hairStyle==='bob'||p.hairStyle==='fringe',spiky=p.hairStyle==='spiky',sidepart=p.hairStyle==='sidepart',shift=sidepart?.025:0;const points=[[s*.045+shift,.146+(spiky?.012*Math.cos(i*2):0),-.028],[s*.104+shift,.112+(spiky?.025*Math.sin(i):0),c*.067-.012],[s*.111+sweep,.060,c*.077-.025],[s*.100+sweep,(fringe?.029:p.hairStyle==='short'?.057:.043)+(spiky?.034*Math.sin(i*1.7):0),c*.082-.026]];
  mesh(hairRoot,taperedLock(points,detail?.020:.027,detail?16:8,8),i%5===0?highlight:hair);
  }
+ // Fine tapered ribbon-like locks, layered over the main hair silhouette.
+ if(detail)for(let i=0;i<30;i++){const a=(i/29-.5)*Math.PI*1.75,s=Math.sin(a),c=Math.cos(a),shift=p.hairStyle==='sidepart'?.023:0;
+ const wave=p.hairStyle==='wavy'?.018:0;
+ mesh(hairRoot,taperedLock([[s*.054+shift,.149,-.029],[s*.103+shift,.124,c*.073-.014],[s*.119+shift+wave,.081,c*.083-.025],[s*.108+shift+wave,.047,c*.089-.026]],.0045,14,5),i%6===0?highlight:hair)}
  if(p.hairStyle==='fringe'||p.hairStyle==='sidepart'){for(let i=0;i<7;i++){const x=(i-3)*.022,dx=p.hairStyle==='sidepart'?.038:.005;mesh(hairRoot,taperedLock([[x*.5,.139,.045],[x,.111,.086],[x+dx,.081,.106],[x+dx,.062+(i%3)*.008,.101]],.017,detail?16:8,6),i%4===0?highlight:hair)}}
  const tails=[];if(['long','wavy','ponytail','bob','braid'].includes(p.hairStyle)){
  for(const side of [-1,1]){const tail=bone(hairRoot,side*.085,.02,-.055);const count=detail?12:5;for(let i=0;i<count;i++){const dx=(i-(count-1)/2)*.014,len=p.hairStyle==='bob'?.13:p.hairStyle==='ponytail'?.27:p.hairStyle==='braid'?.34:.33+(i%3)*.035;mesh(tail,taperedLock([[dx,0,0],[dx+side*.027,-.085,-.035],[dx-side*.012,-len*.63,-.055],[dx+side*.019,-len,-.025]],.026,12,6),i%4===0?highlight:hair)}bake(tail);tails.push(tail)}
@@ -77,5 +86,15 @@ export function garment(parent,shirt,seam,p,detail){
  if(p.outfit==='coat'){mesh(parent,silhouette([[.758,.177,.116],[.80,.180,.119],[.88,.166,.110]],24),shirt);for(const s of [-1,1])box(parent,seam,s*.115,.854,.098,.070,.035,.015)}
  if(p.outfit==='pajamas'){for(let i=0;i<4;i++)ell(parent,seam,0,.93+i*.085,.122,.006,.006,.003)}
  for(const side of [-1,1])for(let i=0;i<(detail?4:2);i++){const y=.89+i*.045;curveDetail(parent,seam,[[side*.135,y,.074],[side*.106,y+.013,.105],[side*.075,y+.020,.111]],.0023)}
+ if(detail){
+ // Folded hems and visible stitch lines, with subtle contrast.
+ const thread=material(new T.Color(p.shirt).lerp(new T.Color(0xd8c7ae),.20),{roughness:.91});
+ for(const s of [-1,1]){
+ curveDetail(parent,thread,[[s*.12,.868,.080],[s*.09,.864,.105],[s*.035,.862,.112]],.0016,10);
+ if(jacket){for(let j=0;j<7;j++){const y=.94+j*.037;curveDetail(parent,thread,[[s*.094,y,.122],[s*.094,y+.012,.122]],.0011,3)}}
+ if(p.outfit==='jacket'||p.outfit==='cardigan'||p.outfit==='blouse'||p.outfit==='coat'){curveDetail(parent,thread,[[s*.175,1.245,.058],[s*.145,1.284,.073],[s*.103,1.302,.075]],.002,12)}
+ }
+ if(p.outfit==='sport'){const zip=material(0xb9b8b3,{metalness:.55,roughness:.42});curveDetail(parent,zip,[[0,1.30,.086],[0,1.255,.105],[0,1.21,.116]],.0028);box(parent,zip,0,1.264,.114,.011,.021,.006)}
+ }
  if(!jacket&&p.outfit!=='sport')lining.dispose();if(!jacket)button.dispose();
 }
