@@ -3,6 +3,6 @@
   "appName": "HomeCraft 3D",
   "webDir": "dist",
   "android": {
-    "adjustMarginsForEdgeToEdge": "force"
+    "adjustMarginsForEdgeToEdge": "disable"
   }
 }

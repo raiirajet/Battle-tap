@@ -39,8 +39,8 @@ jobs:
           SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
           echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
           test -d "$SDK"
-          if [[ ! -f "$SDK/platforms/android-35/android.jar" || ! -d "$SDK/build-tools/35.0.0" ]]; then
-            "$SDK/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
+          if [[ ! -f "$SDK/platforms/android-36/android.jar" || ! -d "$SDK/build-tools/35.0.0" ]]; then
+            "$SDK/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;35.0.0"
           fi
       - run: npm install --no-audit --no-fund
       - name: HomeCraft unit tests
@@ -80,6 +80,7 @@ jobs:
           EXPECTED_VERSION="$(node -p "require('./package.json').version")"
           test -n "$EXPECTED_VERSION"
           grep -F "versionName='$EXPECTED_VERSION'" /tmp/homecraft-package.txt
+          grep -F "targetSdkVersion:'36'" /tmp/homecraft-package.txt
           python3 -c "import zipfile; z=zipfile.ZipFile('HomeCraft-3D-debug.apk'); n=z.namelist(); assert 'assets/public/index.html' in n; assert any(x.startswith('assets/public/assets/') and x.endswith('.js') for x in n); print('HomeCraft web engine packaged')"
       - uses: actions/upload-artifact@v4
         with:

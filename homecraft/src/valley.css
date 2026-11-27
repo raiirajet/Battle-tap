@@ -26,3 +26,24 @@
 .valley #vProfilePreview canvas{width:220px;max-width:100%;height:auto;touch-action:none;cursor:grab}.valley #vProfilePreview{min-height:188px;display:grid;place-items:center}
 
 .valley #vActivityHud{position:absolute;bottom:188px;right:8px;max-width:calc(100% - 24px);padding:8px 10px;border-radius:9px;background:#233d35e8;font-size:12px;color:#ffe6ab}.valley #vPhotoPanel{pointer-events:auto;position:absolute;bottom:12px;left:50%;transform:translateX(-50%);width:min(420px,94%);z-index:10;background:#172d2de8;color:white;border-radius:14px;padding:12px;display:grid;gap:8px}.valley #vPhotoPanel[hidden]{display:none}.valley #vPhotoPanel label{display:grid;grid-template-columns:1fr 1fr;align-items:center}.valley-photo #vLifeHud> :not(#vPhotoPanel){visibility:hidden}.valley-photo #vPhotoPanel button{min-height:44px}
+
+/* The 3D canvas covers the entire window; only interactive HUD is inset. */
+.valley{padding:var(--safe-top,0px) var(--safe-right,0px) var(--safe-bottom,0px) var(--safe-left,0px);height:100dvh;overscroll-behavior:none}
+.valley.valley-playing{padding:0;user-select:none;-webkit-user-select:none}
+.valley-playing #vScene{position:absolute;inset:0}
+.valley-playing #vLifeHud{inset:var(--safe-top,0px) var(--safe-right,0px) var(--safe-bottom,0px) var(--safe-left,0px)}
+.valley-playing #vLifeHud input,.valley-playing #vLifeHud select{user-select:auto;-webkit-user-select:auto}
+.valley-playing #vJoystick,.valley-playing .vContextActions button,.valley-playing #vInteract{touch-action:none;-webkit-tap-highlight-color:transparent}
+.valley-playing #vDashboardPanel,.valley-playing #vEconomyPanel,.valley-playing #vCharacterPanel{overscroll-behavior:contain;touch-action:pan-y}
+@media(orientation:landscape) and (max-height:550px){
+ .valley-playing .vLifeTop{top:6px;left:8px;right:8px}
+ .valley-playing #vClimateHud{top:60px}
+ .valley-playing #vLifeHud #vNeeds{top:85px}
+ .valley-playing .vLifeControls{bottom:8px;left:12px;right:12px}
+ .valley-playing .vContextActions{bottom:62px;right:12px;max-width:min(65%,520px)!important}
+ .valley-playing #vActivityHud{bottom:118px;max-width:40%;font-size:10px}
+ .valley-playing #vJobHud{bottom:145px;max-width:40%}
+ .valley-playing #vCarHud{bottom:118px;max-width:40%}
+ .valley-playing #vLifeNotice{bottom:105px;max-width:38%}
+ .valley-playing .vDashGrid{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
+}
