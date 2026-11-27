@@ -41,7 +41,9 @@ test('checkpoint uses supported height or falls back to a valid starting positio
 
 test('an open door above floor level does not let the walker through the wall',()=>{
  const s=withHouse(0,p=>{
-   const door=p.levels[0].walls[0].openings[0];
+   const [wall,entryWall]=p.levels[0].walls;
+   addOpening(entryWall,5,'door',1,2.1,0);
+   const door=wall.openings[0];
    door.bottom=.35;
    door.height=1.9;
    door.open=true;
