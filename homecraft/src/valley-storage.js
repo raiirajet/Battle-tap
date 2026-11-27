@@ -1,6 +1,7 @@
 import {newSave,purchase,validateSave as validateLand} from './valley-core.js';
 import {readBuilding,placeBuilding} from './valley-house.js';
-function validateSave(input){const s=validateLand(input),b=readBuilding({...s,building:input.building});return b?{...s,building:b}:s}
+import {validateNeeds} from './valley-life.js';
+function validateSave(input){const s=validateLand(input),b=readBuilding({...s,building:input.building});if(b)s.building=b;if(input.life!=null){if(!Number.isSafeInteger(input.life.revision)||input.life.revision<1)throw Error('Ungültige Lebensrevision');s.life={revision:input.life.revision,needs:validateNeeds(input.life.needs)}}return s}
 export function openValley(){return new Promise((resolve,reject)=>{const req=indexedDB.open('homecraft-valley',1);req.onupgradeneeded=()=>req.result.createObjectStore('saves',{keyPath:'id'});req.onsuccess=()=>{const db=req.result;db.onversionchange=()=>db.close();resolve(db)};req.onerror=()=>reject(req.error);req.onblocked=()=>reject(Error('Andere Spielland-Ansicht blockiert den Speicher.'))})}
 export function listValley(db){return new Promise((resolve,reject)=>{const tx=db.transaction('saves'),req=tx.objectStore('saves').getAll();req.onsuccess=()=>{try{resolve(req.result.map(validateSave))}catch(e){reject(e)}};req.onerror=()=>reject(req.error)})}
 function write(db,id,fn){return new Promise((resolve,reject)=>{let result,error;const tx=db.transaction('saves','readwrite'),store=tx.objectStore('saves'),req=store.get(id);req.onsuccess=()=>{try{result=fn(req.result);store.put(result)}catch(e){error=e;tx.abort()}};tx.oncomplete=()=>resolve(result);tx.onabort=tx.onerror=()=>reject(error||tx.error||Error('Speichern fehlgeschlagen.'))})}
@@ -9,3 +10,5 @@ export function buyValley(db,q,id){return write(db,q.saveId,old=>purchase(valida
 export function restoreValley(db,data){const s=validateSave(data);return write(db,s.id,old=>{if(old)throw Error('Spielstand existiert bereits. Bestehende Daten werden nicht überschrieben.');return s})}
 
 export function buildValley(db,request){return write(db,request.saveId,old=>placeBuilding(validateSave(old),request))}
+
+export function saveLife(db,id,session){return write(db,id,old=>{const s=validateSave(old);if((s.life?.revision||0)!==session.expectedRevision)throw Error('Lebensstand wurde in anderer Ansicht geändert.');return {...s,life:{revision:session.expectedRevision+1,needs:validateNeeds(session.needs)}}})}

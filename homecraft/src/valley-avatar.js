@@ -1,0 +1,8 @@
+import * as T from 'three';
+export function avatarMesh(){const root=new T.Group(),body=new T.Group();root.add(body);const mat=c=>new T.MeshStandardMaterial({color:c,roughness:.78});const skin=mat(0xc68c65),shirt=mat(0x367f82),pants=mat(0x344457),shoe=mat(0x263238),hair=mat(0x332924);
+function capsule(g,r,h,m,x,y,z){const o=new T.Mesh(new T.CapsuleGeometry(r,h,5,10),m);o.position.set(x,y,z);g.add(o);return o}
+function sphere(g,r,m,x,y,z){const o=new T.Mesh(new T.SphereGeometry(r,14,10),m);o.position.set(x,y,z);g.add(o);return o}
+capsule(body,.21,.35,shirt,0,1.08,0);capsule(body,.16,.12,pants,0,.79,0);sphere(body,.145,skin,0,1.52,0);const cap=sphere(body,.151,hair,0,1.59,-.025);cap.scale.y=.68;for(const x of [-.052,.052])sphere(body,.013,shoe,x,1.54,.131);
+const arms=[],legs=[];for(const sign of [-1,1]){const a=new T.Group();a.position.set(sign*.25,1.27,0);body.add(a);capsule(a,.063,.26,shirt,0,-.17,0);sphere(a,.065,skin,0,-.37,0);arms.push(a);const l=new T.Group();l.position.set(sign*.105,.72,0);body.add(l);capsule(l,.085,.43,pants,0,-.26,0);const foot=capsule(l,.09,.12,shoe,0,-.63,.045);foot.rotation.x=Math.PI/2;legs.push(l)}
+let phase=0;return {root,update(state,dx,dz,moving,dt){root.position.set(state.x,state.height+.025,state.z);if(moving&&Math.hypot(dx,dz)>.001){const angle=Math.atan2(dx,dz),delta=Math.atan2(Math.sin(angle-root.rotation.y),Math.cos(angle-root.rotation.y));root.rotation.y+=delta*Math.min(1,dt*14);phase+=dt*10}else phase=0;const stride=moving?Math.sin(phase)*.65:0;for(let i=0;i<2;i++){const s=i===0?1:-1;legs[i].rotation.x=stride*s;arms[i].rotation.x=-stride*s*.75}body.position.y=moving?Math.abs(Math.sin(phase))*.045:Math.sin(Date.now()*.002)*.008}};
+}
