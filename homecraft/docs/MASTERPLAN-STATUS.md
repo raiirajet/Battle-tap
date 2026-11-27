@@ -89,3 +89,6 @@ RC20: role-scoped batch wall height preview, net face area comparison and openin
 RC21: Eco frame pacing to approximately 30fps. No measured battery or performance benchmark yet.
 RC22: versioned portable house JSON, guarded import and explicit placement; terrain and RC18 garden data stripped from transferred snapshots. Existing unsupported custom GLB restriction remains.
 RC23: direct editor-to-Valley selection plus imported package preview and existing confirmation/placement/renovation flows. Encrypted projects not automatically transferred. No newer external Valley branch was visible in this repository; this integrates the existing A–D2 implementation only. Dashboard/vehicle/pet/NPC expansion, full scene/architecture work, real-device tests and stable signing remain separate acceptance work. Package RC23 is a candidate, not a claim that all five phases are complete.
+
+## RC23 unified Studio + Valley
+Merged homecraft-3d 8acbe64e (D3–D8 plus dashboard/starter) into RC23 planner without reverting planner functions. Retained portable house package, preferred design, and terrain/garden stripping. Restored roof snow markers and combined full release smoke with editor-to-Valley placement and renovation copy. One package id and separate existing local stores; physical Android upgrade, final build and full game/device QA pending.
