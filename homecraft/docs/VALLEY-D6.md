@@ -1,0 +1,6 @@
+# D6 – Arbeitswelt (erste spielbare Stufe)
+- Fünf Berufe, je drei geordnete Arbeitsstationen mit ortsgebundenen Auswahlaufgaben. Goldener 3D-Zielmarker, Koordinaten, Distanz, Fehlerzähler. Mechanik, Garten, Kurier, Verkauf, Bau. Keine sofortige Lohnauszahlung mehr im Lebensmodus; alte Ledger-Einträge bleiben lesbar.
+- Kurier benötigt eigenes Fahrzeug und mindestens 60 m zusätzliche Fahrstrecke. Zustellungen zu Fuss am Ziel. Keine Paketphysik, Werkzeuganimationen oder Waren-/Baumaterialsimulation; Tätigkeiten werden durch Aufgabenfragen repräsentiert.
+- Je Beruf 100 XP pro abgeschlossenem Auftrag, Fachkraft ab 3, Profi ab 8. Lohn +15/+30 %, fehlerfrei +50 HC. Drei abgeschlossene Aufträge pro Spieltag +250 HC einmalig. Tageszählung nach Abschlusstag vor Zeitsprung. Gemeinsamer 60s Echtzeit-Cooldown. Abbruch ohne Lohn. Bedarfskosten beim Abschluss.
+- Auftrag und Fortschritt werden atomar mit Lebensrevision gespeichert. Karriere und Tagesziel aus Buchungsjournal rekonstruierbar. Alte Spielstände bleiben lesbar. Offline-Simulation ohne Schutz gegen absichtliche Manipulation lokaler Daten.
+- Unit-Tests und mobile Karriere-Menü-, Auftragsannahme-, Stations- und Wiederaufnahmeprüfung; vollständige Geräte- und Gameplay-Abnahme offen.

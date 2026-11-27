@@ -1,0 +1,8 @@
+{
+  "appId": "ch.homecraft.planner",
+  "appName": "HomeCraft 3D",
+  "webDir": "dist",
+  "android": {
+    "adjustMarginsForEdgeToEdge": "force"
+  }
+}
