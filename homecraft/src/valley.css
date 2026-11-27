@@ -24,3 +24,5 @@
 .valley .vContextActions #vWalkCamera,.valley .vContextActions #vRun,.valley .vContextActions #vJump{min-height:44px;touch-action:manipulation}.valley .vContextActions{max-width:calc(100% - 12px);flex-wrap:wrap}.valley #vProfileFields select{width:100%;min-height:44px}
 
 .valley #vProfilePreview canvas{width:220px;max-width:100%;height:auto;touch-action:none;cursor:grab}.valley #vProfilePreview{min-height:188px;display:grid;place-items:center}
+
+.valley #vActivityHud{position:absolute;bottom:188px;right:8px;max-width:calc(100% - 24px);padding:8px 10px;border-radius:9px;background:#233d35e8;font-size:12px;color:#ffe6ab}.valley #vPhotoPanel{pointer-events:auto;position:absolute;bottom:12px;left:50%;transform:translateX(-50%);width:min(420px,94%);z-index:10;background:#172d2de8;color:white;border-radius:14px;padding:12px;display:grid;gap:8px}.valley #vPhotoPanel[hidden]{display:none}.valley #vPhotoPanel label{display:grid;grid-template-columns:1fr 1fr;align-items:center}.valley-photo #vLifeHud> :not(#vPhotoPanel){visibility:hidden}.valley-photo #vPhotoPanel button{min-height:44px}
