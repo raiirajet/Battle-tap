@@ -1,0 +1,7 @@
+# Phase D4 — Spielkalender, Jahreszeiten und Wetter
+- 7 Spieltage je Jahreszeit, 28 Tage je Spieljahr, Start im Frühling. Tageswechsel bei laufender Simulation, Möbelaktionen, Jobs, Verbrauch und Gesprächen; bestehende Speicher ohne day beginnen bei Tag 0. Keine Offline-Zeitfortschreibung.
+- Deterministisches Wetter aus Seed und 6-Stunden-Spielzeitabschnitten: Sonne, Wolken, Regen, Gewitter, Nebel und Schnee. Temperatur rein simuliert. Kalender, Wetter, Temperatur und nächster Wetterabschnitt im HUD/Menü.
+- Saisonale Sonnenzeiten, Terrainfarben, Laubfarben, vereinfachter Laubverlust, Winterdecke, verschneite Strassen und Ortsdächer, Schnee-Overlay auf markierten automatischen und kombinierten Hausdachflächen. Manuelle Dachpatches und Detailobjekte sind nicht vollständig abgedeckt.
+- Partikeleffekte um den Spieler, bewegte Wolken, Nebel, kurzer Lichtimpuls bei Gewitter. Regen/Schnee ausgeblendet im Haus; keine physikalische Niederschlags-, Wind-, Wasser-, Schneeakkumulations- oder Wärmeberechnung. Winterdecke besteht während der ganzen Jahreszeit. Kein Einfluss auf NPC-Routen oder Fahrphysik.
+- Optionales lokal erzeugtes Wind-/Regenrauschen per Schalter, kein Musik-/Donnerasset. Sandbox bietet visuelle Jahreszeitenvorschau, ohne Spielstand oder Kalender zu ändern. Lebensmodus hat keine manuelle Wetterwahl.
+- Unit-Tests für Übergänge, Reproduzierbarkeit und Save-Kompatibilität, mobiler Browser-Smoke erweitert. Gerätetest und visuelle Detailabnahme offen.

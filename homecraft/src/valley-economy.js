@@ -1,4 +1,5 @@
 // Fixed, offline-only economy. Inventory is reconstructed from the same ledger as the wallet.
+import {advanceClock} from './valley-climate.js';
 const entries={
  work:{label:'Werkstattschicht',amount:350,site:'work',energy:-15,hunger:-10,minute:60,cooldown:true},
  garden:{label:'Gartenpflege',amount:240,site:'work',energy:-10,hunger:-8,minute:40,cooldown:true},
@@ -17,4 +18,4 @@ export function ruleFor(type){return Object.hasOwn(ECONOMY,type)?ECONOMY[type]:n
 export function inventory(save){const counts={snack:0,coffee:0};for(const e of save.ledger){const r=ruleFor(e.type);if(r?.item)counts[r.item]+=r.quantity}return counts}
 export function tradeSite(type,site){const rule=ruleFor(type);return !!rule&&(!rule.site||rule.site===site)}
 export function tradeSummary(type){const r=ruleFor(type);if(!r)return '';const parts=[];if(r.amount)parts.push((r.amount>0?'+':'')+r.amount+' HC');for(const [key,name] of [['energy','Energie'],['hunger','Sättigung']])if(r[key])parts.push((r[key]>0?'+':'')+r[key]+' '+name);if(r.minute)parts.push('+'+r.minute+' Spielmin.');if(r.item&&r.quantity>0)parts.push('+1 '+ITEMS[r.item]);return parts.join(' · ')}
-export function applyTradeNeeds(needs,type){const r=ruleFor(type);if(!r)throw Error('Unbekannter Wirtschaftsvorgang.');if(r.cooldown&&(needs.energy<Math.abs(r.energy)+5||needs.hunger<Math.abs(r.hunger)+5))throw Error('Zu müde oder hungrig für diese Arbeit.');const cap=v=>Math.max(0,Math.min(100,v));return {...needs,energy:cap(needs.energy+(r.energy||0)),hunger:cap(needs.hunger+(r.hunger||0)),minute:(needs.minute+(r.minute||0))%1440}}
+export function applyTradeNeeds(needs,type){const r=ruleFor(type);if(!r)throw Error('Unbekannter Wirtschaftsvorgang.');if(r.cooldown&&(needs.energy<Math.abs(r.energy)+5||needs.hunger<Math.abs(r.hunger)+5))throw Error('Zu müde oder hungrig für diese Arbeit.');const cap=v=>Math.max(0,Math.min(100,v));return {...advanceClock(needs,r.minute||0),energy:cap(needs.energy+(r.energy||0)),hunger:cap(needs.hunger+(r.hunger||0))}}

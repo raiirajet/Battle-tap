@@ -5,3 +5,5 @@
 .valley #vEconomyPanel{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:6;width:min(420px,92%);max-height:90%;overflow:auto;pointer-events:auto;background:#f4f5ef;color:#173c37;padding:14px;border-radius:14px;box-shadow:0 10px 50px #0005}.valley #vEconomyActions{display:grid;gap:8px}.valley #vEconomyPanel button{width:100%;min-height:44px;white-space:normal}.valley #vEconomyClose{margin-top:12px}
 
 .valley .vResidentRow{padding:10px;border:1px solid #b8c6bd;border-radius:9px;color:#173c37;background:#fff;min-height:44px}.valley #vTalk{background:#dcebdc;color:#173c37}
+
+.valley #vClimateHud{align-self:flex-start;background:#173c37e8;color:white;border-radius:9px;padding:7px 10px;font-size:12px;max-width:100%;line-height:1.4}.valley #vEconomyPanel p{overflow-wrap:anywhere}
