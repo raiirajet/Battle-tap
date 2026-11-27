@@ -1,3 +1,4 @@
+import {fourthPack} from './premium-pack4.js';
 import {thirdPack} from './premium-pack3.js';
 import {secondPack} from './premium-pack2.js';
 // Original procedural 3D assets. Each entry has a distinct component recipe,
@@ -55,8 +56,8 @@ const defs=[
  ['van','Transporter','Fahrzeuge',2.05,5.1,2.5,'#d0d3cd',[...wheels(.16),S(0,.52,-.06,.98,.92,.86),S(0,.53,.42,.94,.68,.15),B(0,.67,.49,.82,.24,.02,glass),...[-1,1].map(x=>B(x*.48,.65,.32,.025,.25,.24,glass)),B(0,.49,-.49,.035,.70,.02,dark),...[-1,1].map(x=>B(x*.38,.25,-.49,.12,.15,.02,'#ad4840'))]],
  ['chargingPost','Wallbox-Ladestation','Technik',.32,.28,1.3,'#c5c9c4',[B(0,.45,0,.27,.9,.32,metal),S(0,.84,0,.92,.32,.87),B(0,.88,.44,.45,.10,.04,dark),R(0,.39,.26,.72,.37,.05,dark),B(.35,.58,.35,.12,.12,.10,dark)]]
 ];
-const allDefs=[...defs,...secondPack,...thirdPack];
-export const premiumCatalog=allDefs.map(([id,name,category,width,depth,height,color])=>({kind:'pro_'+id,name,category,width,depth,height,color,collection:thirdPack.some(q=>q[0]===id)?'pro17c':secondPack.some(q=>q[0]===id)?'pro17b':'pro17'}));
+const allDefs=[...defs,...secondPack,...thirdPack,...fourthPack];
+export const premiumCatalog=allDefs.map(([id,name,category,width,depth,height,color])=>({kind:'pro_'+id,name,category,width,depth,height,color,collection:fourthPack.some(q=>q[0]===id)?'pro17d':thirdPack.some(q=>q[0]===id)?'pro17c':secondPack.some(q=>q[0]===id)?'pro17b':'pro17'}));
 const recipes=new Map(allDefs.map(([id,,,,,,,parts])=>['pro_'+id,parts]));
 export function premiumParts(o){const parts=recipes.get(o.kind);if(!parts)return null;return parts.map(q=>({...q,color:q.color==='body'?o.color:q.color,x:q.x*o.width,y:q.y*o.height,z:q.z*o.depth,w:q.w*o.width,h:q.h*o.height,d:q.d*o.depth}))}
 export function isPremium(o){return recipes.has(o.kind)}
