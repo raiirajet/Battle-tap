@@ -51,6 +51,35 @@ await page.waitForFunction(()=>document.querySelector('#vJobHud')?.textContent.i
 await page.locator('#valleyEntry').click();await page.locator('#vSaves option').nth(1).waitFor({state:'attached'});await page.locator('#vSaves').selectOption({index:1});await page.locator('#vLoad').click();await page.locator('#vStartLife').click();assert.match(await page.locator('#vJobHud').textContent(),/2\/3/);await page.locator('#vDashboard').click();await page.locator('#vJobs').click();await page.locator('#vEconomyActions button').filter({hasText:'Auftrag abbrechen'}).click();await page.locator('#vJobHud').waitFor({state:'hidden'});await page.locator('#vDashboard').click();await page.locator('#vDashBuild').click();await page.locator('#vOwned').waitFor();await page.locator('#vBack').click();await page.locator('#valleyEntry').waitFor();
 // Dashboard layout, character editor and one-time gift on a fresh save.
 await page.setViewportSize({width:900,height:420});await page.locator('#valleyEntry').click();await page.locator('#vName').fill('Starter smoke');await page.locator('#vCreate').click();await page.locator('#vOpenStartDashboard').click();await page.locator('#vCharacter').click();await page.locator('#vHideAvatar').check();await page.locator('#vCharacterDone').click();await page.locator('#vDashboard').click();await page.locator('#vStarter').click();await page.locator('#vEconomyActions button').filter({hasText:'Kostenlos erhalten'}).click();await page.waitForFunction(()=>document.querySelector('#vLifeNotice')?.textContent.includes('Starterpaket erhalten'));await page.locator('#vDashboard').click();assert.ok(await page.locator('#vStarterCard').isHidden());assert.match(await page.locator('#vDashStats').textContent(),/30.000|30’000|30'000/);assert.match(await page.locator('#vDashStats').textContent(),/Valley City/);await page.locator('#vDashboardClose').click();assert.ok(await page.locator('#vCharacter').isHidden());const joystick=await page.locator('#vJoystick').boundingBox();assert.ok(joystick.y+joystick.height<=420);await page.locator('#vDashboard').click();await page.locator('#vDashBuild').click();await page.locator('#vOwned').waitFor();await page.locator('#vBack').click();await page.locator('#valleyEntry').waitFor();
+// Audio feedback follows the persisted mixer settings. The browser verifies that
+// the Web Audio context runs. The device and its speaker require a manual test.
+await page.locator('#valleyEntry').click();
+const starterSave=page.locator('#vSaves option').filter({hasText:'Starter smoke'});
+await starterSave.waitFor({state:'attached'});
+await page.locator('#vSaves').selectOption(await starterSave.getAttribute('value'));
+await page.locator('#vLoad').click();
+await page.locator('#vOpenStartDashboard').click();
+await page.locator('#vProperty').click();
+assert.match(await page.locator('#vEconomyActions').textContent(),/Valley City.*nur du darfst einsteigen/);
+await page.locator('#vEconomyDashboard').click();
+await page.locator('#vSound').click();
+const testTone=page.getByRole('button',{name:'Testton abspielen'});
+const soundStatus=page.locator('#vSoundStatus');
+const soundEnabled=page.getByRole('checkbox',{name:'Sound aktiv',exact:true});
+const effectsEnabled=page.getByRole('checkbox',{name:'Spielgeräusche',exact:true});
+for(const [control,message] of [[soundEnabled,'Aktiviere «Sound aktiv»'],[effectsEnabled,'Aktiviere «Spielgeräusche»']]){
+  await control.uncheck();
+  await testTone.click();
+  await soundStatus.filter({hasText:message}).waitFor();
+  await control.check();
+}
+await testTone.click();
+await soundStatus.filter({hasText:'Testton wird abgespielt'}).waitFor();
+await page.locator('#vEconomyDashboard').click();
+await page.locator('#vDashBuild').click();
+await page.locator('#vOwned').waitFor();
+await page.locator('#vBack').click();
+await page.locator('#valleyEntry').waitFor();
 // Unified RC23: direct editor transfer, placement, persistence, renovation copy.
 await page.setViewportSize({width:900,height:700});await page.locator('#plannerEntry').click();await page.locator('[data-open]').first().click();
 await page.locator('#menu').click();await page.locator('[data-act="valleyDirect"]').click();await page.locator('#vName').fill('Unified house smoke');await page.locator('#vMode').selectOption('sandbox');await page.locator('#vCreate').click();await page.locator('#vOwned').waitFor();

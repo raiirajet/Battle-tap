@@ -98,3 +98,6 @@ Android MainActivity hides status/navigation bars at creation, resume and regain
 
 ## RC25 game sound and private property
 Default-enabled synthesized offline Web Audio after user gesture. Dashboard controls master, ambience, effects; footsteps, doors, boarding/exiting, engine, transaction/denied/action cues. No external audio assets or music. Explicit local owner-only door/car operations and NPC land exclusion, foreign asset interaction feedback, household outside owned area, private-property dashboard. Existing save schema and package ID unchanged. Local gameplay, not multiplayer authentication; physical audio and device tests pending.
+
+## RC26 Audiowiedergabe
+Das Tonmenü meldet, ob der Testton gestartet wurde, der Ton stummgeschaltet ist, die Lautstärke auf null steht oder der Audiokontext nicht läuft. Nach der Rückkehr zur App wird die Wiedergabe erneut aktiviert, bei Bedarf mit der nächsten Berührung oder Taste. Der Browser-Smoke-Test prüft Stummschaltung, Testton und die Anzeige des eigenen Autos. Die Medienausgabe bleibt auf einem Android-Gerät zu prüfen.

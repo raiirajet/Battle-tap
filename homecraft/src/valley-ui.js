@@ -81,7 +81,69 @@ export async function openValleyMode(app,onBack,{designs=[],preferredDesignId=nu
  function openCar(){if(!playing||lifeSaving||profileOpen||economyOpen||lastHud?.action||lastHud?.driving||s.mode!=='life')return;const h=lastHud,c=h.car,p=homeParking(s.plotId);stopInput();economyOpen=true;world.pauseLife(true);$('vEconomyTitle').textContent='Mobilität · Autohaus & Service';$('vEconomyInfo').textContent=c?MODELS[c.model].name+' · '+c.fuel.toFixed(1)+' L · '+c.km.toFixed(2)+' km · Zustand '+Math.round(100-c.wear)+' % · Parkposition '+Math.round(c.x)+' / '+Math.round(c.z)+' · Entfernung '+Math.round(Math.hypot(c.x-h.state.x,c.z-h.state.z))+' m':'Noch kein Fahrzeug. Autohaus am Dorfplatz (329 / 316).';const list=$('vEconomyActions');list.replaceChildren();const info=document.createElement('p');info.textContent='Servicepunkt: 310 / 317 · Dein Stellplatz: '+p.x+' / '+p.z+' · 5 L Treibstoff: 15 HC';list.append(info);const actions=c?['carSell_'+c.model,'carFuel','carService']:Object.keys(MODELS).map(k=>'carBuy_'+k);for(const type of actions){const rule=vehicleRule(type),b=document.createElement('button');b.textContent=ruleFor(type).label+' · '+tradeSummary(type);b.disabled=s.balance+rule.amount<0||(rule.kind==='buy'?!h.dealer:!h.carNear||(rule.kind==='sell'?!h.dealer:!h.station)||(rule.kind==='fuel'&&c.fuel>TANK-5));b.onclick=()=>{if(confirm(b.textContent+'?')){closeEconomy();checkpointLife(type)}};list.append(b)}$('vEconomyPanel').hidden=false;lifeHud(lastHud)}
  $('vCar').onclick=openCar;$('vCarCamera').onclick=()=>world?.cycleCarCamera();$('vDrive').onclick=()=>{if(!lifeSaving&&!profileOpen&&!economyOpen&&!dashboardOpen){stopInput();world.toggleDrive()}};
  function openPresentation(kind){if(!playing||lifeSaving||profileOpen||economyOpen||!lastHud||kind==='graphics'&&lastHud.driving)return;stopInput();economyOpen=true;world.pauseLife(true);$('vEconomyTitle').textContent=kind==='map'?'Karte & Navigation':'Grafik & Leistung';$('vEconomyInfo').textContent=kind==='map'?'Zielrichtung und Luftlinie, keine automatische Routenführung.':'Grafikprofil: '+QUALITY[lastHud.quality||loadQuality()].label+' · '+(lastHud.fps||'–')+' FPS (Momentaufnahme)';const list=$('vEconomyActions');list.replaceChildren();function add(label,fn){const b=document.createElement('button');b.textContent=label;b.onclick=fn;list.append(b)}if(kind==='map'){add(mapOn?'Minimap ausblenden':'Minimap einblenden',()=>{mapOn=!mapOn;closeEconomy()});add(mapMode==='town'?'Gesamte Welt anzeigen':'Dorfkarte anzeigen',()=>{mapMode=mapMode==='town'?'world':'town';mapOn=true;closeEconomy()});for(const d of destinations(s,lastHud))add((navTarget===d.id?'✓ ':'')+d.label,()=>{navTarget=d.id;if(d.id==='lake')mapMode='world';mapOn=true;closeEconomy()});add('Navigation beenden',()=>{navTarget=null;closeEconomy()})}else for(const [key,q] of Object.entries(QUALITY))add((lastHud.quality===key?'✓ ':'')+q.label+' · '+q.particles+' Wetterpartikel'+(q.shadows?' · Schatten':''),()=>{world.setQuality(key);closeEconomy()});$('vEconomyPanel').hidden=false;lifeHud(lastHud)}
- function openSound(){if(!playing||lifeSaving||profileOpen||economyOpen||!world)return;stopInput();economyOpen=true;world.pauseLife(true);$('vEconomyTitle').textContent='Sound & Lautstärke';$('vEconomyInfo').textContent='Geräusche starten nach einer Berührung. Einstellungen gelten lokal für diese App.';const list=$('vEconomyActions');list.replaceChildren();const prefs=world.soundSettings();const add=(label,k,range=false)=>{const row=document.createElement('label'),input=document.createElement('input');row.textContent=label;if(range){input.type='range';input.min=0;input.max=1;input.step=.05;input.value=prefs[k]}else{input.type='checkbox';input.checked=prefs[k]}input.oninput=()=>{const next=world.configureSound({[k]:range?Number(input.value):input.checked});ambientOn=next.ambient};row.append(input);list.append(row)};add('Sound aktiv','enabled');add('Umgebung & Wetter','ambient');add('Spielgeräusche','effects');add('Gesamtlautstärke','master',true);add('Umgebung','ambience',true);add('Effekte','effectVolume',true);const test=document.createElement('button');test.textContent='Testton abspielen';test.onclick=()=>world.playSound('success');list.append(test);$('vEconomyPanel').hidden=false;lifeHud(lastHud)}
+ function openSound(){
+   if(!playing||lifeSaving||profileOpen||economyOpen||!world)return;
+   stopInput();
+   economyOpen=true;
+   world.pauseLife(true);
+   $('vEconomyTitle').textContent='Sound & Lautstärke';
+   $('vEconomyInfo').textContent='Passe Wetter, Umgebung und Spielgeräusche für dieses Gerät an.';
+   const list=$('vEconomyActions');
+   list.replaceChildren();
+   const prefs=world.soundSettings();
+   const status=document.createElement('p');
+   status.id='vSoundStatus';
+   status.setAttribute('role','status');
+   const add=(label,k,range=false)=>{
+     const row=document.createElement('label'), input=document.createElement('input');
+     row.append(label);
+     if(range){
+       input.type='range';
+       input.min=0;
+       input.max=1;
+       input.step=.01;
+       input.value=prefs[k];
+       input.setAttribute('aria-valuetext',Math.round(prefs[k]*100)+' %');
+     }else{
+       input.type='checkbox';
+       input.checked=prefs[k];
+     }
+     input.oninput=()=>{
+       const next=world.configureSound({[k]:range?Number(input.value):input.checked});
+       ambientOn=next.ambient;
+       if(range)input.setAttribute('aria-valuetext',Math.round(next[k]*100)+' %');
+       status.textContent='';
+     };
+     row.append(input);
+     list.append(row);
+   };
+   add('Sound aktiv','enabled');
+   add('Umgebung & Wetter','ambient');
+   add('Spielgeräusche','effects');
+   add('Gesamtlautstärke','master',true);
+   add('Lautstärke der Umgebung','ambience',true);
+   add('Lautstärke der Spielgeräusche','effectVolume',true);
+   const test=document.createElement('button');
+   test.textContent='Testton abspielen';
+   test.onclick=async()=>{
+     test.disabled=true;
+     status.textContent='Audio wird geprüft …';
+     try{
+       const result=await world.testSound();
+       const messages={
+         playing:'Testton wird abgespielt. Falls du nichts hörst, prüfe die Medienlautstärke und die Audioausgabe deines Geräts.',
+         'sound-disabled':'Aktiviere «Sound aktiv», um den Testton zu hören.',
+         'effects-disabled':'Aktiviere «Spielgeräusche», um den Testton zu hören.',
+         'volume-zero':'Erhöhe die Gesamtlautstärke und die Lautstärke der Spielgeräusche.',
+         unavailable:'Audio konnte nicht gestartet werden. Tippe erneut auf «Testton abspielen».'
+       };
+       status.textContent=messages[result]||messages.unavailable;
+     }finally{test.disabled=false}
+   };
+   list.append(test,status);
+   $('vEconomyPanel').hidden=false;
+   lifeHud(lastHud);
+ }
  function openProperty(){if(!playing||lifeSaving||profileOpen||economyOpen||!s)return;stopInput();economyOpen=true;world.pauseLife(true);$('vEconomyTitle').textContent='Mein Eigentum · Privat';$('vEconomyInfo').textContent='Eigentümer: '+s.name+' · '+s.plotId;const list=$('vEconomyActions');list.replaceChildren();for(const text of ['Grundstück: '+fmt(area(s.rect))+' m² – privat',s.building?'Haus: '+s.building.design.source.name+' – nur du bedienst die Türen':'Haus: noch nicht platziert',lastHud?.car?'Auto: '+MODELS[lastHud.car.model].name+' – nur du darfst einsteigen':'Auto: noch nicht vorhanden','Fremde Bewohner und Verkehr dürfen dein Grundstück nicht betreten. Haushaltsmitglieder bleiben in der ersten Version im Aussenbereich.','Andere Häuser, Parzellen und Verkehrsfahrzeuge sind nicht zugänglich. Die Regeln gelten im lokalen Einzelspieler-Spiel.']){const p=document.createElement('p');p.textContent=text;list.append(p)}$('vEconomyPanel').hidden=false;lifeHud(lastHud)}
  $('vSound').onclick=openSound;$('vProperty').onclick=openProperty;
  $('vNav').onclick=()=>openPresentation('map');$('vGraphics').onclick=()=>openPresentation('graphics');
