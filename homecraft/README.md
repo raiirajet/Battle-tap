@@ -72,3 +72,5 @@ Automatic roof derives a single closed exterior from detected rooms, includes wa
 RC3: up to 12 independently dimensioned rectangular roof bodies with level-based wall height, visible planar upper-envelope clipping, roof plan preview, surface area, touch selection in 3D and optional schematic rafters. Body mode takes precedence without deleting existing automatic or manual roofs. Not a full solid CSG, structural frame or certified waterproofing design; body accessories remain in single-roof mode.
 
 RC3 refinement: clipped exterior wall infill for roof bodies, 2D outline overlay, preservation of room ceilings and facade/section inclusion. Roof-body placement remains numerical and must be adjusted if plan geometry changes.
+
+RC4: roof-body-specific skylights, simple dormers, chimney and solar details; planar fit and overlap checks, clipped roof holes through full shell, schematic four-layer edges, junction profiles and exposed eave drainage, invalid detail diagnostics. Dimensions are projected plan metres. Junctions are schematic, not waterproof structural assemblies.

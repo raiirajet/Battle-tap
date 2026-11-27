@@ -24,3 +24,5 @@ No cloud required for core planning. No building-code or structural certificatio
 Wall-supported thick roof shell, exterior room boundary extraction, asymmetrical overhangs, ridge axis, rise and knee-wall adjustments, parapet, materials, pyramid, chimney and preview. Irregular connected outlines supported for flat/shed and continuous gable/mansard/butterfly profile; independent intersecting ridges, courtyard and disconnected components remain open. Manual roof surfaces retain their explicit level-based elevations and override automatic roof unless replaced. No building engineering certification. RC APK version parsing corrected.
 
 RC3: independent rectangular roof bodies and planar visible-surface clipping, touch picking, optional schematic rafters. Intersections are an upper envelope, not watertight volumetric CSG; body-specific openings and true structural members remain open.
+
+RC4: individual body accessories, full shell cutouts, four adjustable vertical layers shown at exposed edges, ridge/valley/step profiles and optional eave drainage. No certified structural or watertight CSG, no physical Android verification.

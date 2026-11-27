@@ -28,7 +28,7 @@ version=json.loads(Path('package.json').read_text())['version']
 gradle=Path('android/app/build.gradle')
 g=gradle.read_text()
 parts=[int(x) for x in version.split('-')[0].split('.')]
-code=parts[0]*1000000+parts[1]*1000+parts[2]
+code=parts[0]*1000000+parts[1]*1000+parts[2]+(int(version.split('-rc.')[1]) if '-rc.' in version else 999)
 g,n=re.subn(r'versionCode\s+\d+', f'versionCode {code}',g,count=1)
 if n!=1: raise RuntimeError('Android versionCode not found')
 g,n=re.subn(r'versionName\s+["\'][^"\']*["\']','versionName "'+version+'"',g,count=1)
