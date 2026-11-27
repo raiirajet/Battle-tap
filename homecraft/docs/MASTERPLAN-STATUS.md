@@ -1,4 +1,4 @@
-# HomeCraft 3D — masterplan status, 1.0.0-rc.1
+# HomeCraft 3D — masterplan status, 1.0.0-rc.14
 Release candidate for the implemented local-first planner. Not a claim of 100% completion of the original 38-section masterplan. The exact build and test result must be read from the HomeCraft Android/PWA workflow.
 
 | Area | Implemented | Remaining limits / release gates |
@@ -44,3 +44,5 @@ RC11: per-wall normalized facade rectangles on either face, individual colours a
 RC12: schematic route editor, user-defined diameter, material, cost per metre, start/end height, actual 3D length and slope, quantity summary and CSV. No sizing, cross-storey network topology, hydraulic calculations or installation certification.
 
 RC13: detailed saved cost plan, geometry-derived quantities, individually priced kitchen/bath modules and routes, manual extras, waste, reserve, tax and target comparison. All rates user-entered; no live market prices, no tender or certified quantities. RC14 physical and signed-release QA remains open.
+
+RC14: wall solid band sweep (fewer meshes with multiple openings), deduplicated scene disposal, pause hidden rendering, route ID and vertex-length checks, central facade/service warnings, isolated HomeCraft PR build and APK package/version gate. Existing project schema stays at 1. Full CI, physical Android upgrade and signed release are still separate acceptance gates.
