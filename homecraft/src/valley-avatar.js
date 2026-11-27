@@ -1,3 +1,4 @@
+import {characterSeed} from './valley-character-motion.js';
 import {toonAvatar} from './valley-toon.js';
 import {sideKey} from './valley-rig-spec.js';
 import {getValleyRig,attachValleyRig,preloadValleyRig} from './valley-rig-runtime.js';
@@ -8,7 +9,7 @@ import {material,mesh,ell,box,bake} from './valley-realism.js';
 import {silhouette,curveDetail,makeHand,makeFace,makeHair,garment} from './valley-character-model.js';
 function joint(parent,x,y,z){const b=new T.Bone();b.position.set(x,y,z);parent.add(b);return b}
 export function avatarMesh(input,{detail=true}={}){
- const p=profile(input);if(p.style==='cartoon')return toonAvatar(p,{detail});const root=new T.Group(),body=joint(root,0,0,0);body.name='ValleyBody';
+ const p=profile(input);if(p.style==='cartoon')return toonAvatar(p,{detail});const root=new T.Group(),body=joint(root,0,0,0);body.name='ValleyBody';root.userData.expressionSeed=characterSeed([p.skin,p.hair,p.shirt,p.eyes,p.face].join('|'));
  const skin=material(p.skin,{roughness:.65}),shirt=material(p.shirt),pants=material(p.pants,{roughness:.96}),shoe=material({dark:0x292c30,white:0xe5e4dd,brown:0x6c4a37}[p.shoes]),sole=material(0x4a4945),hair=material(p.hair),seam=material(new T.Color(p.shirt).multiplyScalar(.76)),denim=material(new T.Color(p.pants).multiplyScalar(.78));
  applySkinDetail(skin,detail);skin.userData.valleyLegacySkin=true;body.scale.x={slim:.89,regular:1,athletic:1.10,stocky:1.17}[p.build];body.scale.z={slim:.94,regular:1,athletic:1.03,stocky:1.08}[p.build];applyTextile(shirt,p.outfit==='cardigan'?'knit':p.outfit==='jacket'?'denim':'cotton',detail);applyTextile(pants,p.bottom==='jeans'?'denim':'cotton',detail);applyTextile(shoe,'leather',detail);
  mesh(body,silhouette([[.73,.13,.093],[.81,.166,.112],[.88,.151,.105],[.96,.135,.095]],20),pants);
@@ -44,7 +45,7 @@ export function avatarMesh(input,{detail=true}={}){
  if(moving&&Math.hypot(dx,dz)>.001){const target=Math.atan2(dx,dz),delta=Math.atan2(Math.sin(target-root.rotation.y),Math.cos(target-root.rotation.y));root.rotation.y+=delta*(1-Math.exp(-dt*14));phase+=dt*(motion.run?14:9.5)}
  weight+=(Number(moving)-weight)*(1-Math.exp(-dt*12));const pose=poseFor(action),walk=pose==='idle'?weight:0;clock+=dt;const jump=Math.max(0,motion.jump||0),run=motion.run?1.28:1;
  body.rotation.x=pose==='sleep'?-Math.PI/2:0;body.rotation.z=walk*Math.sin(phase)*.027;body.position.y=pose==='sleep'?.31:pose==='sit'?-.32:Math.abs(Math.sin(phase))*walk*.034+(1-walk)*Math.sin(clock*2)*.006+jump;
- head.rotation.y=walk*Math.sin(phase*.5)*.045;face.update(clock);hairstyle.update(clock,walk);
+ head.rotation.y=walk*Math.sin(phase*.5)*.045;face.update(clock,{pose,jump,moving,seed:root.userData.expressionSeed});hairstyle.update(clock,walk);
  for(let i=0;i<2;i++){const t=phase+i*Math.PI,s=Math.sin(t),{hip,knee}=legs[i],{a,elbow,hand}=arms[i];hip.rotation.x=pose==='sit'?-Math.PI/2:walk*s*.51*run-jump*.6;knee.rotation.x=pose==='sit'?Math.PI/2:Math.max(0,-s)*walk*.65+jump*1.3;a.rotation.x=pose==='use'?-.82:pose==='sit'?-.35:-walk*s*.40*run-jump*.5;elbow.rotation.x=pose==='use'?-1.05:pose==='sit'?-.35:-.12-Math.max(0,s)*walk*.37;a.rotation.z=(i?1:-1)*.055;hand.update(pose==='use'?.78:pose==='sit'?.22:.16+walk*(motion.run?.48:.16),t)}glb?.update(dt,{moving,run:motion.run,jump,pose});
  }};
 }

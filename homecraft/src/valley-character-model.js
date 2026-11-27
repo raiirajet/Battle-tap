@@ -1,4 +1,5 @@
 import {smoothRingSeam} from './valley-anatomy.js';
+import {characterExpression} from './valley-character-motion.js';
 import {sideKey} from './valley-rig-spec.js';
 import {faceGeometry,irisGeometry,irisTexture} from './valley-character-assets.js';
 import * as T from 'three';
@@ -52,7 +53,7 @@ export function makeFace(head,p,skin,hair,detail=true){
  const mouth=new T.Group();head.add(mouth);curveDetail(mouth,lip,[[-.025,-.077,.083],[-.011,-.074,.094],[0,-.078,.100],[.011,-.074,.094],[.025,-.077,.083]],.0028);ell(mouth,lip,0,-.082,.097,.017,.0035,.004);if(detail){const lower=material(new T.Color(p.skin).lerp(new T.Color(0xba7770),.32),{roughness:.49});curveDetail(mouth,lower,[[-.020,-.080,.086],[-.010,-.085,.095],[0,-.086,.101],[.010,-.085,.095],[.020,-.080,.086]],.002,12)}bake(mouth);
  curveDetail(head,earMat,[[-.020,-.082,.085],[0,-.084,.100],[.020,-.082,.085]],.0018);
  if(p.accessory==='glasses'){const frame=material(0x3a3130,{metalness:.35});for(const s of [-1,1]){const ring=mesh(head,new T.TorusGeometry(.033,.0028,6,24),frame,s*.045,.018,.107);ring.scale.y=.66;box(head,frame,s*.096,.020,.054,.006,.006,.10)}box(head,frame,0,.023,.112,.027,.006,.006)}
- bake(head);return {eyes,update(t){const phase=t%5.8,blink=phase>5.60?Math.max(.07,Math.abs(phase-5.70)/.10):1;for(const eye of eyes)eye.scale.y=blink;for(const look of gaze){look.position.x=Math.sin(t*.67)*.003;look.position.y=Math.sin(t*.38)*.0014}mouth.scale.y=1+.10*Math.sin(t*1.7)}};
+ bake(head);return {eyes,update(t,context={}){const e=characterExpression(t,context);for(const eye of eyes)eye.scale.y=Math.max(.07,1-e.blink);for(const look of gaze){look.position.x=e.gazeX;look.position.y=e.gazeY}mouth.scale.y=1+e.jaw*2;mouth.scale.x=1+e.smile*.14}};
 }
 export function makeHair(head,p,hair,detail=true){
  if(p.hairStyle==='bald')return {update(){}};
