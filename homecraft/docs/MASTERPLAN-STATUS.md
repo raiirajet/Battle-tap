@@ -38,3 +38,9 @@ RC8: room-specific finish overlays, skirting, crown mouldings, ceiling lining an
 RC9: eleven kitchen module types, custom dimensions/fronts/worktops and handles, row builder, geometric warnings and module cost/mengen CSV. Legacy kitchen presets remain. No certified appliance installation, automatic corner joints or continuous custom worktop union.
 
 RC10: eight configurable bathroom fixture types, component geometry including transparent shower screens, sanitary colours, fixture dimensions, mounting and clearance settings, editable fixture list and bathroom CSV. Existing bathroom templates remain. Clearance is a schematic rectangular check, not a building-code or plumbing certification. No automatic pipe routing or tile layout.
+
+RC11: per-wall normalized facade rectangles on either face, individual colours and procedural material presets, opening clipping, net area and schematic elevations; wall splits retain sections. Glass is an opaque finish option, not glazing or a structural opening.
+
+RC12: schematic route editor, user-defined diameter, material, cost per metre, start/end height, actual 3D length and slope, quantity summary and CSV. No sizing, cross-storey network topology, hydraulic calculations or installation certification.
+
+RC13: detailed saved cost plan, geometry-derived quantities, individually priced kitchen/bath modules and routes, manual extras, waste, reserve, tax and target comparison. All rates user-entered; no live market prices, no tender or certified quantities. RC14 physical and signed-release QA remains open.
