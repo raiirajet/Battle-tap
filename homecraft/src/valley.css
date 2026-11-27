@@ -7,3 +7,5 @@
 .valley .vResidentRow{padding:10px;border:1px solid #b8c6bd;border-radius:9px;color:#173c37;background:#fff;min-height:44px}.valley #vTalk{background:#dcebdc;color:#173c37}
 
 .valley #vClimateHud{align-self:flex-start;background:#173c37e8;color:white;border-radius:9px;padding:7px 10px;font-size:12px;max-width:100%;line-height:1.4}.valley #vEconomyPanel p{overflow-wrap:anywhere}
+
+.valley #vCarHud{background:#173c37e8;color:white;font-weight:700;border-radius:9px;padding:9px 12px;width:fit-content;max-width:100%}.valley #vDrive{background:#deebda;color:#173c37}

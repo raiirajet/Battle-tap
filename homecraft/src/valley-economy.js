@@ -1,5 +1,6 @@
 // Fixed, offline-only economy. Inventory is reconstructed from the same ledger as the wallet.
 import {advanceClock} from './valley-climate.js';
+import {MODELS,vehicleRule} from './valley-vehicle.js';
 const entries={
  work:{label:'Werkstattschicht',amount:350,site:'work',energy:-15,hunger:-10,minute:60,cooldown:true},
  garden:{label:'Gartenpflege',amount:240,site:'work',energy:-10,hunger:-8,minute:40,cooldown:true},
@@ -10,6 +11,8 @@ const entries={
  eatSnack:{label:'Proviant essen',amount:0,item:'snack',quantity:-1,hunger:25,minute:5},
  drinkCoffee:{label:'Kaffee trinken',amount:0,item:'coffee',quantity:-1,energy:15,minute:5}
 };
+for(const [id,m] of Object.entries(MODELS)){entries['carBuy_'+id]={label:m.name+' kaufen',amount:-m.price,vehicle:true};entries['carSell_'+id]={label:m.name+' verkaufen',amount:m.resale,vehicle:true}}
+entries.carFuel={label:'5 Liter tanken',amount:-15,vehicle:true};entries.carService={label:'Fahrzeugservice',amount:-180,vehicle:true};
 export const ECONOMY=Object.freeze(Object.fromEntries(Object.entries(entries).map(([k,v])=>[k,Object.freeze(v)])));
 export const ITEMS=Object.freeze({snack:'Proviant',coffee:'Kaffee'});
 export const CAPACITY=12;
