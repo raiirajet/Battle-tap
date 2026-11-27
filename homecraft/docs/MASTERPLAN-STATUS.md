@@ -95,3 +95,6 @@ Merged homecraft-3d 8acbe64e (D3–D8 plus dashboard/starter) into RC23 planner 
 
 ## RC24 immersive startup
 Android MainActivity hides status/navigation bars at creation, resume and regained window focus; temporary system bars remain available via edge swipe. Existing Capacitor edge-to-edge inset handling is retained to protect display cutouts and input layout. Installed PWA requests fullscreen with standalone fallback; browser tabs cannot force fullscreen on load. Package ID and local stores unchanged. Device verification of keyboard, rotation, gesture and three-button navigation remains required.
+
+## RC25 game sound and private property
+Default-enabled synthesized offline Web Audio after user gesture. Dashboard controls master, ambience, effects; footsteps, doors, boarding/exiting, engine, transaction/denied/action cues. No external audio assets or music. Explicit local owner-only door/car operations and NPC land exclusion, foreign asset interaction feedback, household outside owned area, private-property dashboard. Existing save schema and package ID unchanged. Local gameplay, not multiplayer authentication; physical audio and device tests pending.
