@@ -1,6 +1,7 @@
 // Fixed, offline-only economy. Inventory is reconstructed from the same ledger as the wallet.
 import {advanceClock} from './valley-climate.js';
 import {MODELS,vehicleRule} from './valley-vehicle.js';
+import {JOBS,jobRule} from './valley-jobs.js';
 const entries={
  work:{label:'Werkstattschicht',amount:350,site:'work',energy:-15,hunger:-10,minute:60,cooldown:true},
  garden:{label:'Gartenpflege',amount:240,site:'work',energy:-10,hunger:-8,minute:40,cooldown:true},
@@ -13,6 +14,8 @@ const entries={
 };
 for(const [id,m] of Object.entries(MODELS)){entries['carBuy_'+id]={label:m.name+' kaufen',amount:-m.price,vehicle:true};entries['carSell_'+id]={label:m.name+' verkaufen',amount:m.resale,vehicle:true}}
 entries.carFuel={label:'5 Liter tanken',amount:-15,vehicle:true};entries.carService={label:'Fahrzeugservice',amount:-180,vehicle:true};
+for(const [id,j] of Object.entries(JOBS))for(let l=0;l<3;l++)for(let p=0;p<2;p++){const key='job_'+id+'_'+l+'_'+p;entries[key]={label:j.name+' · Auftrag',amount:jobRule(key).amount,energy:j.energy,hunger:j.hunger,minute:j.minute,cooldown:true,contract:true}}
+entries.jobDaily={label:'Tagesziel · 3 Aufträge',amount:250,contract:true};
 export const ECONOMY=Object.freeze(Object.fromEntries(Object.entries(entries).map(([k,v])=>[k,Object.freeze(v)])));
 export const ITEMS=Object.freeze({snack:'Proviant',coffee:'Kaffee'});
 export const CAPACITY=12;

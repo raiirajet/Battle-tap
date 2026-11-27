@@ -9,3 +9,5 @@
 .valley #vClimateHud{align-self:flex-start;background:#173c37e8;color:white;border-radius:9px;padding:7px 10px;font-size:12px;max-width:100%;line-height:1.4}.valley #vEconomyPanel p{overflow-wrap:anywhere}
 
 .valley #vCarHud{background:#173c37e8;color:white;font-weight:700;border-radius:9px;padding:9px 12px;width:fit-content;max-width:100%}.valley #vDrive{background:#deebda;color:#173c37}
+
+.valley #vJobHud{align-self:flex-start;background:#3e3824ed;color:#fff4ce;border-radius:9px;padding:7px 10px;font-size:12px;max-width:100%}.valley #vJobStep{background:#f4d477;color:#352b15}.valley #vEconomyActions .vResidentRow+button{margin-bottom:7px}
