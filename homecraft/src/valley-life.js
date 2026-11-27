@@ -2,6 +2,8 @@ import {copy,rooms,contains,stairLinks,stairHeight,voidState,walkTarget,projecti
 import {rotatedPoint} from './valley-house.js';
 import {plots} from './valley-core.js';
 import {profile,siteNear,worldGround,worldPassable,inRect} from './valley-world-life.js';
+import {applyTradeNeeds,tradeSite,ruleFor} from './valley-economy.js';
+import {isOpen} from './valley-town.js';
 export const SPEED=2.7, RADIUS=.15;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 export const initialNeeds=()=>({hunger:85,energy:85,hygiene:85,comfort:85,minute:480});
@@ -29,4 +31,4 @@ export function tickWalker(w,dt,moving){dt=clamp(Number.isFinite(dt)?dt:0,0,.1);
 
 export function checkpoint(w){return {expectedRevision:w.lifeRevision,buildingRevision:w.b?.revision||0,landRevision:w.save.revision,needs:{...w.needs},profile:{...w.profile},checkpoint:{buildingRevision:w.b?.revision||0,state:{...w.state}}}}
 export function validateCheckpoint(c){if(c==null)return null;const s=c.state;if(!Number.isSafeInteger(c.buildingRevision)||c.buildingRevision<0||!s||![s.x,s.z,s.height].every(Number.isFinite)||s.x<0||s.x>1024||s.z<0||s.z>1024||s.height< -10||s.height>550||!(s.level===null||typeof s.level==='string'&&s.level.length<=200))throw Error('Ungültiger Positionsspeicher');return {buildingRevision:c.buildingRevision,state:{x:s.x,z:s.z,height:s.height,level:s.level}}}
-export function tradeNeeds(w,type){if(w.save.mode!=='life'||w.action||siteNear(w.state.x,w.state.z)!==type)throw Error('Bitte zum passenden Eingang gehen.');const n={...w.needs};if(type==='work'){if(n.energy<20||n.hunger<15)throw Error('Zu müde oder hungrig zum Arbeiten.');n.energy-=15;n.hunger-=10;n.minute=(n.minute+60)%1440}else if(type==='meal'){n.hunger=clamp(n.hunger+35,0,100);n.minute=(n.minute+10)%1440}else throw Error('Unbekannter Vorgang');return n}
+export function tradeNeeds(w,type){if(w.save.mode!=='life'||w.action||!tradeSite(type,siteNear(w.state.x,w.state.z)))throw Error('Bitte zum passenden Eingang gehen.');const rule=ruleFor(type);if(rule?.site&&!isOpen(rule.site,w.needs.minute))throw Error('Geschäft geschlossen.');return applyTradeNeeds(w.needs,type)}

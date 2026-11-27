@@ -1,4 +1,5 @@
 import {height,plots} from './valley-core.js';
+import {HOMES} from './valley-town.js';
 export const PROFILE_DEFAULT=Object.freeze({skin:'#c68c65',shirt:'#367f82',pants:'#344457',hair:'#332924',hairStyle:'short'});
 export const PROFILE_COLORS=Object.freeze({skin:['#f2c4a0','#d9a076','#c68c65','#a66f50','#70452f'],shirt:['#367f82','#476ca8','#a84f55','#bc8a43','#64784d','#ece2d3'],pants:['#344457','#38383e','#80674d','#64808b'],hair:['#332924','#805739','#c49c54','#231f20','#a84d35']});
 export function profile(value){if(value==null)return {...PROFILE_DEFAULT};const p={};for(const [k,colors] of Object.entries(PROFILE_COLORS)){if(!colors.includes(value[k]))throw Error('Ungültige Charakterfarbe: '+k);p[k]=value[k]}if(!['short','long','bald'].includes(value.hairStyle))throw Error('Ungültige Frisur');p.hairStyle=value.hairStyle;return p}
@@ -8,6 +9,6 @@ export function inRect(r,x,z,pad=0){return x>=r.x-pad&&x<=r.x+r.w+pad&&z>=r.z-pa
 export function worldGround(x,z,seed){ // Same 8-m grid and diagonal as rendered terrain.
  const gx=Math.floor(x/8)*8,gz=Math.floor(z/8)*8,u=(x-gx)/8,v=(z-gz)/8,a=height(gx,gz,seed),b=height(gx+8,gz,seed),c=height(gx,gz+8,seed),d=height(gx+8,gz+8,seed);
  return u+v<=1?a+(b-a)*u+(c-a)*v:d+(c-d)*(1-u)+(b-d)*(1-v)}
-export function worldPassable(x,z,seed,ownPlot,trees=[]){if(!Number.isFinite(x)||!Number.isFinite(z)||x<.3||z<.3||x>1023.7||z>1023.7)return false;if(Math.hypot((x-760)/71,(z-390)/49)<=1||worldGround(x,z,seed)<-.25&&Math.hypot((x-760)/105,(z-390)/80)<1)return false;for(const s of Object.values(SITES))if(inRect({x:s.x-s.w/2,z:s.z-s.d/2,w:s.w,d:s.d},x,z,.23))return false;for(const p of plots())if(p.id!==ownPlot&&inRect(p.reserve,x,z,.15))return false;for(const t of trees)if(Math.hypot(x-t.x,z-t.z)<.42)return false;return true}
+export function worldPassable(x,z,seed,ownPlot,trees=[]){if(!Number.isFinite(x)||!Number.isFinite(z)||x<.3||z<.3||x>1023.7||z>1023.7)return false;if(Math.hypot((x-760)/71,(z-390)/49)<=1||worldGround(x,z,seed)<-.25&&Math.hypot((x-760)/105,(z-390)/80)<1)return false;for(const s of Object.values(SITES))if(inRect({x:s.x-s.w/2,z:s.z-s.d/2,w:s.w,d:s.d},x,z,.23))return false;for(const h of HOMES)if(inRect({x:h.x-h.w/2,z:h.z-h.d/2,w:h.w,d:h.d},x,z,.23))return false;for(const p of plots())if(p.id!==ownPlot&&inRect(p.reserve,x,z,.15))return false;for(const t of trees)if(Math.hypot(x-t.x,z-t.z)<.42)return false;return true}
 export function daylight(minute){const a=(minute-360)/1440*Math.PI*2,s=Math.sin(a),day=Math.max(0,s);return {day,brightness:.12+day*.88,angle:a}}
 export function poseFor(label){if(label==='Schlafen')return 'sleep';if(label==='Entspannen'||label==='Toilette benutzen')return 'sit';if(['Essen','Waschen','Duschen','Baden'].includes(label))return 'use';return 'idle'}
