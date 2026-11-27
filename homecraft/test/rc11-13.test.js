@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {project,wall,wallCells,addOpening,validate,addRoute} from '../src/core.js';
+import {validateFacade,facadePieces,facadeArea,splitFacade} from '../src/facade.js';
+import {routeGeometry,routeWarning,routeSettings} from '../src/technical.js';
+import {costSettings,calculateCost} from '../src/cost-plan.js';
+const panel={id:'a',name:'Holz',side:1,style:'wood',color:'#aaaaaa',material:'wood-1',u0:0,u1:1,v0:0,v1:1};
+test('facade net area clips door and window without changing wall',()=>{const w=wall({x:0,y:0},{x:5,y:0},.2,3);addOpening(w,1,'door',1,2,0);addOpening(w,3,'window',1,1,1);w.facade=[panel];assert.equal(facadeArea(w,wallCells(w)),12);assert.ok(facadePieces(w,wallCells(w)).every(q=>q.side===1));const p=project();p.levels[0].walls=[w];validate(p);w.facade.push({...panel,id:'b'});assert.throws(()=>validateFacade(w));w.facade[1].side=-1;validate(p)});
+test('split facade preserves normalized ranges and area',()=>{const w=wall({x:0,y:0},{x:5,y:0},.2,3);w.facade=[{...panel,u0:.2,u1:.8}];const a=splitFacade(w.facade,.4,'left'),b=splitFacade(w.facade,.4,'right');assert.equal(a[0].u0,.5);assert.equal(a[0].u1,1);assert.ok(Math.abs(b[0].u1-2/3)<1e-8)});
+test('sloped polyline has proportional height and true length',()=>{const p=project(),l=p.levels[0],r=addRoute(l,'drain',[{x:0,y:0},{x:3,y:0},{x:3,y:1}],1);r.tech={...routeSettings(r),end:0};const g=routeGeometry(r);assert.equal(g.points[1].z,.25);assert.equal(g.length,Math.sqrt(17));assert.equal(g.slope,-25);assert.equal(routeWarning(r,l).length,0);validate(p);r.tech.diameter=-1;assert.throws(()=>validate(p))});
+test('cost totals, waste, reserve, tax, target and extra rows',()=>{const p=project(),a=costSettings(p);a.rates.floor=100;a.waste=10;a.reserve=10;a.tax=10;a.target=2000;a.extras=[{name:'Planung',qty:1,rate:100}];p.costPlan=a;validate(p);const r=calculateCost(a,{floor:10});assert.ok(Math.abs(r.total-1452)<1e-7);assert.ok(Math.abs(r.remaining-548)<1e-7);a.tax=-1;assert.throws(()=>validate(p))});
