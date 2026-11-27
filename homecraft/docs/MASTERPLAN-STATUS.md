@@ -1,4 +1,4 @@
-# HomeCraft 3D — masterplan status, 1.0.0-rc.14
+# HomeCraft 3D — masterplan status, 1.0.0-rc.15
 Release candidate for the implemented local-first planner. Not a claim of 100% completion of the original 38-section masterplan. The exact build and test result must be read from the HomeCraft Android/PWA workflow.
 
 | Area | Implemented | Remaining limits / release gates |
@@ -46,3 +46,5 @@ RC12: schematic route editor, user-defined diameter, material, cost per metre, s
 RC13: detailed saved cost plan, geometry-derived quantities, individually priced kitchen/bath modules and routes, manual extras, waste, reserve, tax and target comparison. All rates user-entered; no live market prices, no tender or certified quantities. RC14 physical and signed-release QA remains open.
 
 RC14: wall solid band sweep (fewer meshes with multiple openings), deduplicated scene disposal, pause hidden rendering, route ID and vertex-length checks, central facade/service warnings, isolated HomeCraft PR build and APK package/version gate. Existing project schema stays at 1. Full CI, physical Android upgrade and signed release are still separate acceptance gates.
+
+RC15: bounded orthogonal room-centreline decomposition into automatically intersecting rectangular roof bodies, selected floor/axis/roof type, live plan preview, explicit replacement of that floor's existing bodies, and edit existing skylights/dormers/chimneys/solar panels. Manual roofs remain available. Suggestions are not exact exterior-wall offsets or certified structural junctions; courtyard, upper/lower-floor interfaces, nonorthogonal plans, and overhang overlaps need manual checking. Independent planner branch only; Valley merge deferred.
