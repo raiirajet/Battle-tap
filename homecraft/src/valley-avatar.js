@@ -10,8 +10,8 @@ import {profile,poseFor} from './valley-world-life.js';
 import {material,mesh,ell,box,bake} from './valley-realism.js';
 import {silhouette,curveDetail,makeHand,makeFace,makeHair,garment} from './valley-character-model.js';
 function joint(parent,x,y,z){const b=new T.Bone();b.position.set(x,y,z);parent.add(b);return b}
-export function avatarMesh(input,{detail=true}={}){
- const p=profile(input);if(p.style==='cartoon')return toonAvatar(p,{detail});const root=new T.Group(),body=joint(root,0,0,0);body.name='ValleyBody';root.userData.expressionSeed=characterSeed([p.skin,p.hair,p.shirt,p.eyes,p.face].join('|'));
+export function avatarMesh(input,{detail=true,identity=''}={}){
+ const p=profile(input);if(p.style==='cartoon')return toonAvatar(p,{detail});const root=new T.Group(),body=joint(root,0,0,0);body.name='ValleyBody';root.userData.expressionSeed=characterSeed([identity,p.skin,p.hair,p.shirt,p.eyes,p.face].join('|'));
  const skin=material(p.skin,{roughness:.65}),shirt=material(p.shirt),pants=material(p.pants,{roughness:.96}),shoe=material({dark:0x292c30,white:0xe5e4dd,brown:0x6c4a37}[p.shoes]),sole=material(0x4a4945),hair=material(p.hair),seam=material(new T.Color(p.shirt).multiplyScalar(.76)),denim=material(new T.Color(p.pants).multiplyScalar(.78));
  applySkinDetail(skin,detail);skin.userData.valleyLegacySkin=true;body.scale.set(...bodyShape(p.build));applyTextile(shirt,p.outfit==='cardigan'?'knit':p.outfit==='jacket'?'denim':'cotton',detail);applyTextile(pants,p.bottom==='jeans'?'denim':'cotton',detail);applyTextile(shoe,'leather',detail);
  mesh(body,silhouette([[.73,.13,.093],[.81,.166,.112],[.88,.151,.105],[.96,.135,.095]],20),pants);
