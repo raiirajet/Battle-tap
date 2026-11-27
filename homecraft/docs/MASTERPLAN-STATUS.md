@@ -92,3 +92,6 @@ RC23: direct editor-to-Valley selection plus imported package preview and existi
 
 ## RC23 unified Studio + Valley
 Merged homecraft-3d 8acbe64e (D3–D8 plus dashboard/starter) into RC23 planner without reverting planner functions. Retained portable house package, preferred design, and terrain/garden stripping. Restored roof snow markers and combined full release smoke with editor-to-Valley placement and renovation copy. One package id and separate existing local stores; physical Android upgrade, final build and full game/device QA pending.
+
+## RC24 immersive startup
+Android MainActivity hides status/navigation bars at creation, resume and regained window focus; temporary system bars remain available via edge swipe. Existing Capacitor edge-to-edge inset handling is retained to protect display cutouts and input layout. Installed PWA requests fullscreen with standalone fallback; browser tabs cannot force fullscreen on load. Package ID and local stores unchanged. Device verification of keyboard, rotation, gesture and three-button navigation remains required.

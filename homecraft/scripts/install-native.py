@@ -6,11 +6,33 @@ shutil.copy('native/BiometricVaultPlugin.java',java/'BiometricVaultPlugin.java')
 activity=java/'MainActivity.java'
 activity.write_text('''package ch.homecraft.planner;
 import android.os.Bundle;
+import android.view.Window;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import com.getcapacitor.BridgeActivity;
 public class MainActivity extends BridgeActivity {
+  private void enterImmersiveMode() {
+    Window window = getWindow();
+    WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, window.getDecorView());
+    controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+    controller.hide(WindowInsetsCompat.Type.systemBars());
+  }
+
   @Override public void onCreate(Bundle savedInstanceState) {
     registerPlugin(BiometricVaultPlugin.class);
     super.onCreate(savedInstanceState);
+    enterImmersiveMode();
+  }
+
+  @Override public void onResume() {
+    super.onResume();
+    enterImmersiveMode();
+  }
+
+  @Override public void onWindowFocusChanged(boolean hasFocus) {
+    super.onWindowFocusChanged(hasFocus);
+    if (hasFocus) enterImmersiveMode();
   }
 }
 ''')
