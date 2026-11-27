@@ -6,7 +6,7 @@ const graph=roads(),nodes=Object.fromEntries(graph.nodes.map(n=>[n.id,n])),lines
 batch(new T.BoxGeometry(.105,.012,3),mat(0xe5e1cc),lines,0);batch(new T.BoxGeometry(.07,.012,1),mat(0xbfc3bd),edges,1);
 const grass=[],flowers=[],shrubs=[];for(let i=0;i<1450;i++){const x=272+rand()*32,z=326+rand()*51;if(Math.abs(x-288)<2.4||Math.abs(z-345.5)<2.2)continue;grass.push({x,z,angle:rand()*Math.PI*2,sy:.6+rand()*.85});if(i%7===0)flowers.push({x,z,y:.22,angle:rand()*6.28});if(i%89===0)shrubs.push({x,z,y:.38,sx:.8+rand()*.6,sy:.45+rand()*.35,sz:.7+rand()*.5})}
 const grassMat=mat(0x6d9e50,{side:T.DoubleSide}),blade=new T.BufferGeometry();blade.setAttribute('position',new T.Float32BufferAttribute([-.10,0,0,.10,0,0,0,.32,.06,0,0,-.10,0,0,.10,.06,.32,0],3));blade.computeVertexNormals();batch(blade,grassMat,grass,1);batch(new T.IcosahedronGeometry(.085,0),mat(0xf3ca76),flowers,2);batch(new T.IcosahedronGeometry(1,1),mat(0x5c8c51),shrubs,1);
-const trees=treePositions.filter(t=>t.t===0).map(t=>({x:t.x,z:t.z,y:worldGround(t.x,t.z,seed)+t.h*.49,sx:t.h*.37,sy:t.h*.29,sz:t.h*.37}));batch(new T.ConeGeometry(1,2,9),foliage[0].material,trees,1);
+// Tree crowns are now fully layered in the main instanced forest.
 function box(x,y,z,w,h,d,color){const m=new T.Mesh(new T.BoxGeometry(w,h,d),mat(color));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;group.add(m);return m}
 function pole(a,b,r,color){const v=new T.Vector3(...b).sub(new T.Vector3(...a)),m=new T.Mesh(new T.CylinderGeometry(r,r,v.length(),8),mat(color));m.position.copy(new T.Vector3(...a).addScaledVector(v,.5));m.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),v.normalize());group.add(m);m.castShadow=true;return m}
 // Park furniture and playground on non-job areas, clear of the main path.
