@@ -1,8 +1,8 @@
 import * as T from 'three';import {characterExpression} from './valley-character-motion.js';import {applySkinDetail} from './valley-character-assets.js';import {generateHumanoid} from './characters/humanoidBuilder.js';import {MORPHS} from './valley-rig-spec.js';
-const sources=new Map(),pending=new Map();
+const sources=new Map(),pending=new Map(),failures=new Map();
 // Cache one generated template per quality. Existing articulated body stays visible until ready.
 let queue=Promise.resolve();
-export function preloadValleyRig(detail=true){const key=detail?'high':'npc';if(sources.has(key))return Promise.resolve(sources.get(key));if(!pending.has(key)){const task=queue.then(()=>generateHumanoid(detail));queue=task.catch(()=>null);pending.set(key,task.then(source=>{sources.set(key,source);pending.delete(key);return source}).catch(e=>{pending.delete(key);console.warn('Valley procedural skin fallback:',e);return null}))}return pending.get(key)}
+export function preloadValleyRig(detail=true){const key=detail?'high':'npc';if(sources.has(key))return Promise.resolve(sources.get(key));if((failures.get(key)||0)>Date.now())return Promise.resolve(null);if(!pending.has(key)){const task=queue.then(()=>generateHumanoid(detail));queue=task.catch(()=>null);pending.set(key,task.then(source=>{sources.set(key,source);pending.delete(key);return source}).catch(e=>{pending.delete(key);failures.set(key,Date.now()+30000);console.warn('Valley procedural skin fallback:',e);return null}))}return pending.get(key)}
 export function getValleyRig(detail=true){return sources.get(detail?'high':'npc')}
 export function attachValleyRig(root,source,profile,legacySkin){
  const map=new Map();root.traverse(o=>{if(o.isBone&&o.name)map.set(o.name,o)});

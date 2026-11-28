@@ -1,6 +1,6 @@
 {
   "name": "homecraft-3d",
-  "version": "1.0.0-rc.77",
+  "version": "1.0.0-rc.80",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,7 +8,8 @@
     "build": "python3 scripts/icons.py public && vite build && node scripts/cache-assets.mjs",
     "test": "node --test",
     "preview": "vite preview --host 0.0.0.0",
-    "assets:export": "node scripts/build-valley-glb.mjs"
+    "assets:export": "node scripts/build-valley-glb.mjs",
+    "verify:procedural": "node scripts/verify-procedural-build.mjs"
   },
   "dependencies": {
     "three": "0.170.0",
