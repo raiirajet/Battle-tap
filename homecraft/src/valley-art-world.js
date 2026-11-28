@@ -1,5 +1,5 @@
 import {PARK_LAMP_POSITIONS} from './environment/props.js';
-import {grassClump,windMaterial} from './environment/parkGround.js';
+import {createMeadowChunks} from './environment/meadowChunks.js';
 import * as T from 'three';
 import {roads,plots} from './valley-core.js';
 import {worldGround,worldPassable,inRect,SITES} from './valley-world-life.js';
@@ -21,30 +21,7 @@ export function meadowEligible(x,z,seed){
  return worldGround(x,z,seed)>-.10;
 }
 export {grassClump} from './environment/parkGround.js';
-export function meadowArt(scene,seed){
- const root=new T.Group();scene.add(root);const rand=seedRand(seed+842),geos=Array.from({length:4},(_,i)=>grassClump(i)),m=material(0xffffff,{side:T.DoubleSide,roughness:.94,vertexColors:true});const wind={value:0},time={value:0};windMaterial(m,wind,time);
- const tiles=[],dummy=new T.Object3D(),colors=[0x789455,0x9ba568,0x577946,0xa5a977,0x70884a];
- for(const [cx,cz,wx,wz] of [[278,346,13,34],[299,346,13,36],[288,369,32,15],[340,331,24,15],[329,395,18,38],[329,463,18,42],[329,529,18,45],[605,351,48,40],[646,390,40,52],[676,430,35,30]]){
- const items=[];for(let i=0;i<1800;i++){const x=cx+(rand()-.5)*wx,z=cz+(rand()-.5)*wz;if(!meadowEligible(x,z,seed))continue;
- const patch=.5+.5*Math.sin(x*.79+Math.cos(z*.58))*Math.cos(z*.46+x*.16);
- if(rand()>.17+.72*patch)continue;
- items.push({x,z,y:worldGround(x,z,seed)+.01,a:rand()*6.28,s:.45+rand()*.52+patch*.48,c:colors[Math.floor(rand()*colors.length)]})}
- if(!items.length)continue;for(let variant=0;variant<4;variant++){const subset=items.filter((_,i)=>i%4===variant);if(!subset.length)continue;const inst=new T.InstancedMesh(geos[variant],m,subset.length);for(const [i,p] of subset.entries()){dummy.position.set(p.x,p.y,p.z);dummy.rotation.set(0,p.a,0);dummy.scale.set(p.s,p.s,p.s);dummy.updateMatrix();inst.setMatrixAt(i,dummy.matrix);inst.setColorAt(i,new T.Color(p.c))}inst.receiveShadow=true;inst.castShadow=false;root.add(inst);tiles.push({cx,cz,inst,total:subset.length});}
- }
- // Wildflower clusters: stems and petal rings use instancing, no per-flower draw calls.
- const petalGeo=new T.SphereGeometry(1,7,5),petalMat=material(0xffffff),flowers=[];const fg=new T.Group();root.add(fg);for(const tile of tiles.filter((_,i)=>i%4===0)){for(let i=0;i<18;i++){const x=tile.cx+(rand()-.5)*14,z=tile.cz+(rand()-.5)*16;if(meadowEligible(x,z,seed))flowers.push({x,z,y:worldGround(x,z,seed)+.12+rand()*.12,c:[0xf7eee2,0xe5b746,0xcca2c9][i%3]})}}
- const petals=new T.InstancedMesh(petalGeo,petalMat,flowers.length*5);flowers.forEach((f,i)=>{for(let j=0;j<5;j++){const a=j*6.28/5;dummy.position.set(f.x+Math.cos(a)*.035,f.y,f.z+Math.sin(a)*.035);dummy.rotation.set(0,-a,0);dummy.scale.set(.035,.012,.017);dummy.updateMatrix();petals.setMatrixAt(i*5+j,dummy.matrix);petals.setColorAt(i*5+j,new T.Color(f.c))}});fg.add(petals);
- const stalkGeo=new T.CylinderGeometry(.004,.006,1,4),stalkMat=material(0x637e47);
- const stalks=new T.InstancedMesh(stalkGeo,stalkMat,flowers.length);
- for(const [i,f] of flowers.entries()){
-  const ground=worldGround(f.x,f.z,seed),length=f.y-ground;
-  dummy.position.set(f.x,ground+length*.5,f.z);dummy.rotation.set(0,0,0);dummy.scale.set(1,length,1);
-  dummy.updateMatrix();stalks.setMatrixAt(i,dummy.matrix);
- }
- fg.add(stalks);
- const cloverGeo=new T.SphereGeometry(1,6,4),cloverMat=material(0x648b48),clover=new T.InstancedMesh(cloverGeo,cloverMat,flowers.length*3);flowers.forEach((f,i)=>{for(let j=0;j<3;j++){let a=j*Math.PI*2/3;dummy.position.set(f.x+.11+Math.cos(a)*.026,worldGround(f.x+.11,f.z,seed)+.045,f.z+Math.sin(a)*.026);dummy.rotation.set(0,-a,0);dummy.scale.set(.027,.006,.017);dummy.updateMatrix();clover.setMatrixAt(i*3+j,dummy.matrix)}});fg.add(clover);
- let detail=1;return {setQuality(q){detail=q.detail;root.visible=detail>0;fg.visible=detail>=2;for(const t of tiles)t.inst.count=Math.ceil(t.total*[0,.26,.60,1][detail])},update(state,c,dt){wind.value=c.wind||0;time.value=(time.value+dt)%10000;const season=c.season??0;m.color.set([0xffffff,0xe7e8cc,0xbca57b,0xe7ece6][season]);for(const t of tiles)t.inst.visible=detail>0&&Math.hypot(state.x-t.cx,state.z-t.cz)<(detail===3?135:detail===2?95:60);fg.visible=detail>=2&&season!==3},destroy(){dispose(root)}};
-}
+export function meadowArt(scene,seed){return createMeadowChunks(scene,seed,meadowEligible,worldGround)}
 export function lanternMesh(parent,x,y,z,metal,glass,glow,{wall=false}={}){
  const g=new T.Group();parent.add(g);g.position.set(x,y,z);
  if(!wall){mesh(g,new T.CylinderGeometry(.12,.19,.18,10),metal,0,.09,0);mesh(g,new T.CylinderGeometry(.045,.075,2.46,10),metal,0,1.37,0);mesh(g,new T.CylinderGeometry(.09,.12,.16,10),metal,0,2.57,0)}

@@ -1,0 +1,4 @@
+# RC63 – streamed meadow geometry
+- Fixed meadow regions are subdivided into deterministic 16-metre cells. The nearest cells are selected with preset-specific caps (12/20/32), and up to three cells are allocated per update. Departed cells release instance buffers; shared geometry and materials are owned by the scene registry.
+- Grass uses three geometry levels and four variations, distance-dependent density, anchored shader wind and optional near wildflowers/clover. Existing meadow eligibility keeps roads, paths and reserved plots clear. This is vegetation streaming, not streaming of all buildings or terrain.
+- Scene diagnostics now include loaded meadow chunks and grass instances internally. Existing game rules are unchanged. New automated tests are supplied; browser/device benchmark pending.
