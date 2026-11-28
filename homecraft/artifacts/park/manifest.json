@@ -1,0 +1,1191 @@
+{
+  "version": 1,
+  "units": "metres",
+  "up": "+Y",
+  "forward": "+Z",
+  "lod": {
+    "0": "near",
+    "1": "medium",
+    "2": "far"
+  },
+  "assets": [
+    {
+      "file": "park_grass_1_lod0.glb",
+      "category": "grass",
+      "lod": 0,
+      "triangles": 162,
+      "dimensions": [
+        0.323,
+        0.312,
+        0.223
+      ],
+      "bounds": {
+        "min": [
+          -0.1589750200510025,
+          0,
+          -0.1442287564277649
+        ],
+        "max": [
+          0.16429713368415833,
+          0.3115381598472595,
+          0.07897105067968369
+        ]
+      },
+      "materials": 4,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 18928,
+      "path": "homecraft/public/assets/park/park_grass_1_lod0.glb"
+    },
+    {
+      "file": "park_grass_1_lod1.glb",
+      "category": "grass",
+      "lod": 1,
+      "triangles": 45,
+      "dimensions": [
+        0.323,
+        0.312,
+        0.21
+      ],
+      "bounds": {
+        "min": [
+          -0.1589750200510025,
+          0,
+          -0.1442287564277649
+        ],
+        "max": [
+          0.16429713368415833,
+          0.3115381598472595,
+          0.0657956525683403
+        ]
+      },
+      "materials": 4,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 7672,
+      "path": "homecraft/public/assets/park/park_grass_1_lod1.glb"
+    },
+    {
+      "file": "park_grass_1_lod2.glb",
+      "category": "grass",
+      "lod": 2,
+      "triangles": 12,
+      "dimensions": [
+        0.141,
+        0.312,
+        0.104
+      ],
+      "bounds": {
+        "min": [
+          -0.039397094398736954,
+          0,
+          -0.058871425688266754
+        ],
+        "max": [
+          0.10173780471086502,
+          0.3115381598472595,
+          0.045571744441986084
+        ]
+      },
+      "materials": 4,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 4488,
+      "path": "homecraft/public/assets/park/park_grass_1_lod2.glb"
+    },
+    {
+      "file": "park_grass_2_lod0.glb",
+      "category": "grass",
+      "lod": 0,
+      "triangles": 162,
+      "dimensions": [
+        0.363,
+        0.34,
+        0.277
+      ],
+      "bounds": {
+        "min": [
+          -0.15845423936843872,
+          0,
+          -0.13170179724693298
+        ],
+        "max": [
+          0.2047816514968872,
+          0.33955520391464233,
+          0.14565278589725494
+        ]
+      },
+      "materials": 4,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 18924,
+      "path": "homecraft/public/assets/park/park_grass_2_lod0.glb"
+    },
+    {
+      "file": "park_grass_2_lod1.glb",
+      "category": "grass",
+      "lod": 1,
+      "triangles": 45,
+      "dimensions": [
+        0.363,
+        0.315,
+        0.277
+      ],
+      "bounds": {
+        "min": [
+          -0.15845423936843872,
+          0,
+          -0.13170179724693298
+        ],
+        "max": [
+          0.2047816514968872,
+          0.3152730464935303,
+          0.14565278589725494
+        ]
+      },
+      "materials": 4,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 7672,
+      "path": "homecraft/public/assets/park/park_grass_2_lod1.glb"
+    },
+    {
+      "file": "park_grass_2_lod2.glb",
+      "category": "grass",
+      "lod": 2,
+      "triangles": 12,
+      "dimensions": [
+        0.293,
+        0.315,
+        0.151
+      ],
+      "bounds": {
+        "min": [
+          -0.15845423936843872,
+          0,
+          -0.03605620563030243
+        ],
+        "max": [
+          0.1344185322523117,
+          0.3152730464935303,
+          0.11462786793708801
+        ]
+      },
+      "materials": 4,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 4484,
+      "path": "homecraft/public/assets/park/park_grass_2_lod2.glb"
+    },
+    {
+      "file": "park_grass_3_lod0.glb",
+      "category": "grass",
+      "lod": 0,
+      "triangles": 162,
+      "dimensions": [
+        0.338,
+        0.295,
+        0.291
+      ],
+      "bounds": {
+        "min": [
+          -0.2032628357410431,
+          0,
+          -0.15112747251987457
+        ],
+        "max": [
+          0.13462279736995697,
+          0.2946702241897583,
+          0.13942837715148926
+        ]
+      },
+      "materials": 4,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 18924,
+      "path": "homecraft/public/assets/park/park_grass_3_lod0.glb"
+    },
+    {
+      "file": "park_grass_3_lod1.glb",
+      "category": "grass",
+      "lod": 1,
+      "triangles": 45,
+      "dimensions": [
+        0.338,
+        0.29,
+        0.226
+      ],
+      "bounds": {
+        "min": [
+          -0.2032628357410431,
+          0,
+          -0.1474214345216751
+        ],
+        "max": [
+          0.13462279736995697,
+          0.2903648018836975,
+          0.07829476147890091
+        ]
+      },
+      "materials": 4,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 7668,
+      "path": "homecraft/public/assets/park/park_grass_3_lod1.glb"
+    },
+    {
+      "file": "park_grass_3_lod2.glb",
+      "category": "grass",
+      "lod": 2,
+      "triangles": 12,
+      "dimensions": [
+        0.236,
+        0.29,
+        0.153
+      ],
+      "bounds": {
+        "min": [
+          -0.10094846040010452,
+          0,
+          -0.07503191381692886
+        ],
+        "max": [
+          0.13462279736995697,
+          0.2903648018836975,
+          0.07829476147890091
+        ]
+      },
+      "materials": 4,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 4484,
+      "path": "homecraft/public/assets/park/park_grass_3_lod2.glb"
+    },
+    {
+      "file": "park_grass_4_lod0.glb",
+      "category": "grass",
+      "lod": 0,
+      "triangles": 162,
+      "dimensions": [
+        0.309,
+        0.34,
+        0.282
+      ],
+      "bounds": {
+        "min": [
+          -0.18051066994667053,
+          0,
+          -0.1847296804189682
+        ],
+        "max": [
+          0.12869226932525635,
+          0.33990779519081116,
+          0.09726452082395554
+        ]
+      },
+      "materials": 4,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 18928,
+      "path": "homecraft/public/assets/park/park_grass_4_lod0.glb"
+    },
+    {
+      "file": "park_grass_4_lod1.glb",
+      "category": "grass",
+      "lod": 1,
+      "triangles": 45,
+      "dimensions": [
+        0.192,
+        0.33,
+        0.266
+      ],
+      "bounds": {
+        "min": [
+          -0.06376216560602188,
+          0,
+          -0.1847296804189682
+        ],
+        "max": [
+          0.12869226932525635,
+          0.3296789228916168,
+          0.08148740231990814
+        ]
+      },
+      "materials": 4,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 7668,
+      "path": "homecraft/public/assets/park/park_grass_4_lod1.glb"
+    },
+    {
+      "file": "park_grass_4_lod2.glb",
+      "category": "grass",
+      "lod": 2,
+      "triangles": 12,
+      "dimensions": [
+        0.136,
+        0.272,
+        0.107
+      ],
+      "bounds": {
+        "min": [
+          -0.0070854793302714825,
+          0,
+          -0.04435268044471741
+        ],
+        "max": [
+          0.12869226932525635,
+          0.2721148729324341,
+          0.06245230510830879
+        ]
+      },
+      "materials": 4,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 4480,
+      "path": "homecraft/public/assets/park/park_grass_4_lod2.glb"
+    },
+    {
+      "file": "park_busch_1_lod0.glb",
+      "category": "shrub",
+      "lod": 0,
+      "triangles": 2052,
+      "dimensions": [
+        1.448,
+        1.226,
+        1.465
+      ],
+      "bounds": {
+        "min": [
+          -0.658306896686554,
+          0.0024825376458466053,
+          -0.7102807760238647
+        ],
+        "max": [
+          0.7899453043937683,
+          1.2288625240325928,
+          0.7549408674240112
+        ]
+      },
+      "materials": 5,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 201232,
+      "path": "homecraft/public/assets/park/park_busch_1_lod0.glb"
+    },
+    {
+      "file": "park_busch_1_lod1.glb",
+      "category": "shrub",
+      "lod": 1,
+      "triangles": 836,
+      "dimensions": [
+        1.068,
+        1.157,
+        1.371
+      ],
+      "bounds": {
+        "min": [
+          -0.6038062572479248,
+          0.0006509493105113506,
+          -0.6875839829444885
+        ],
+        "max": [
+          0.4644071161746979,
+          1.15781831741333,
+          0.6832708716392517
+        ]
+      },
+      "materials": 5,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 84480,
+      "path": "homecraft/public/assets/park/park_busch_1_lod1.glb"
+    },
+    {
+      "file": "park_busch_1_lod2.glb",
+      "category": "shrub",
+      "lod": 2,
+      "triangles": 336,
+      "dimensions": [
+        0.93,
+        1.189,
+        1.221
+      ],
+      "bounds": {
+        "min": [
+          -0.4094823896884918,
+          0.004614919889718294,
+          -0.8449061512947083
+        ],
+        "max": [
+          0.5205819010734558,
+          1.1932392120361328,
+          0.37651336193084717
+        ]
+      },
+      "materials": 5,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 36452,
+      "path": "homecraft/public/assets/park/park_busch_1_lod2.glb"
+    },
+    {
+      "file": "park_busch_2_lod0.glb",
+      "category": "shrub",
+      "lod": 0,
+      "triangles": 2052,
+      "dimensions": [
+        1.7,
+        1.165,
+        1.451
+      ],
+      "bounds": {
+        "min": [
+          -0.9005792140960693,
+          0.00172795495018363,
+          -0.7953490614891052
+        ],
+        "max": [
+          0.799137532711029,
+          1.1663544178009033,
+          0.6558226943016052
+        ]
+      },
+      "materials": 5,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 201228,
+      "path": "homecraft/public/assets/park/park_busch_2_lod0.glb"
+    },
+    {
+      "file": "park_busch_2_lod1.glb",
+      "category": "shrub",
+      "lod": 1,
+      "triangles": 836,
+      "dimensions": [
+        1.561,
+        1.144,
+        1.171
+      ],
+      "bounds": {
+        "min": [
+          -0.9005792140960693,
+          0.0013147336430847645,
+          -0.610926628112793
+        ],
+        "max": [
+          0.6606465578079224,
+          1.1454371213912964,
+          0.5602441430091858
+        ]
+      },
+      "materials": 5,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 84484,
+      "path": "homecraft/public/assets/park/park_busch_2_lod1.glb"
+    },
+    {
+      "file": "park_busch_2_lod2.glb",
+      "category": "shrub",
+      "lod": 2,
+      "triangles": 336,
+      "dimensions": [
+        1.131,
+        1.144,
+        1.105
+      ],
+      "bounds": {
+        "min": [
+          -0.7191294431686401,
+          0.0018964087357744575,
+          -0.5306454300880432
+        ],
+        "max": [
+          0.41218048334121704,
+          1.1454371213912964,
+          0.573939323425293
+        ]
+      },
+      "materials": 5,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 36452,
+      "path": "homecraft/public/assets/park/park_busch_2_lod2.glb"
+    },
+    {
+      "file": "park_busch_3_lod0.glb",
+      "category": "shrub",
+      "lod": 0,
+      "triangles": 2052,
+      "dimensions": [
+        1.47,
+        1.17,
+        1.664
+      ],
+      "bounds": {
+        "min": [
+          -0.681647539138794,
+          0.0016838175943121314,
+          -0.8463806509971619
+        ],
+        "max": [
+          0.7882412075996399,
+          1.1716248989105225,
+          0.8173438310623169
+        ]
+      },
+      "materials": 5,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 201232,
+      "path": "homecraft/public/assets/park/park_busch_3_lod0.glb"
+    },
+    {
+      "file": "park_busch_3_lod1.glb",
+      "category": "shrub",
+      "lod": 1,
+      "triangles": 836,
+      "dimensions": [
+        1.253,
+        1.094,
+        1.152
+      ],
+      "bounds": {
+        "min": [
+          -0.681647539138794,
+          0.00223546358756721,
+          -0.5208375453948975
+        ],
+        "max": [
+          0.5713395476341248,
+          1.0958971977233887,
+          0.631239116191864
+        ]
+      },
+      "materials": 5,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 84484,
+      "path": "homecraft/public/assets/park/park_busch_3_lod1.glb"
+    },
+    {
+      "file": "park_busch_3_lod2.glb",
+      "category": "shrub",
+      "lod": 2,
+      "triangles": 336,
+      "dimensions": [
+        0.826,
+        1.019,
+        1.106
+      ],
+      "bounds": {
+        "min": [
+          -0.5529268980026245,
+          0.004268918186426163,
+          -0.49706733226776123
+        ],
+        "max": [
+          0.273461252450943,
+          1.0232378244400024,
+          0.6090874075889587
+        ]
+      },
+      "materials": 5,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 36452,
+      "path": "homecraft/public/assets/park/park_busch_3_lod2.glb"
+    },
+    {
+      "file": "park_birke_lod0.glb",
+      "category": "tree",
+      "lod": 0,
+      "triangles": 5160,
+      "dimensions": [
+        4.339,
+        4.936,
+        4.317
+      ],
+      "bounds": {
+        "min": [
+          -2.2450079917907715,
+          -0.012460224330425262,
+          -2.054647207260132
+        ],
+        "max": [
+          2.0940775871276855,
+          4.9235758781433105,
+          2.2626919746398926
+        ]
+      },
+      "materials": 6,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 500364,
+      "path": "homecraft/public/assets/park/park_birke_lod0.glb"
+    },
+    {
+      "file": "park_birke_lod1.glb",
+      "category": "tree",
+      "lod": 1,
+      "triangles": 2064,
+      "dimensions": [
+        3.898,
+        4.882,
+        3.542
+      ],
+      "bounds": {
+        "min": [
+          -2.0096261501312256,
+          -0.012836271896958351,
+          -1.613450288772583
+        ],
+        "max": [
+          1.8884310722351074,
+          4.869317054748535,
+          1.928861379623413
+        ]
+      },
+      "materials": 6,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 203124,
+      "path": "homecraft/public/assets/park/park_birke_lod1.glb"
+    },
+    {
+      "file": "park_birke_lod2.glb",
+      "category": "tree",
+      "lod": 2,
+      "triangles": 960,
+      "dimensions": [
+        2.841,
+        4.804,
+        3.283
+      ],
+      "bounds": {
+        "min": [
+          -1.8177345991134644,
+          -0.012641162611544132,
+          -1.8063641786575317
+        ],
+        "max": [
+          1.0234475135803223,
+          4.79158353805542,
+          1.4767190217971802
+        ]
+      },
+      "materials": 6,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 97128,
+      "path": "homecraft/public/assets/park/park_birke_lod2.glb"
+    },
+    {
+      "file": "park_laubbaum_lod0.glb",
+      "category": "tree",
+      "lod": 0,
+      "triangles": 4920,
+      "dimensions": [
+        5.436,
+        6.248,
+        5.416
+      ],
+      "bounds": {
+        "min": [
+          -2.6764867305755615,
+          -0.01660347916185856,
+          -2.5920040607452393
+        ],
+        "max": [
+          2.759399175643921,
+          6.230918884277344,
+          2.82429575920105
+        ]
+      },
+      "materials": 6,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 476720,
+      "path": "homecraft/public/assets/park/park_laubbaum_lod0.glb"
+    },
+    {
+      "file": "park_laubbaum_lod1.glb",
+      "category": "tree",
+      "lod": 1,
+      "triangles": 1824,
+      "dimensions": [
+        4.875,
+        6.241,
+        4.884
+      ],
+      "bounds": {
+        "min": [
+          -2.20040225982666,
+          -0.017100244760513306,
+          -2.605459690093994
+        ],
+        "max": [
+          2.675001621246338,
+          6.223629474639893,
+          2.2780404090881348
+        ]
+      },
+      "materials": 6,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 179480,
+      "path": "homecraft/public/assets/park/park_laubbaum_lod1.glb"
+    },
+    {
+      "file": "park_laubbaum_lod2.glb",
+      "category": "tree",
+      "lod": 2,
+      "triangles": 720,
+      "dimensions": [
+        4.067,
+        6.293,
+        4.718
+      ],
+      "bounds": {
+        "min": [
+          -2.156419515609741,
+          -0.01683778502047062,
+          -2.591216802597046
+        ],
+        "max": [
+          1.910227656364441,
+          6.27638053894043,
+          2.1271588802337646
+        ]
+      },
+      "materials": 6,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 73488,
+      "path": "homecraft/public/assets/park/park_laubbaum_lod2.glb"
+    },
+    {
+      "file": "park_nadelbaum_lod0.glb",
+      "category": "tree",
+      "lod": 0,
+      "triangles": 4920,
+      "dimensions": [
+        4.081,
+        5.198,
+        4.096
+      ],
+      "bounds": {
+        "min": [
+          -1.8476779460906982,
+          -0.014446785673499107,
+          -2.1601855754852295
+        ],
+        "max": [
+          2.2331831455230713,
+          5.183604717254639,
+          1.936301350593567
+        ]
+      },
+      "materials": 6,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 476732,
+      "path": "homecraft/public/assets/park/park_nadelbaum_lod0.glb"
+    },
+    {
+      "file": "park_nadelbaum_lod1.glb",
+      "category": "tree",
+      "lod": 1,
+      "triangles": 1824,
+      "dimensions": [
+        4.009,
+        5.172,
+        3.297
+      ],
+      "bounds": {
+        "min": [
+          -1.7759015560150146,
+          -0.014880523085594177,
+          -1.801276445388794
+        ],
+        "max": [
+          2.2331831455230713,
+          5.157474040985107,
+          1.4956600666046143
+        ]
+      },
+      "materials": 6,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 179488,
+      "path": "homecraft/public/assets/park/park_nadelbaum_lod1.glb"
+    },
+    {
+      "file": "park_nadelbaum_lod2.glb",
+      "category": "tree",
+      "lod": 2,
+      "triangles": 720,
+      "dimensions": [
+        3.487,
+        5.115,
+        2.644
+      ],
+      "bounds": {
+        "min": [
+          -1.4483550786972046,
+          -0.014653012156486511,
+          -1.4055696725845337
+        ],
+        "max": [
+          2.038362503051758,
+          5.100460529327393,
+          1.238633155822754
+        ]
+      },
+      "materials": 6,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 73492,
+      "path": "homecraft/public/assets/park/park_nadelbaum_lod2.glb"
+    },
+    {
+      "file": "park_wildblumen.glb",
+      "category": "plant",
+      "lod": 0,
+      "triangles": 432,
+      "dimensions": [
+        0.424,
+        0.372,
+        0.375
+      ],
+      "bounds": {
+        "min": [
+          -0.22129854559898376,
+          0,
+          -0.13038301467895508
+        ],
+        "max": [
+          0.20303454995155334,
+          0.37191009521484375,
+          0.2445964217185974
+        ]
+      },
+      "materials": 4,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 44896,
+      "path": "homecraft/public/assets/park/park_wildblumen.glb"
+    },
+    {
+      "file": "park_klee.glb",
+      "category": "plant",
+      "lod": 0,
+      "triangles": 336,
+      "dimensions": [
+        0.296,
+        0.096,
+        0.338
+      ],
+      "bounds": {
+        "min": [
+          -0.1199636459350586,
+          0,
+          -0.16660842299461365
+        ],
+        "max": [
+          0.17644986510276794,
+          0.09595666825771332,
+          0.1717015653848648
+        ]
+      },
+      "materials": 1,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 33312,
+      "path": "homecraft/public/assets/park/park_klee.glb"
+    },
+    {
+      "file": "park_wiese_8m.glb",
+      "category": "surface",
+      "lod": 0,
+      "triangles": 2,
+      "dimensions": [
+        8,
+        0,
+        8
+      ],
+      "bounds": {
+        "min": [
+          -4,
+          0,
+          -4
+        ],
+        "max": [
+          4,
+          0,
+          4
+        ]
+      },
+      "materials": 1,
+      "textures": 3,
+      "textureSize": 128,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 149676,
+      "path": "homecraft/public/assets/park/park_wiese_8m.glb"
+    },
+    {
+      "file": "park_strasse_12m.glb",
+      "category": "street",
+      "lod": 0,
+      "triangles": 2186,
+      "dimensions": [
+        9.4,
+        0.16,
+        12
+      ],
+      "bounds": {
+        "min": [
+          -4.699999809265137,
+          0,
+          -6
+        ],
+        "max": [
+          4.699999809265137,
+          0.1599999964237213,
+          6
+        ]
+      },
+      "materials": 7,
+      "textures": 3,
+      "textureSize": 128,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 363936,
+      "path": "homecraft/public/assets/park/park_strasse_12m.glb"
+    },
+    {
+      "file": "park_bank.glb",
+      "category": "prop",
+      "lod": 0,
+      "triangles": 440,
+      "dimensions": [
+        1.8,
+        0.961,
+        0.57
+      ],
+      "bounds": {
+        "min": [
+          -0.8999999761581421,
+          0.024109624326229095,
+          -0.31554463505744934
+        ],
+        "max": [
+          0.8999999761581421,
+          0.9848446846008301,
+          0.2547425925731659
+        ]
+      },
+      "materials": 2,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 44056,
+      "path": "homecraft/public/assets/park/park_bank.glb"
+    },
+    {
+      "file": "park_laterne.glb",
+      "category": "prop",
+      "lod": 0,
+      "triangles": 196,
+      "dimensions": [
+        0.4,
+        3.18,
+        0.4
+      ],
+      "bounds": {
+        "min": [
+          -0.20000000298023224,
+          0,
+          -0.20000000298023224
+        ],
+        "max": [
+          0.20000000298023224,
+          3.180000066757202,
+          0.20000000298023224
+        ]
+      },
+      "materials": 2,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 20644,
+      "path": "homecraft/public/assets/park/park_laterne.glb"
+    },
+    {
+      "file": "park_mauer_2m.glb",
+      "category": "prop",
+      "lod": 0,
+      "triangles": 264,
+      "dimensions": [
+        2.06,
+        0.785,
+        0.42
+      ],
+      "bounds": {
+        "min": [
+          -1.0299999713897705,
+          0,
+          -0.20999999344348907
+        ],
+        "max": [
+          1.0299999713897705,
+          0.7850000262260437,
+          0.20999999344348907
+        ]
+      },
+      "materials": 5,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 29408,
+      "path": "homecraft/public/assets/park/park_mauer_2m.glb"
+    },
+    {
+      "file": "park_hausfront_6m.glb",
+      "category": "architecture",
+      "lod": 0,
+      "triangles": 748,
+      "dimensions": [
+        6,
+        3.45,
+        0.775
+      ],
+      "bounds": {
+        "min": [
+          -3,
+          -0.019999999552965164,
+          -0.3100000023841858
+        ],
+        "max": [
+          3,
+          3.430000066757202,
+          0.4650000035762787
+        ]
+      },
+      "materials": 7,
+      "textures": 0,
+      "textureSize": 0,
+      "origin": "ground",
+      "source": "original procedural geometry",
+      "license": "Original project asset; no external source",
+      "bytes": 77324,
+      "path": "homecraft/public/assets/park/park_hausfront_6m.glb"
+    }
+  ]
+}
