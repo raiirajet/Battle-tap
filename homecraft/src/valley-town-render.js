@@ -1,3 +1,4 @@
+import {faceTarget,createConversationMotion} from './characters/leaNpc.js';
 import * as T from 'three';
 import {guestPositionAllowed} from './valley-access.js';
 import {npcInterval} from './valley-character-quality.js';
@@ -30,10 +31,7 @@ export function rollCar(root,x,z,heading,steer=0){for(const g of root.userData.s
 export function cockpitView(root,on){if(!root)return;root.userData.cabin.visible=!!on;for(const o of root.userData.shell)o.visible=!on}
 export function carLights(root,{night=0,braking=false,beams=false}={}){const m=root.userData.lamps;if(!m)return;m.lamp.emissiveIntensity=.14+Math.max(0,Math.min(1,night))*2.1;m.rear.emissiveIntensity=braking?2.7:.15+night*.65;if(beams&&!root.userData.beams){const group=new T.Group();for(const x of [-.48,.48]){const light=new T.SpotLight(0xffedc8,0,26,.31,.55,2);light.position.set(x,.80,1.9);light.target.position.set(x,.12,15);group.add(light,light.target)}root.add(group);root.userData.beams=group}if(root.userData.beams){root.userData.beams.visible=beams&&night>.35;for(const o of root.userData.beams.children)if(o.isSpotLight)o.intensity=beams?night*85:0}}
 export function turnToward(root, target, dt) {
- const dx=target.x-root.position.x,dz=target.z-root.position.z;
- if(Math.hypot(dx,dz)<.001)return;
- const delta=Math.atan2(dx,dz)-root.rotation.y;
- root.rotation.y+=Math.atan2(Math.sin(delta),Math.cos(delta))*(1-Math.exp(-dt*10));
+ return faceTarget(root,target,dt);
 }
 
 export function townActors(scene,seed){
@@ -53,9 +51,8 @@ export function townActors(scene,seed){
    if(!guestPositionAllowed(save,'npc:'+id,p.x,p.z))return null;
    const state={...p,height:worldGround(p.x,p.z,seed)};
    const {avatar}=entry;
-   return {state,update(player,dt){
-    avatar.update(state,0,0,false,dt);
-    turnToward(avatar.root,player,dt);
+   const motion=createConversationMotion();return {state,speak:motion.speak,update(player,dt){
+    const gaze=faceTarget(avatar.root,player,dt);avatar.update(state,0,0,false,dt,null,{...motion.update(dt),gaze});
    }};
   },
   update(minute,dt,excluded=null,privateSave=null,observer=null,quality='medium'){

@@ -123,7 +123,7 @@ export async function openValleyMode(app,onBack,{designs=[],preferredDesignId=nu
   $('vConversationName').textContent=resident.name;
   $('vConversationRole').textContent=resident.job+' · '+relationshipLabel(relation?.score);
   $('vConversationLines').replaceChildren();
-  addDialogueLine(resident.name,conversation.lines.opening);
+  addDialogueLine(resident.name,conversation.lines.opening);world.speakConversation(conversation.lines.opening);
   const wait=relation?.last?Math.max(0,30000-(Date.now()-relation.last)):0;
   const choices=$('vConversationChoices'),status=$('vConversationStatus');
   choices.hidden=wait>0;
@@ -153,7 +153,7 @@ export async function openValleyMode(app,onBack,{designs=[],preferredDesignId=nu
    const updated=await checkpointLife(null,{id:resident.id,type});
    if(!updated)throw Error('Das Gespräch ist nicht mehr verfügbar.');
    addDialogueLine('Du',button.textContent);
-   addDialogueLine(resident.name,lines[type]);
+   addDialogueLine(resident.name,lines[type]);world.speakConversation(lines[type]);
    choices.hidden=true;
    const score=updated.life.relations[resident.id].score;
    status.textContent=relationshipLabel(score)+' · '+score+'/100';

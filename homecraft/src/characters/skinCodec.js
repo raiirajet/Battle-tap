@@ -1,0 +1,6 @@
+import * as T from 'three';
+import {createRig,rigClips} from '../valley-rig-spec.js';
+// A worker generates the same connected weighted surface as the optional debug exporter.
+export const SKIN_STEPS=Object.freeze({high:.006,npc:.009});
+export function packSkin(geometry){const attributes=Object.fromEntries(Object.entries(geometry.attributes).map(([k,a])=>[k,{array:a.array,itemSize:a.itemSize,normalized:a.normalized}]));return {attributes,index:geometry.index.array,morphs:geometry.morphAttributes.position.map(a=>({name:a.name,array:a.array})),relative:geometry.morphTargetsRelative}}
+export function unpackSkin(data,detail){const g=new T.BufferGeometry();for(const [name,a] of Object.entries(data.attributes))g.setAttribute(name,new T.BufferAttribute(a.array,a.itemSize,a.normalized));g.setIndex(new T.BufferAttribute(data.index,1));g.morphAttributes.position=data.morphs.map(a=>{const b=new T.BufferAttribute(a.array,3);b.name=a.name;return b});g.morphTargetsRelative=data.relative;const rig=createRig(),skin=new T.SkinnedMesh(g,new T.MeshStandardMaterial({color:0xc68c65,roughness:.65,vertexColors:true}));skin.name='ValleySkin';skin.add(rig.root);skin.bind(new T.Skeleton(rig.bones));skin.updateMorphTargets();return {skin,clips:rigClips(),detail}}

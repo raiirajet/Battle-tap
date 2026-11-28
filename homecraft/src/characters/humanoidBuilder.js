@@ -1,0 +1,4 @@
+import {SKIN_STEPS,unpackSkin} from './skinCodec.js';
+export function generateHumanoid(detail=true){const key=detail?'high':'npc';return new Promise((resolve,reject)=>{if(typeof Worker==='undefined'){reject(Error('Worker unavailable'));return}let worker;try{worker=new Worker(new URL('./skin.worker.js',import.meta.url),{type:'module'})}catch(e){reject(e);return}
+ let done=false;const finish=(err,data)=>{if(done)return;done=true;clearTimeout(timer);worker.terminate();if(err){reject(err);return}try{resolve(unpackSkin(data,detail))}catch(e){reject(e)}};
+ const timer=setTimeout(()=>finish(Error('Skin generation timeout')),90000);worker.onmessage=e=>e.data.error?finish(Error(e.data.error)):finish(null,e.data);worker.onerror=e=>finish(Error(e.message||'Skin worker error'));worker.postMessage({step:SKIN_STEPS[key]})})}

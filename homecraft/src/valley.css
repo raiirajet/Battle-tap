@@ -87,3 +87,5 @@
 @media(max-height:370px) {
  .valley #vConversation { inset-block-end:calc(6px + var(--safe-bottom,0px)); max-height:58dvh; }
 }
+
+@media (orientation:landscape){.valley #vConversation{max-height:42dvh;max-width:min(76vw,680px)}.valley #vConversationLines{max-height:12dvh}}
