@@ -1,3 +1,4 @@
+import {createCharacterLOD} from './characters/characterLod.js';
 import {faceTarget,createConversationMotion} from './characters/leaNpc.js';
 import * as T from 'three';
 import {guestPositionAllowed} from './valley-access.js';
@@ -37,7 +38,7 @@ export function turnToward(root, target, dt) {
 export function townActors(scene,seed){
  const root=new T.Group();
  scene.add(root);
- const people=RESIDENTS.map(r=>({r,elapsed:0,avatar:avatarMesh(r.profile,{detail:false,identity:r.id})}));
+ const people=RESIDENTS.map(r=>({r,elapsed:0,avatar:createCharacterLOD(r.profile,{identity:r.id})}));
  for(const p of people)root.add(p.avatar.root);
  const cars=CARS.map(c=>({c,mesh:carMesh(c.color)}));
  for(const c of cars)root.add(c.mesh);
@@ -50,7 +51,7 @@ export function townActors(scene,seed){
    const p=residentAt(entry.r,minute);
    if(!guestPositionAllowed(save,'npc:'+id,p.x,p.z))return null;
    const state={...p,height:worldGround(p.x,p.z,seed)};
-   const {avatar}=entry;
+   const {avatar}=entry;avatar.forceNear();
    const motion=createConversationMotion();return {state,speak:motion.speak,update(player,dt){
     const gaze=faceTarget(avatar.root,player,dt);avatar.update(state,0,0,false,dt,null,{...motion.update(dt),gaze});
    }};
@@ -61,9 +62,9 @@ export function townActors(scene,seed){
     const {r,avatar}=entry,p=residentAt(r,minute);
     avatar.root.visible=r.id!==excluded&&guestPositionAllowed(privateSave,'npc:'+r.id,p.x,p.z);
     if(!avatar.root.visible)continue;
-    const state={...p,height:worldGround(p.x,p.z,seed)},interval=npcInterval(observer?Math.hypot(observer.x-p.x,observer.z-p.z):0,quality);
+    const state={...p,height:worldGround(p.x,p.z,seed)},distance=observer?Math.hypot(observer.x-p.x,observer.z-p.z):Infinity,interval=npcInterval(distance,quality);avatar.setDistance(distance,quality);
     entry.elapsed=Math.min(.1,entry.elapsed+Math.max(0,dt));
-    if(dt>0&&entry.elapsed+1e-6<interval){avatar.root.position.set(p.x,state.height+.025,p.z);continue}
+    if(dt>0&&entry.elapsed+1e-6<interval){avatar.root.position.set(p.x,state.height,p.z);continue}
     avatar.update(state,p.dx,p.dz,p.moving&&dt>0,entry.elapsed);
     entry.elapsed=0;
    }
