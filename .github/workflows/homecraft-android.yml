@@ -1,10 +1,10 @@
 name: HomeCraft 3D Android and PWA
 on:
   push:
-    branches: [homecraft-3d, main, homecraft-rc14-stabilization]
+    branches: [homecraft-3d, main, homecraft-rc14-stabilization, homecraft-procedural-rc80]
     paths: ['homecraft/**', '.github/workflows/homecraft-android.yml']
   pull_request:
-    branches: [homecraft-3d]
+    branches: [homecraft-3d, homecraft-rc14-stabilization]
     paths: ['homecraft/**', '.github/workflows/homecraft-android.yml']
   workflow_dispatch:
 concurrency:

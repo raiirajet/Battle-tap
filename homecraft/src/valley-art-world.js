@@ -1,3 +1,4 @@
+import {PARK_LAMP_POSITIONS} from './environment/props.js';
 import {grassClump,windMaterial} from './environment/parkGround.js';
 import * as T from 'three';
 import {roads,plots} from './valley-core.js';
@@ -41,6 +42,7 @@ export function meadowArt(scene,seed){
   dummy.updateMatrix();stalks.setMatrixAt(i,dummy.matrix);
  }
  fg.add(stalks);
+ const cloverGeo=new T.SphereGeometry(1,6,4),cloverMat=material(0x648b48),clover=new T.InstancedMesh(cloverGeo,cloverMat,flowers.length*3);flowers.forEach((f,i)=>{for(let j=0;j<3;j++){let a=j*Math.PI*2/3;dummy.position.set(f.x+.11+Math.cos(a)*.026,worldGround(f.x+.11,f.z,seed)+.045,f.z+Math.sin(a)*.026);dummy.rotation.set(0,-a,0);dummy.scale.set(.027,.006,.017);dummy.updateMatrix();clover.setMatrixAt(i*3+j,dummy.matrix)}});fg.add(clover);
  let detail=1;return {setQuality(q){detail=q.detail;root.visible=detail>0;fg.visible=detail>=2;for(const t of tiles)t.inst.count=Math.ceil(t.total*[0,.26,.60,1][detail])},update(state,c,dt){wind.value=c.wind||0;time.value=(time.value+dt)%10000;const season=c.season??0;m.color.set([0xffffff,0xe7e8cc,0xbca57b,0xe7ece6][season]);for(const t of tiles)t.inst.visible=detail>0&&Math.hypot(state.x-t.cx,state.z-t.cz)<(detail===3?135:detail===2?95:60);fg.visible=detail>=2&&season!==3},destroy(){dispose(root)}};
 }
 export function lanternMesh(parent,x,y,z,metal,glass,glow,{wall=false}={}){
@@ -57,7 +59,7 @@ export function lanternMesh(parent,x,y,z,metal,glass,glow,{wall=false}={}){
 export function villageArt(scene,seed){
  const root=new T.Group(),stoneGroup=new T.Group(),lamps=new T.Group();root.add(stoneGroup,lamps);scene.add(root);
  const metal=material(0x353c3f,{metalness:.62,roughness:.36}),glass=material(0xe9d2a0,{transparent:true,opacity:.24,roughness:.23,depthWrite:false,side:T.DoubleSide}),glow=material(0xffd498,{emissive:0xffa945,emissiveIntensity:.08}),stone=material(0xb6a58f),trim=material(0xd4c2a7);const maps=surfaceMaps('stone',192);setSurface(stone,maps,2,1,true);
- for(const p of plots())lanternMesh(lamps,p.anchor.x+2,.04,p.anchor.z,metal,glass,glow);
+ for(const p of plots())lanternMesh(lamps,p.anchor.x+2,.04,p.anchor.z,metal,glass,glow);for(const [x,z] of PARK_LAMP_POSITIONS)lanternMesh(lamps,x,worldGround(x,z,seed),z,metal,glass,glow);
  for(const h of HOMES){
  const y=.33;for(const s of [-1,1]){box(stoneGroup,stone,h.x,y,h.z+s*(h.d/2+.015),h.w,.64,.09);box(stoneGroup,trim,h.x,.68,h.z+s*(h.d/2+.025),h.w,.09,.12)}
  for(const s of [-1,1]){const length=h.d*.5-.74;box(stoneGroup,stone,h.x+s*(h.w/2+.015),y,h.z-length*.5-.74,.09,.64,length);box(stoneGroup,stone,h.x+s*(h.w/2+.015),y,h.z+length*.5+.74,.09,.64,length)}

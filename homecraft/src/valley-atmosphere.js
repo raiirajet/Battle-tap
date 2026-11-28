@@ -1,3 +1,4 @@
+import {roofEdgeDetails} from './environment/buildings.js';
 import * as T from 'three';
 import {box,material,mesh,bake,joint} from './valley-realism.js';
 import {seasonalDaylight} from './valley-climate.js';
@@ -29,7 +30,7 @@ export function atmosphere(scene){
 // Fine town architecture stays attached to existing buildings (no new collisions).
 export function townArchitecture(scene,homes,sites){
  const root=new T.Group();scene.add(root);const wood=material(0x725747),metal=material(0x555c60,{metalness:.35}),stone=material(0xb5a99b),glass=material(0x91acb6,{roughness:.22,emissive:0xffcc83,emissiveIntensity:0}),dark=material(0x384047),sign=material(0xe9dbc2);
- for(const h of homes){for(const side of [-1,1]){for(const dx of [-h.w*.29,h.w*.29]){box(root,wood,h.x+dx,1.22,h.z+side*(h.d/2+.095),1.82,.09,.18);for(const a of [-1,1]){box(root,wood,h.x+dx+a*.99,1.96,h.z+side*(h.d/2+.047),.26,1.22,.04);for(let j=0;j<6;j++)box(root,stone,h.x+dx+a*.99,1.49+j*.18,h.z+side*(h.d/2+.072),.20,.022,.015)}box(root,glass,h.x+dx,1.96,h.z+side*(h.d/2+.081),1.36,1.1,.012)}box(root,metal,h.x+side*(h.w/2-.08),3.54,h.z,.11,.12,h.d+.27);for(const dz of [-1,1])box(root,metal,h.x+side*(h.w/2+.025),1.78,h.z+dz*(h.d/2-.19),.075,3.43,.075)}}
+ for(const h of homes){roofEdgeDetails(root,h);for(const side of [-1,1]){for(const dx of [-h.w*.29,h.w*.29]){box(root,wood,h.x+dx,1.22,h.z+side*(h.d/2+.095),1.82,.09,.18);for(const a of [-1,1]){box(root,wood,h.x+dx+a*.99,1.96,h.z+side*(h.d/2+.047),.26,1.22,.04);for(let j=0;j<6;j++)box(root,stone,h.x+dx+a*.99,1.49+j*.18,h.z+side*(h.d/2+.072),.20,.022,.015)}box(root,glass,h.x+dx,1.96,h.z+side*(h.d/2+.081),1.36,1.1,.012)}box(root,metal,h.x+side*(h.w/2-.08),3.54,h.z,.11,.12,h.d+.27);for(const dz of [-1,1])box(root,metal,h.x+side*(h.w/2+.025),1.78,h.z+dz*(h.d/2-.19),.075,3.43,.075)}}
  for(const [key,s] of Object.entries(sites)){const z=s.z+s.d/2+.23;box(root,metal,s.x,2.64,z,s.w*.88,.13,.48);box(root,sign,s.x,2.91,z,.8*s.w,.34,.05);for(const dx of [-s.w*.31,s.w*.31]){box(root,glass,s.x+dx,1.75,z-.08,2.48,1.36,.025);box(root,dark,s.x+dx,1.75,z-.055,.045,1.35,.025);box(root,dark,s.x+dx,1.75,z-.055,2.48,.045,.025)}
  // Distinct roller-door slats at the workshop, storefront awning ribs at the market.
  if(key==='work'){for(let i=0;i<8;i++)box(root,metal,s.x, .35+i*.25,z-.10,1.36,.035,.035)}else for(let i=0;i<8;i++)box(root,wood,s.x+(i-3.5)*.75,2.59,z,.36,.08,.47);
