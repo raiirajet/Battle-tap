@@ -1,10 +1,10 @@
 name: HomeCraft 3D Android and PWA
 on:
   push:
-    branches: [homecraft-3d, main, homecraft-rc14-stabilization]
+    branches: [homecraft-3d, main, homecraft-rc14-stabilization, homecraft-procedural-rc80]
     paths: ['homecraft/**', '.github/workflows/homecraft-android.yml']
   pull_request:
-    branches: [homecraft-3d]
+    branches: [homecraft-3d, homecraft-rc14-stabilization]
     paths: ['homecraft/**', '.github/workflows/homecraft-android.yml']
   workflow_dispatch:
 concurrency:
@@ -46,7 +46,7 @@ jobs:
       - name: HomeCraft unit tests
         run: npm test
       - name: HomeCraft production web bundle
-        run: npm run build
+        run: npm run build && npm run verify:procedural
       - name: Browser 2D and WebGL smoke test
         run: |
           npx playwright install --with-deps chromium
@@ -57,16 +57,14 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: HomeCraft-smoke-screenshot
-          path: homecraft/homecraft-smoke.png
+          path: |
+            homecraft/homecraft-smoke.png
+            homecraft/homecraft-park-dialogue.png
+            homecraft/homecraft-character-live.png
       - uses: actions/upload-artifact@v4
         with:
           name: HomeCraft-PWA
           path: homecraft/dist
-      - uses: actions/upload-artifact@v4
-        with:
-          name: HomeCraft-GLB-Characters
-          path: homecraft/public/assets/characters/
-          if-no-files-found: error
       - run: npx cap add android
       - run: npx cap sync android
       - run: python3 scripts/icons.py android

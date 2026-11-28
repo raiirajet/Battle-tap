@@ -6,40 +6,6 @@ export function worldDetails(scene,seed,treePositions,bark){const group=new T.Gr
 function batch(geometry,material,items,tier){const mesh=new T.InstancedMesh(geometry,material,items.length);items.forEach((p,i)=>{dummy.position.set(p.x,p.y??worldGround(p.x,p.z,seed),p.z);dummy.rotation.set(p.rx||0,p.angle||0,0);dummy.scale.set(p.sx||1,p.sy||1,p.sz||1);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)});mesh.receiveShadow=true;mesh.castShadow=tier===1;group.add(mesh);groups.push({mesh,tier});return mesh}
 const graph=roads(),nodes=Object.fromEntries(graph.nodes.map(n=>[n.id,n])),lines=[],edges=[];for(const e of graph.edges){const a=nodes[e.a],b=nodes[e.b],dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz),angle=Math.atan2(dx,dz);for(let t=7;t<len-7;t+=8){lines.push({x:a.x+dx*t/len,z:a.z+dz*t/len,y:.102,angle})}for(const side of [-1,1])edges.push({x:(a.x+b.x)/2+dz/len*side*2.8,z:(a.z+b.z)/2-dx/len*side*2.8,y:.104,angle,sz:len})}
 batch(new T.BoxGeometry(.105,.012,3),mat(0xe5e1cc),lines,0);batch(new T.BoxGeometry(.07,.012,1),mat(0xbfc3bd),edges,1);
-const shrubs=[];
-for(let i=0;i<75;i++){
- const x=272+rand()*32,z=326+rand()*51;
- if(!meadowEligible(x,z,seed)||z>366||treePositions.some(t=>Math.hypot(x-t.x,z-t.z)<1.5))continue;
- const spread=.36+rand()*.35,sy=spread*(.70+rand()*.35);
- shrubs.push({x,z,y:worldGround(x,z,seed)+sy*.4,angle:rand()*Math.PI*2,sx:spread,sy,sz:spread*.85});
-}
-const shrubMat=mat(0x6b914d,{vertexColors:true});
-const shrubMesh=batch(crownGeometry(2),shrubMat,shrubs,1);
-for(let i=0;i<shrubs.length;i++)shrubMesh.setColorAt(i,new T.Color().setScalar(.8+(i%6)*.06));
-
-const branches=[],branchGeometry=new T.CylinderGeometry(.034,.096,1,7);
-const up=new T.Vector3(0,1,0),direction=new T.Vector3(),start=new T.Vector3(),end=new T.Vector3();
-for(const t of treePositions.filter(t=>t.x>=270&&t.x<=315&&t.z>=325&&t.z<=540)){
- const y=worldGround(t.x,t.z,seed);
- for(let i=0;i<3;i++){
-  const a=i*2.4+t.z;
-  start.set(t.x,y+t.h*(.27+i*.045),t.z);
-  end.set(t.x+Math.cos(a)*t.h*.15,y+t.h*(.53+i*.035),t.z+Math.sin(a)*t.h*.15);
-  direction.subVectors(end,start);
-  const length=direction.length();
-  dummy.position.copy(start).lerp(end,.5);
-  dummy.quaternion.setFromUnitVectors(up,direction.normalize());
-  dummy.scale.set(1,length,1);
-  dummy.updateMatrix();
-  branches.push(dummy.matrix.clone());
- }
-}
-const limbs=new T.InstancedMesh(branchGeometry,bark,branches.length);
-branches.forEach((matrix,i)=>limbs.setMatrixAt(i,matrix));
-limbs.castShadow=true;
-limbs.receiveShadow=true;
-group.add(limbs);
-groups.push({mesh:limbs,tier:1});
 function box(x,y,z,w,h,d,color){const m=new T.Mesh(new T.BoxGeometry(w,h,d),mat(color));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;group.add(m);return m}
 function pole(a,b,r,color){const v=new T.Vector3(...b).sub(new T.Vector3(...a)),m=new T.Mesh(new T.CylinderGeometry(r,r,v.length(),8),mat(color));m.position.copy(new T.Vector3(...a).addScaledVector(v,.5));m.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),v.normalize());group.add(m);m.castShadow=true;return m}
 // Park furniture and playground on non-job areas, clear of the main path.
@@ -52,7 +18,7 @@ return {
  update(season){
   if(season===lastSeason)return;
   lastSeason=season;
-  shrubMat.color.set([0x6b914d,0x60844a,0x9d7650,0x8c9985][season]);
+
  },
  destroy(){
   group.removeFromParent();
@@ -63,4 +29,4 @@ return {
  }
 };
 }
-export function lakeSurface(water){const canvas=document.createElement('canvas');canvas.width=canvas.height=128;const ctx=canvas.getContext('2d'),data=ctx.createImageData(128,128);for(let y=0;y<128;y++)for(let x=0;x<128;x++){const i=(y*128+x)*4,v=128+Math.sin(x*.39+y*.14)*28+Math.sin(y*.49-x*.22)*20;data.data.set([v,v,v,255],i)}ctx.putImageData(data,0,0);const t=new T.CanvasTexture(canvas);t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(12,9);water.material.bumpMap=t;water.material.bumpScale=.19;water.material.roughness=.18;water.material.metalness=.20;water.material.envMapIntensity=.65;water.material.needsUpdate=true;return {update(dt,wind,day=1){t.offset.x=(t.offset.x+dt*.016*wind)%1;t.offset.y=(t.offset.y+dt*.009)%1;water.material.bumpScale=.09+wind*.13;water.material.roughness=.14+wind*.10;water.material.color.set(0x18364d).lerp(new T.Color(0x508e9e),day)},destroy(){t.dispose()}}}
+export {lakeWater as lakeSurface} from './environment/waterQuality.js';

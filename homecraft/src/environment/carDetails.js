@@ -1,0 +1,10 @@
+import * as T from 'three';
+import {box,mesh,material} from '../valley-realism.js';
+export function tireGeometry(radius=.35,width=.23){const g=new T.CylinderGeometry(radius,radius,width,48,10,false),p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),r=Math.hypot(x,z);if(r<radius*.98)continue;const a=Math.atan2(x,z),u=y/(width*.5),shoulder=Math.abs(u)>.75?.009*(Math.abs(u)-.75)/.25:0,tread=.0035*Math.pow(Math.max(0,Math.cos(a*24+u*3)),3),groove=Math.exp(-(((Math.abs(u)-.36)/.10)**2))*.005,f=(radius-shoulder-tread-groove)/r;p.setXYZ(i,x*f,y,z*f)}g.computeVertexNormals();return g}
+export function decorateCar(root,{half,w,length,cabinRear,cabinFront},trim){const silver=material(0xbcc4c6,{metalness:.72,roughness:.32}),dark=material(0x161d20),amber=material(0xe09a35,{emissive:0x9e4c08,emissiveIntensity:.18});
+ for(const side of [-1,1]){for(const z of [cabinRear+.28,cabinFront-.34])box(root,trim,side*w*.972,.66,z,.012,.32,.018);box(root,silver,side*w*.971,.885,-.32,.021,.035,.15);
+ for(const offset of [-.10,.10])box(root,dark,side*w*.61+offset,.728,half+.009,.018,.115,.012);
+ box(root,amber,side*w*.81,.726,half+.012,.08,.075,.024);box(root,silver,side*w*.62,.72,-half-.015,.15,.035,.024);
+ for(const z of [-length*.31,length*.31]){const arc=new T.TorusGeometry(.371,.022,6,20,Math.PI);arc.rotateY(Math.PI/2);mesh(root,arc,trim,side*w*.90,.35,z)}}
+ for(let i=0;i<5;i++)box(root,silver,0,.455+i*.018,half+.028,w*1.13,.008,.016);box(root,dark,0,.61,-half-.035,.40,.075,.018);box(root,silver,0,.61,-half-.046,.35,.06,.009)}
+export function decorateDashboard(cabin){const chrome=material(0x8d999e,{metalness:.6,roughness:.38}),needle=material(0xe66b54,{emissive:0xe66b54,emissiveIntensity:.4}),dark=material(0x14191d);for(const x of [-.46,-.24]){mesh(cabin,new T.TorusGeometry(.069,.005,6,24),chrome,x,1.245,.557);box(cabin,dark,x,1.245,.558,.105,.102,.008);const n=box(cabin,needle,x,1.246,.566,.005,.063,.009);n.rotation.z=-.65}for(let i=0;i<5;i++)box(cabin,chrome,.17+i*.035,1.19,.555,.022,.009,.009);for(const x of [-.62,.62])for(let i=0;i<3;i++)box(cabin,dark,x,1.18+i*.017,.545,.12,.009,.022)}

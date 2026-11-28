@@ -1,5 +1,5 @@
 // D8 visual settings and navigation are deliberately independent from game rules.
-export const QUALITY=Object.freeze({low:Object.freeze({label:'Niedrig',pixel:0.85,particles:100,detail:0,shadows:0,lights:2,house:'low'}),medium:Object.freeze({label:'Mittel',pixel:1.25,particles:230,detail:1,shadows:0,lights:4,house:'medium'}),high:Object.freeze({label:'Hoch',pixel:1.5,particles:360,detail:2,shadows:1024,lights:6,house:'high'}),ultra:Object.freeze({label:'Ultra',pixel:2,particles:460,detail:3,shadows:2048,lights:8,house:'high'})});
+export const QUALITY=Object.freeze({low:Object.freeze({label:'Niedrig',pixel:0.85,particles:100,detail:0,shadows:0,lights:2,house:'low'}),medium:Object.freeze({label:'Mittel',pixel:1.25,particles:230,detail:1,shadows:512,lights:4,house:'medium'}),high:Object.freeze({label:'Hoch',pixel:1.5,particles:360,detail:2,shadows:1024,lights:6,house:'high'}),ultra:Object.freeze({label:'Ultra',pixel:2,particles:460,detail:3,shadows:2048,lights:8,house:'high'})});
 export function qualityKey(value){return typeof value==='string'&&Object.hasOwn(QUALITY,value)?value:'medium'}
 export function loadQuality(){try{return qualityKey(localStorage.getItem('homecraft-valley-quality'))}catch{return 'medium'}}
 export function storeQuality(value){const q=qualityKey(value);try{localStorage.setItem('homecraft-valley-quality',q)}catch{}return q}

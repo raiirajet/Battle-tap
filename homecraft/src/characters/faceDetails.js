@@ -1,0 +1,17 @@
+import * as T from 'three';
+import {material,mesh,ell,bake} from '../valley-realism.js';
+// Mouth anchored to the lip centre. Opening changes shape, never translates the entire face.
+export function mouthPose(expression={}){const jaw=T.MathUtils.clamp(Number(expression.jaw)||0,0,.22),smile=T.MathUtils.clamp(Number(expression.smile)||0,0,1);return {opening:jaw*.021,corner:smile*.0025,width:1+smile*.11}}
+export function createMouth(head,skin,detail=true){const root=new T.Group();root.name='ExpressionMouth';root.position.set(0,-.080,.098);head.add(root);
+ const lipMat=material(new T.Color(skin.color).lerp(new T.Color(0xb36e69),.38),{roughness:.52}),upperMat=material(new T.Color(skin.color).lerp(new T.Color(0x995d5a),.43),{roughness:.56}),insideMat=material(0x482c2b,{roughness:.91}),teethMat=material(0xeee5d4,{roughness:.48});
+ function lipGeometry(upper){const p=[],uv=[],idx=[],n=detail?20:10;for(let i=0;i<=n;i++){let t=i/n,x=(t-.5)*.049,a=Math.sin(t*Math.PI),z=-.012*Math.pow(Math.abs(t-.5)*2,1.6),curve=upper?Math.cos((t-.5)*Math.PI*4)*.0007:-.001*a;for(const outer of [0,1]){p.push(x,curve+(upper?1:-1)*(outer?(.0027*a+.0005):0),z+(outer?0:.0011));uv.push(t,outer)}}for(let i=0;i<n;i++){let a=i*2;if(upper)idx.push(a,a+2,a+1,a+1,a+2,a+3);else idx.push(a,a+1,a+2,a+1,a+3,a+2)}const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(p,3));g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();return g}
+ lipMat.side=upperMat.side=T.DoubleSide;
+ const upper=mesh(root,lipGeometry(true),upperMat),lower=mesh(root,lipGeometry(false),lipMat);
+ const opening=ell(root,insideMat,0,0,-.0007,.021,.001,.0018),teeth=ell(root,teethMat,0,.001,.0001,.0145,.0018,.0012);for(const o of [upper,lower,opening,teeth])o.castShadow=false;
+ function update(e){const p=mouthPose(e);upper.position.y=.0009+p.opening*.35;lower.position.y=-.0009-p.opening*.65;upper.scale.x=lower.scale.x=p.width;opening.scale.x=.021*p.width;opening.scale.y=Math.max(.0008,p.opening*.52);opening.position.y=-p.opening*.15;teeth.position.y=upper.position.y-.0011;teeth.visible=p.opening>.0028;root.rotation.z=p.corner*.5}
+ update({});return {root,update}}
+export function hairSurfaceMaps(size=128){const albedo=new Uint8Array(size*size*4),normal=new Uint8Array(albedo.length),rough=new Uint8Array(albedo.length),h=(x,y)=>{const u=x/size*Math.PI*2,v=y/size*Math.PI*2;return .54+.19*Math.cos(u*22+Math.sin(v)*.28)+.09*Math.sin(u*47+Math.sin(v*2)*.46)+.05*Math.cos(u*59-v*3)};
+ for(let y=0;y<size;y++)for(let x=0;x<size;x++){const i=(y*size+x)*4,a=h(x,y),dx=(h(x-1,y)-h(x+1,y))*.8,dy=(h(x,y-1)-h(x,y+1))*.8,n=Math.hypot(dx,dy,1),g=Math.round(184+a*65),r=Math.round(129+a*57);albedo.set([g,g,g,255],i);normal.set([Math.round(127.5+127.5*dx/n),Math.round(127.5+127.5*dy/n),Math.round(127.5+127.5/n),255],i);rough.set([r,r,r,255],i)}
+ function texture(data,srgb=false){const t=new T.DataTexture(data,size,size,T.RGBAFormat);t.colorSpace=srgb?T.SRGBColorSpace:T.NoColorSpace;t.wrapS=t.wrapT=T.RepeatWrapping;t.minFilter=T.LinearMipmapLinearFilter;t.magFilter=T.LinearFilter;t.generateMipmaps=true;t.needsUpdate=true;return t}
+ return {map:texture(albedo,true),normalMap:texture(normal),roughnessMap:texture(rough)}}
+export function applyHairSurface(hair,detail){if(!detail)return;Object.assign(hair,hairSurfaceMaps());hair.normalScale.set(.24,.24);hair.roughness=.58;hair.needsUpdate=true}

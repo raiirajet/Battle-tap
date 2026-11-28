@@ -1,3 +1,7 @@
+import {fingerPose} from './characters/poseQuality.js';
+import {shapeCloth} from './characters/clothShape.js';
+import {torsoProportions} from './valley-body-shape.js';
+import {createMouth,applyHairSurface} from './characters/faceDetails.js';
 import {smoothRingSeam} from './valley-anatomy.js';
 import {springStep} from './valley-secondary-motion.js';
 import {characterExpression} from './valley-character-motion.js';
@@ -28,7 +32,7 @@ export function curveDetail(parent,mat,points,r=.003,steps=12){return mesh(paren
 function bone(parent,x,y,z){const b=new T.Bone();b.position.set(x,y,z);parent.add(b);return b}
 export function makeHand(parent,skin,side,detail=true){
  const hand=bone(parent,0,-.205,0),nail=material(new T.Color(skin.color).lerp(new T.Color(0xffe0ca),.26),{roughness:.38});hand.userData.hand=true;hand.name=sideKey(side)+'Hand';
- const crease=material(new T.Color(skin.color).multiplyScalar(.87));
+ const crease=material(new T.Color(skin.color).multiplyScalar(.87));const nailEdge=detail?material(new T.Color(skin.color).lerp(new T.Color(0xffeee1),.56),{roughness:.44}):null;
  mesh(hand,silhouette([[-.046,.027,.013,.002],[-.034,.035,.018,0],[-.012,.035,.021,0],[.012,.026,.019,0],[.027,.020,.018,0]],detail?24:16),skin);
  ell(hand,skin,-side*.022,-.009,.011,.018,.031,.013);
  if(detail){curveDetail(hand,crease,[[-side*.020,.008,-.018],[0,-.008,-.021],[side*.022,-.023,-.015]],.0011);curveDetail(hand,crease,[[side*.018,.002,-.018],[side*.004,-.016,-.023],[-side*.012,-.030,-.017]],.001)}
@@ -37,28 +41,36 @@ export function makeHand(parent,skin,side,detail=true){
  const r=thumb?.0095:.008;const l1=l*(thumb?.52:.43),l2=l*(thumb?.24:.32),l3=l-l1-l2;
  function part(parent,len,rad,last=false){mesh(parent,silhouette([[-len-.002,last?.001:rad*.70,last?.001:rad*.71],[-len*.76,rad*.84,rad*.80],[-len*.18,rad,rad*.93],[.003,rad*.74,rad*.73]],detail?14:8),skin)}
  part(finger,l1,r);const middle=bone(finger,0,-l1,0);part(middle,l2,r*.88);const tip=bone(middle,0,-l2,0);middle.name=finger.name+'Mid';tip.name=finger.name+'Tip';part(tip,l3,r*.76,true);
- if(detail){ell(tip,nail,0,-l3*.43,r*.67,r*.56,l3*.36,.0014);ell(finger,skin,0,-l1*.93,0,r*.84,.005,r*.88);curveDetail(middle,crease,[[-r*.55,-l2*.65,-r*.69],[0,-l2*.69,-r*.81],[r*.55,-l2*.65,-r*.69]],.0006,5)}
- bake(finger);bake(middle);bake(tip);digits.push({finger,middle,tip,thumb});
+ if(detail){ell(tip,nail,0,-l3*.43,r*.67,r*.56,l3*.36,.0014);ell(tip,nailEdge,0,-l3*.69,r*.69,r*.49,l3*.09,.0011);ell(finger,skin,0,-l1*.93,0,r*.84,.005,r*.88);curveDetail(middle,crease,[[-r*.55,-l2*.65,-r*.69],[0,-l2*.69,-r*.81],[r*.55,-l2*.65,-r*.69]],.0006,5)}
+ bake(finger);bake(middle);bake(tip);digits.push({finger,middle,tip,thumb,index:i,rest:finger.rotation.z});
  }
  if(!detail){nail.dispose();crease.dispose()}bake(hand);
- return {hand,digits,update(grip,phase){hand.rotation.x=-.06+grip*.15;for(const {finger,middle,tip,thumb} of digits){finger.rotation.x=grip*(thumb?.32:.72)+.025*Math.sin(phase);middle.rotation.x=grip*(thumb?.25:.90);tip.rotation.x=grip*(thumb?.18:.52)}}};
+ return {hand,digits,update(grip,phase,greeting=false){hand.rotation.x=-.06+grip*.15;for(const {finger,middle,tip,index,rest} of digits){const p=fingerPose(grip,phase,index,greeting);finger.rotation.x=p.base;middle.rotation.x=p.mid;tip.rotation.x=p.tip;finger.rotation.z=rest+p.spread}}};
 }
 export function makeFace(head,p,skin,hair,detail=true){
  const faceMat=skin.clone();faceMat.vertexColors=true;faceMat.roughness=.60;faceMat.userData.valleyFace=true;mesh(head,faceGeometry(p.face,detail),faceMat);
  const dark=material(0x30272a,{roughness:.72}),white=material(0xfff6ed,{roughness:.42}),iris=material({brown:0x72513e,blue:0x547da3,green:0x54826c,grey:0x777f89}[p.eyes],{roughness:.3}),pupil=material(0x1b2028,{roughness:.3}),catchlight=material(0xfff9ed,{emissive:0xffffff,emissiveIntensity:.35}),lip=material(new T.Color(p.skin).lerp(new T.Color(0xb45f60),.40),{roughness:.58}),earMat=material(new T.Color(p.skin).multiplyScalar(.83));
  const eyes=[];const irisMat=iris.clone();irisMat.color.set(0xffffff);irisMat.map=irisTexture(iris.color);iris.dispose();const gaze=[];for(const side of [-1,1]){const x=side*.045;ell(head,skin,side*.109,-.014,-.002,.019,.038,.019);ell(head,earMat,side*.119,-.012,.006,.006,.023,.010);if(detail){curveDetail(head,skin,[[side*.119,.011,.009],[side*.124,.001,.012],[side*.122,-.016,.014],[side*.114,-.030,.010]],.003,10);ell(head,skin,side*.113,-.016,.014,.004,.008,.004)}
- const eye=new T.Group();eye.position.set(x,.018,.084);eye.rotation.y=side*.14;head.add(eye);ell(eye,white,0,0,0,.030,.017,.014);const look=new T.Group();eye.add(look);const ring=mesh(look,irisGeometry(.013,detail),irisMat,0,0,.0144);ring.scale.y=1.05;ell(look,pupil,0,0,.0155,.0058,.0088,.0022);ell(look,catchlight,-.004,.006,.018,.003,.003,.0015);ell(look,catchlight,.004,-.005,.018,.0015,.0015,.001);bake(look);gaze.push(look);curveDetail(eye,dark,[[-.03,-.001,0],[-.018,.012,.010],[0,.017,.012],[.018,.012,.010],[.03,-.001,0]],.0025);curveDetail(eye,earMat,[[-.028,-.002,0],[0,-.015,.010],[.028,-.002,0]],.0018);if(detail)for(let i=0;i<4;i++){const x=side*(.012+i*.0045),y=.015-i*.0025;curveDetail(eye,dark,[[x,y,.010],[x+side*.003,y+.006,.008],[x+side*.005,y+.009,.006]],.0011,5)}bake(eye);eyes.push(eye);
+ const eye=new T.Group();eye.position.set(x,.018,.084);eye.rotation.y=side*.14;eye.scale.set(.84,.72,.82);head.add(eye);ell(eye,white,0,0,0,.030,.017,.014);const look=new T.Group();eye.add(look);const ring=mesh(look,irisGeometry(.013,detail),irisMat,0,0,.0144);ring.scale.y=1.05;ell(look,pupil,0,0,.0155,.0058,.0088,.0022);ell(look,catchlight,-.004,.006,.018,.003,.003,.0015);ell(look,catchlight,.004,-.005,.018,.0015,.0015,.001);bake(look);gaze.push(look);curveDetail(eye,dark,[[-.03,-.001,0],[-.018,.012,.010],[0,.017,.012],[.018,.012,.010],[.03,-.001,0]],.0025);curveDetail(eye,earMat,[[-.028,-.002,0],[0,-.015,.010],[.028,-.002,0]],.0018);if(detail)for(let i=0;i<4;i++){const x=side*(.012+i*.0045),y=.015-i*.0025;curveDetail(eye,dark,[[x,y,.010],[x+side*.003,y+.006,.008],[x+side*.005,y+.009,.006]],.0011,5)}bake(eye);eyes.push(eye);
  curveDetail(head,hair,[[x-.028,.050,.079],[x-.009,.058,.090],[x+.013,.055,.093],[x+.028,.047,.079]],.0031);if(detail)for(let j=0;j<10;j++){const u=j/9,xx=x-.025+u*.05,yy=.050+Math.sin(u*Math.PI)*.008,zz=.080+Math.sin(u*Math.PI)*.012;curveDetail(head,hair,[[xx,yy-.002,zz],[xx+.002,yy+.002,zz+.001],[xx+.005,yy+.004,zz]],.0008,4)}
  }
  for(const s of [-1,1]){ell(head,skin,s*.012,-.044,.118,.008,.007,.007);ell(head,earMat,s*.010,-.050,.119,.0035,.0021,.0017)}
- const mouth=new T.Group();head.add(mouth);curveDetail(mouth,lip,[[-.025,-.077,.083],[-.011,-.074,.094],[0,-.078,.100],[.011,-.074,.094],[.025,-.077,.083]],.0028);ell(mouth,lip,0,-.082,.097,.017,.0035,.004);if(detail){const lower=material(new T.Color(p.skin).lerp(new T.Color(0xba7770),.32),{roughness:.49});curveDetail(mouth,lower,[[-.020,-.080,.086],[-.010,-.085,.095],[0,-.086,.101],[.010,-.085,.095],[.020,-.080,.086]],.002,12)}bake(mouth);
- curveDetail(head,earMat,[[-.020,-.082,.085],[0,-.084,.100],[.020,-.082,.085]],.0018);
+ const mouth=createMouth(head,skin,detail);lip.dispose();
  if(p.accessory==='glasses'){const frame=material(0x3a3130,{metalness:.35});for(const s of [-1,1]){const ring=mesh(head,new T.TorusGeometry(.033,.0028,6,24),frame,s*.045,.018,.107);ring.scale.y=.66;box(head,frame,s*.096,.020,.054,.006,.006,.10)}box(head,frame,0,.023,.112,.027,.006,.006)}
- bake(head);return {eyes,update(t,context={}){const e=characterExpression(t,context);for(const eye of eyes)eye.scale.y=Math.max(.07,1-e.blink);for(const look of gaze){look.position.x=e.gazeX;look.position.y=e.gazeY}mouth.scale.y=1+e.jaw*2;mouth.scale.x=1+e.smile*.14}};
+ bake(head);return {eyes,update(t,context={}){const e=characterExpression(t,context);for(const eye of eyes)eye.scale.y=.72*Math.max(.07,1-e.blink);for(const look of gaze){look.position.x=T.MathUtils.clamp(e.gazeX+(Number(context.gaze)||0)*.014,-.008,.008);look.position.y=e.gazeY}mouth.update(e)}};
 }
 export function makeHair(head,p,hair,detail=true){
  if(p.hairStyle==='bald')return {update(){}};
- const hairRoot=new T.Group();head.add(hairRoot);const highlight=material(new T.Color(p.hair).lerp(new T.Color(0xcba47f),.13),{roughness:.57});hair.roughness=.59;
+ const hairRoot=new T.Group();head.add(hairRoot);const highlight=material(new T.Color(p.hair).lerp(new T.Color(0xcba47f),.13),{roughness:.57});hair.roughness=.59;applyHairSurface(hair,detail);if(detail){highlight.map=hair.map;highlight.normalMap=hair.normalMap;highlight.roughnessMap=hair.roughnessMap;highlight.normalScale.copy(hair.normalScale)}
+ if(p.hairStyle==='short'){
+ // Tapered irregular hairline plus overlapping curved swept locks, no bowl-like fringe.
+ const rows=detail?16:9,cols=detail?48:24,positions=[],uv=[],idx=[];
+ for(let i=0;i<=rows;i++)for(let j=0;j<=cols;j++){const a=j/cols*Math.PI*2,front=Math.max(0,Math.cos(a)),limit=1.66-.94*Math.pow(front,2)+.06*Math.sin(a*5),theta=.007+(limit-.007)*i/rows;const irregular=1+.018*Math.sin(a*13+theta*7)*Math.sin(theta);positions.push(Math.sin(a)*Math.sin(theta)*.114*irregular,.027+Math.cos(theta)*.137*irregular,-.015+Math.cos(a)*Math.sin(theta)*.111*irregular);uv.push(j/cols,i/rows)}
+ for(let i=0;i<rows;i++)for(let j=0;j<cols;j++){const a=i*(cols+1)+j,b=a+cols+1;idx.push(a,b,a+1,a+1,b,b+1)}const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(positions,3));g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();smoothRingSeam(g,rows+1,cols);mesh(hairRoot,g,hair);
+ const n=detail?52:20;for(let i=0;i<n;i++){const a=i*2.39996,r=.018+.073*Math.sqrt((i+.5)/n),x=Math.cos(a)*r,z=Math.sin(a)*r-.015,y=.027+.137*Math.sqrt(Math.max(.12,1-(x/.116)**2-((z+.015)/.114)**2)),s=Math.sin(i*1.7),k=Math.cos(i*2.2),w=.009+(i%5)*.0018;
+ mesh(hairRoot,taperedLock([[x,y-.007,z],[x+.012*s,y+.014+(i%3)*.004,z-.008],[x+.023+.008*k,y+.012,z+.019],[x+.027,y-.011,z+.029]],w,detail?11:7,6),i%9===0?highlight:hair)}
+ bake(hairRoot);return {update(){}}
+ }
  // Scalp cap is confined to the top/back, leaving the face clear.
  const cap=new T.SphereGeometry(1,detail?28:18,12,0,Math.PI*2,0,Math.PI*.39);cap.scale(.114,.133,.112);cap.translate(0,.027,-.018);mesh(hairRoot,cap,hair);const back=new T.SphereGeometry(1,detail?24:16,10,0,Math.PI,Math.PI*.23,Math.PI*.47);back.scale(.112,.135,.108);back.rotateY(Math.PI);back.translate(0,.025,-.021);mesh(hairRoot,back,hair);
  const count=detail?40:14;
@@ -86,7 +98,7 @@ export function makeHair(head,p,hair,detail=true){
 }
 export function garment(parent,shirt,seam,p,detail){
  const lining=material(new T.Color(p.shirt).lerp(new T.Color(0xe6ded0),.55),{roughness:.94}),button=material(0x827465,{roughness:.55});shirt.roughness=.94;
- const waist=p.build==='athletic'?.148:p.build==='slim'?.146:p.build==='stocky'?.162:.155;mesh(parent,silhouette([[.832,.151,.103],[.87,.165,.112],[.95,waist,.111],[1.07,.168,.117],[1.18,.198,.117],[1.255,.208,.101],[1.30,.161,.087],[1.344,.080,.066]],detail?32:20),shirt);
+ const {waist,chest,shoulder,depth}=torsoProportions(p.build),segments=detail?32:20;const torso=silhouette([[.832,.151,.103],[.87,.165,.112],[.95,waist,.111*depth],[1.07,.168,.117*depth],[1.18,chest,.117*depth],[1.255,shoulder,.101],[1.30,.161,.087],[1.344,.080,.066]],segments);mesh(parent,detail?shapeCloth(torso,p.outfit,segments):torso,shirt);
  const jacket=['jacket','cardigan','hoodie','coat','blouse'].includes(p.outfit);
  if(jacket){mesh(parent,silhouette([[.84,.107,.103],[.95,.103,.118],[1.14,.111,.121],[1.27,.085,.092],[1.32,.065,.07]],20),lining);for(const side of [-1,1]){curveDetail(parent,seam,[[side*.11,1.30,.065],[side*.065,1.17,.121],[side*.09,1.04,.119],[side*.087,.86,.108]],.009);box(parent,seam,side*.12,.96,.103,.082,.067,.012);curveDetail(parent,lining,[[side*.08,.995,.116],[side*.158,.995,.099]],.003);for(let i=0;i<4;i++)ell(parent,button,side*.075,.91+i*.09,.121,.006,.006,.003)}}else{curveDetail(parent,seam,[[-.08,1.33,.065],[0,1.294,.089],[.08,1.33,.065]],.007);if(p.outfit==='sport')for(const s of [-1,1])curveDetail(parent,lining,[[s*.165,1.23,.064],[s*.15,1.1,.095],[s*.13,.87,.09]],.012)}
  if(p.outfit==='hoodie'){ell(parent,shirt,0,1.27,-.094,.116,.113,.066);for(const s of [-1,1])curveDetail(parent,lining,[[s*.050,1.31,.073],[s*.044,1.19,.120],[s*.038,1.13,.122]],.004);box(parent,seam,0,.94,.113,.18,.075,.016)}

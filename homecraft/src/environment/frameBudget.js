@@ -1,0 +1,4 @@
+// Rendering-only metrics. No game time or movement depends on this controller.
+export function frameMetrics(samples){const a=samples.filter(x=>Number.isFinite(x)&&x>0&&x<1000).sort((x,y)=>x-y);if(!a.length)return {fps:0,p95:0};return {fps:Math.round(1000*a.length/a.reduce((s,x)=>s+x,0)),p95:Math.round(a[Math.ceil(a.length*.95)-1]*10)/10}}
+export function cappedPixelRatio(width,height,device,preset,limit=2300000){const max=Math.min(device||1,preset);return width>0&&height>0?Math.min(max,Math.sqrt(limit/(width*height))):max}
+export function vegetationBudget(){let reduced=false,slow=0,fast=0;return {reset(){reduced=false;slow=fast=0},sample(fps,pixel){if(!Number.isFinite(fps)||fps<=0)return reduced;if(fps<25&&pixel<=.77){slow++;fast=0}else if(fps>38){fast++;slow=0}else{slow=fast=0}if(slow>=3)reduced=true;if(fast>=6)reduced=false;return reduced}}}
