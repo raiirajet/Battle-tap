@@ -60,6 +60,7 @@ jobs:
           path: |
             homecraft/homecraft-smoke.png
             homecraft/homecraft-park-dialogue.png
+            homecraft/homecraft-character-live.png
       - uses: actions/upload-artifact@v4
         with:
           name: HomeCraft-PWA

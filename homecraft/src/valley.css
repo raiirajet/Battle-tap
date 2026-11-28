@@ -89,3 +89,5 @@
 }
 
 @media (orientation:landscape){.valley #vConversation{max-height:42dvh;max-width:min(76vw,680px)}.valley #vConversationLines{max-height:12dvh}}
+
+.valley-playing #vModelState{font-size:10px;white-space:nowrap;opacity:.84;font-weight:500}@media(max-width:380px){.valley-playing #vModelState{font-size:9px}}

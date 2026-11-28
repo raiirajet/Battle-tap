@@ -1,1 +1,3 @@
 import assert from 'node:assert/strict';import {readdir,readFile} from 'node:fs/promises';const files=await readdir('dist/assets'),worker=files.find(x=>/^skin\.worker[-.].*\.js$/.test(x));assert.ok(worker,'Bundled procedural skin worker missing');const sw=await readFile('dist/sw.js','utf8');assert.ok(sw.includes('./assets/'+worker),'Worker missing from offline cache');assert.ok(!files.some(x=>x.endsWith('.glb')),'Unexpected root GLB dependency');console.log('Procedural worker in production offline cache:',worker);
+
+for(const key of ['high','npc']){const path='./assets/humanoids/'+key+'.bin';assert.ok(sw.includes(path),'Missing offline cache '+key);const bytes=await readFile('dist/'+path);assert.ok(bytes.length>10000,'Invalid humanoid cache '+key)}
