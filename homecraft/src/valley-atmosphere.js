@@ -2,35 +2,7 @@ import * as T from 'three';
 import {box,material,mesh,bake,joint} from './valley-realism.js';
 import {seasonalDaylight} from './valley-climate.js';
 
-// Procedural PBR maps: independent linear-space normal/roughness maps.
-export function surfaceMaps(kind='grass',size=128){
- const h=new Float32Array(size*size),rgba=new Uint8Array(size*size*4),normal=new Uint8Array(rgba.length),rough=new Uint8Array(rgba.length);
- let s=20261127;const rand=()=>((s=(Math.imul(s,1664525)+1013904223)>>>0)/4294967296);
- const at=(x,y)=>((y+size)%size)*size+(x+size)%size;
- for(let y=0;y<size;y++)for(let x=0;x<size;x++){
-  const u=x/size*Math.PI*2,v=y/size*Math.PI*2,n=rand()-.5;
-  let value=.5+.08*Math.sin(u*6+v*3)+n*.14;
-  if(kind==='roof')value=.52+.09*Math.sin(u*8)-((y%16)<2?.21:0)-((x+(Math.floor(y/16)%2)*8)%16<2?.12:0)+n*.025;
-  if(kind==='plaster')value=.5+n*.09+.035*Math.sin(u*12+v*7)+.028*Math.cos(u*17-v*11);
-  if(kind==='grass')value=.47+.12*Math.sin(u*6+v*3)+.08*Math.cos(u*13-v*9)+n*.18;
-  if(kind==='stone'){const row=Math.floor(y/24),xx=(x+(row%2)*24)%48,yy=y%24,edge=Math.min(xx,48-xx,yy,24-yy);value=edge<2?.19:.62+n*.16+.055*Math.cos(u*17+v*13)}
-  if(kind==='bark'){
-   const grooves=Math.sin(u*13+Math.sin(v*2)*.55+Math.sin(v*5)*.14);
-   value=.47+.21*grooves+.075*Math.sin(u*29+v*2)+n*.13;
-  }
-  if(kind==='asphalt')value=.5+n*.28+.025*Math.sin(u*4+v*6);
-  h[at(x,y)]=value;
- }
- const strength=kind==='roof'?2.4:kind==='asphalt'?1.2:1.7;
- for(let y=0;y<size;y++)for(let x=0;x<size;x++){
-  const i=at(x,y),k=i*4,v=h[i],dx=(h[at(x-1,y)]-h[at(x+1,y)])*strength,dy=(h[at(x,y-1)]-h[at(x,y+1)])*strength,len=Math.hypot(dx,dy,1);
-  const grey=Math.round(T.MathUtils.clamp(.72+v*.34,0,1)*255);
-  rgba.set(kind==='grass'?[Math.min(255,grey+3),grey,Math.round(grey*.86),255]:kind==='stone'?[grey,Math.round(grey*.96),Math.round(grey*.88),255]:[grey,grey,grey,255],k);normal.set([Math.round(127.5+127.5*dx/len),Math.round(127.5+127.5*dy/len),Math.round(127.5+127.5/len),255],k);
-  const r=Math.round(T.MathUtils.clamp((kind==='roof'?.70:kind==='stone'?.82:.90)+(v-.5)*.26,0,1)*255);rough.set([r,r,r,255],k);
- }
- function tex(data,srgb=false){const t=new T.DataTexture(data,size,size,T.RGBAFormat);t.wrapS=t.wrapT=T.RepeatWrapping;t.minFilter=T.LinearMipmapLinearFilter;t.magFilter=T.LinearFilter;t.generateMipmaps=true;if(srgb)t.colorSpace=T.SRGBColorSpace;t.needsUpdate=true;return t}
- return {map:tex(rgba,true),normalMap:tex(normal),roughnessMap:tex(rough)};
-}
+export {surfaceMaps} from './environment/textures.js';
 export function setSurface(mat,maps,repeatX,repeatY,detail=true){for(const t of Object.values(maps))t.repeat.set(repeatX,repeatY);mat.map=maps.map;mat.normalMap=detail?maps.normalMap:null;mat.roughnessMap=detail?maps.roughnessMap:null;mat.normalScale.set(.65,.65);mat.needsUpdate=true}
 export function lightState(minute,climate={}){
  const a=seasonalDaylight(minute,climate.season||0),cloud=T.MathUtils.clamp(climate.cloud||0,0,1),twilight=Math.max(0,1-Math.min(Math.abs(a.angle),Math.abs(a.angle-Math.PI))*3.2);

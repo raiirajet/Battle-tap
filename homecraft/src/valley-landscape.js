@@ -21,7 +21,7 @@ export function terrainScenery(scene,seed){
  // Low-profile pavement curbs, drains and crossing markings; not collision objects.
  const curb=material(0xb7b9b2),paint=material(0xe2e0d4),iron=material(0x555d5f),graph=roads(),nodes=Object.fromEntries(graph.nodes.map(p=>[p.id,p]));
  for(const edge of graph.edges){const a=nodes[edge.a],b=nodes[edge.b],dx=b.x-a.x,dz=b.z-a.z,len=Math.hypot(dx,dz),ux=dx/len,uz=dz/len,angle=Math.atan2(dx,dz);
- for(const side of [-1,1]){const x=(a.x+b.x)/2+uz*side*3.12,z=(a.z+b.z)/2-ux*side*3.12;box(town,curb,x,.115,z,.18,.12,Math.max(.1,len-9)).rotation.y=angle;for(let k=12;k<len-8;k+=25){box(town,iron,a.x+ux*k+uz*side*2.7,.101,a.z+uz*k-ux*side*2.7,.38,.015,.62).rotation.y=angle}}
+ for(const side of [-1,1]){const x=(a.x+b.x)/2+uz*side*3.12,z=(a.z+b.z)/2-ux*side*3.12;for(let k=12;k<len-8;k+=25){box(town,iron,a.x+ux*k+uz*side*2.7,.101,a.z+uz*k-ux*side*2.7,.38,.015,.62).rotation.y=angle}}
  if(len>25)for(let k=-2;k<=2;k++)box(town,paint,a.x+ux*7+uz*k*.84,.112,a.z+uz*7-ux*k*.84,.45,.014,2.1).rotation.y=angle;
  }
  // Shore and forest scatter are low-profile decorative stones; never block a route.
