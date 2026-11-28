@@ -1,3 +1,4 @@
+import {createMouth,applyHairSurface} from './characters/faceDetails.js';
 import {smoothRingSeam} from './valley-anatomy.js';
 import {springStep} from './valley-secondary-motion.js';
 import {characterExpression} from './valley-character-motion.js';
@@ -51,14 +52,13 @@ export function makeFace(head,p,skin,hair,detail=true){
  curveDetail(head,hair,[[x-.028,.050,.079],[x-.009,.058,.090],[x+.013,.055,.093],[x+.028,.047,.079]],.0031);if(detail)for(let j=0;j<10;j++){const u=j/9,xx=x-.025+u*.05,yy=.050+Math.sin(u*Math.PI)*.008,zz=.080+Math.sin(u*Math.PI)*.012;curveDetail(head,hair,[[xx,yy-.002,zz],[xx+.002,yy+.002,zz+.001],[xx+.005,yy+.004,zz]],.0008,4)}
  }
  for(const s of [-1,1]){ell(head,skin,s*.012,-.044,.118,.008,.007,.007);ell(head,earMat,s*.010,-.050,.119,.0035,.0021,.0017)}
- const mouth=new T.Group();head.add(mouth);curveDetail(mouth,lip,[[-.025,-.077,.083],[-.011,-.074,.094],[0,-.078,.100],[.011,-.074,.094],[.025,-.077,.083]],.0028);ell(mouth,lip,0,-.082,.097,.017,.0035,.004);if(detail){const lower=material(new T.Color(p.skin).lerp(new T.Color(0xba7770),.32),{roughness:.49});curveDetail(mouth,lower,[[-.020,-.080,.086],[-.010,-.085,.095],[0,-.086,.101],[.010,-.085,.095],[.020,-.080,.086]],.002,12)}bake(mouth);
- curveDetail(head,earMat,[[-.020,-.082,.085],[0,-.084,.100],[.020,-.082,.085]],.0018);
+ const mouth=createMouth(head,skin,detail);lip.dispose();
  if(p.accessory==='glasses'){const frame=material(0x3a3130,{metalness:.35});for(const s of [-1,1]){const ring=mesh(head,new T.TorusGeometry(.033,.0028,6,24),frame,s*.045,.018,.107);ring.scale.y=.66;box(head,frame,s*.096,.020,.054,.006,.006,.10)}box(head,frame,0,.023,.112,.027,.006,.006)}
- bake(head);return {eyes,update(t,context={}){const e=characterExpression(t,context);for(const eye of eyes)eye.scale.y=Math.max(.07,1-e.blink);for(const look of gaze){look.position.x=e.gazeX;look.position.y=e.gazeY}mouth.scale.y=1+e.jaw*2;mouth.scale.x=1+e.smile*.14}};
+ bake(head);return {eyes,update(t,context={}){const e=characterExpression(t,context);for(const eye of eyes)eye.scale.y=Math.max(.07,1-e.blink);for(const look of gaze){look.position.x=T.MathUtils.clamp(e.gazeX+(Number(context.gaze)||0)*.014,-.008,.008);look.position.y=e.gazeY}mouth.update(e)}};
 }
 export function makeHair(head,p,hair,detail=true){
  if(p.hairStyle==='bald')return {update(){}};
- const hairRoot=new T.Group();head.add(hairRoot);const highlight=material(new T.Color(p.hair).lerp(new T.Color(0xcba47f),.13),{roughness:.57});hair.roughness=.59;
+ const hairRoot=new T.Group();head.add(hairRoot);const highlight=material(new T.Color(p.hair).lerp(new T.Color(0xcba47f),.13),{roughness:.57});hair.roughness=.59;applyHairSurface(hair,detail);if(detail){highlight.map=hair.map;highlight.normalMap=hair.normalMap;highlight.roughnessMap=hair.roughnessMap;highlight.normalScale.copy(hair.normalScale)}
  // Scalp cap is confined to the top/back, leaving the face clear.
  const cap=new T.SphereGeometry(1,detail?28:18,12,0,Math.PI*2,0,Math.PI*.39);cap.scale(.114,.133,.112);cap.translate(0,.027,-.018);mesh(hairRoot,cap,hair);const back=new T.SphereGeometry(1,detail?24:16,10,0,Math.PI,Math.PI*.23,Math.PI*.47);back.scale(.112,.135,.108);back.rotateY(Math.PI);back.translate(0,.025,-.021);mesh(hairRoot,back,hair);
  const count=detail?40:14;
