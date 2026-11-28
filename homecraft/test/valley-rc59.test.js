@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {randomCharacter,profile} from '../src/valley-world-life.js';
+test('random character selections use only valid existing save values',()=>{for(const n of [0,.1,.5,.99,1]){const p=randomCharacter(()=>n);assert.deepEqual(profile(p),p);assert.equal(p.style,'realistic')}assert.notDeepEqual(randomCharacter(()=>0),randomCharacter(()=>.99))});

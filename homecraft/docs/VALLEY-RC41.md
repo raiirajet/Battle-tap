@@ -1,0 +1,3 @@
+# RC41 — activity and world detail expansion
+
+Three optional persistent routes (village, nature, timed sprint), ordered location checks, records and six milestones. Existing life/sandbox economics are unchanged. Photo mode pauses gameplay and provides FOV/exposure control and browser PNG download; Android download behavior requires a device test. Decorative reeds, benches and animated birds are quality-gated. Timed records use elapsed wall time from first checkpoint and include pauses; local records are not competitive anti-cheat scores. No new enterable shops or online multiplayer. CI and physical device QA required.

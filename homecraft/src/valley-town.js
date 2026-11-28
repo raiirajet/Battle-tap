@@ -12,7 +12,7 @@ const residentData=[
  ['sara','Sara','Floristin',2,'park',48,'#ece2d3','long'],
  ['luca','Luca','Verkäufer',2,'meal',60,'#367f82','short']
 ];
-export const RESIDENTS=Object.freeze(residentData.map(([id,name,job,home,work,offset,shirt,hairStyle],i)=>Object.freeze({id,name,job,home,work,offset,profile:Object.freeze({skin:['#f2c4a0','#a66f50','#d9a076','#70452f','#c68c65','#d9a076'][i],shirt,pants:['#344457','#38383e','#80674d','#64808b'][i%4],hair:['#805739','#332924','#c49c54','#231f20','#a84d35'][i%5],hairStyle})})));
+export const RESIDENTS=Object.freeze(residentData.map(([id,name,job,home,work,offset,shirt,hairStyle],i)=>Object.freeze({id,name,job,home,work,offset,profile:Object.freeze({skin:['#f2c4a0','#a66f50','#d9a076','#70452f','#c68c65','#d9a076'][i],shirt,pants:['#344457','#38383e','#80674d','#64808b'][i%4],hair:['#805739','#332924','#c49c54','#231f20','#a84d35'][i%5],hairStyle:i===4?'bun':i===2?'wavy':hairStyle,eyes:['green','brown','blue','grey','brown','green'][i],outfit:['cardigan','jacket','blouse','hoodie','coat','casual'][i],face:['soft','angular','round','angular','soft','round'][i],bottom:['chinos','jeans','chinos','joggers','jeans','shorts'][i],shoeStyle:['loafer','boot','sneaker','sneaker','boot','sandal'][i],build:['slim','athletic','regular','athletic','slim','regular'][i],accessory:['none','watch','glasses','watch','none','glasses'][i],shoes:['brown','dark','white','white','brown','dark'][i]})})));
 const homePoint=r=>point(HOMES[r.home].door.x+.8,HOMES[r.home].z+(r.offset%24)/12);
 function destination(r){const p=locations[r.work];return r.offset>=48?point(p.x+1.8,p.z):p}
 function route(r,dest){const h=homePoint(r),end=destination(r),side=315.7+(r.offset%24)/60;const join=dest==='park'?345.5:315;
@@ -29,3 +29,24 @@ export const CARS=Object.freeze([0,1,2,3].map((i)=>Object.freeze({id:'car-'+i,z:
 export function carAt(car,minute){const t=((minute+car.offset)%240+240)%240/240;const z=car.z,a=330,b=534,lane=1.45; // Each car has its own residential road; turn within the road at each end.
  const path=[point(a,z-lane),point(b,z-lane),point(b+1.45,z),point(b,z+lane),point(a,z+lane),point(a-1.45,z),point(a,z-lane)];
  return pathAt(path,t)}
+
+const residentTopics=Object.freeze({
+ lea:'Ich kümmere mich um die Beete im Park. Im Frühling halte ich Ausschau nach den ersten Wildblumen.',
+ noah:'In der Werkstatt ist einiges los. Heute nehme ich mir noch Zeit für eine Probefahrt.',
+ mia:'Am Markt treffe ich jeden Tag andere Leute. Morgens mag ich es dort am liebsten.',
+ elias:'Als Kurier bin ich ständig unterwegs. Am Dorfplatz mache ich gern eine kurze Pause.',
+ sara:'Ich sammle im Park Ideen für neue Blumensträusse. Die Farben ändern sich mit der Jahreszeit.',
+ luca:'Ich bin oft am Markt. Dort hört man immer zuerst, was im Dorf los ist.'
+});
+
+export function residentDialogue(resident,minute,score=0){
+ const greeting=minute<600?'Guten Morgen!':minute>=1080?'Guten Abend!':'Hoi!';
+ const opening=greeting+' '+(score>=40?'Schön, dass du wieder da bist.':score>=10?'Schön, dich wiederzusehen.':'Ich bin '+resident.name+'.');
+ const chat=({
+  'Unterwegs zur Arbeit':'Ich bin gerade auf dem Weg zur Arbeit. Ein kurzer Schwatz geht aber.',
+  'Auf dem Heimweg':'Ich mache mich langsam auf den Heimweg. Schön, dich noch zu treffen.',
+  'Zuhause / Nachtruhe':'Hier draussen ist es jetzt schön ruhig. Ich bleibe nur noch kurz.',
+  'Feierabend':'Für heute habe ich Feierabend. Jetzt nehme ich mir etwas Zeit für mich.'
+ })[resident.activity]??residentTopics[resident.id];
+ return {opening,greet:'Freut mich auch. Wir sehen uns bestimmt wieder im Tal.',chat};
+}

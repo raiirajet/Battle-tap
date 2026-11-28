@@ -1,0 +1,3 @@
+# RC48 — original round cartoon 3D style
+
+Optional `style: cartoon` profile with oversized sculpted head, expressive thick brows, oval eyes, compact limbs, stylized hands, original colors/outfits, animated face and exaggerated gait. Existing realistic GLB style remains the default, all profile options retained. Three original clothed cartoon example GLBs exported at build time with eight limb animation clips; gameplay uses the same procedural source and articulated bones, not the realistic skinned body. No copied franchise assets. Browser smoke checks style selection. Existing landscape and game rules unchanged. Actual device appearance and build pending.

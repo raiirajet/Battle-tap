@@ -1,0 +1,1 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {safeInsets} from '../src/game-display.js';test('native display insets are normalized',()=>{assert.deepEqual(safeInsets({top:21.4,right:Infinity,bottom:-3,left:900}),{top:22,right:0,bottom:0,left:240})});

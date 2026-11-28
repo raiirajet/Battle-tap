@@ -1,8 +1,9 @@
 import {height,plots} from './valley-core.js';
 import {HOMES} from './valley-town.js';
-export const PROFILE_DEFAULT=Object.freeze({skin:'#c68c65',shirt:'#367f82',pants:'#344457',hair:'#332924',hairStyle:'short'});
+export const PROFILE_DEFAULT=Object.freeze({skin:'#c68c65',shirt:'#367f82',pants:'#344457',hair:'#332924',hairStyle:'short',build:'regular',outfit:'casual',accessory:'none',shoes:'dark',eyes:'brown',face:'soft',bottom:'jeans',shoeStyle:'sneaker',style:'realistic'});
 export const PROFILE_COLORS=Object.freeze({skin:['#f2c4a0','#d9a076','#c68c65','#a66f50','#70452f'],shirt:['#367f82','#476ca8','#a84f55','#bc8a43','#64784d','#ece2d3'],pants:['#344457','#38383e','#80674d','#64808b'],hair:['#332924','#805739','#c49c54','#231f20','#a84d35']});
-export function profile(value){if(value==null)return {...PROFILE_DEFAULT};const p={};for(const [k,colors] of Object.entries(PROFILE_COLORS)){if(!colors.includes(value[k]))throw Error('Ungültige Charakterfarbe: '+k);p[k]=value[k]}if(!['short','long','bald'].includes(value.hairStyle))throw Error('Ungültige Frisur');p.hairStyle=value.hairStyle;return p}
+export const PROFILE_OPTIONS=Object.freeze({hairStyle:['short','long','bald','bun','wavy','ponytail','bob','fringe','sidepart','spiky','braid'],build:['slim','regular','athletic','stocky'],outfit:['casual','jacket','sport','cardigan','hoodie','coat','blouse','pajamas'],accessory:['none','glasses','watch'],shoes:['dark','white','brown'],eyes:['brown','blue','green','grey'],face:['soft','angular','round'],bottom:['jeans','chinos','shorts','joggers'],shoeStyle:['sneaker','boot','loafer','sandal'],style:['realistic','cartoon']});
+export function profile(value){if(value==null)return {...PROFILE_DEFAULT};const p={};for(const [k,colors] of Object.entries(PROFILE_COLORS)){if(!colors.includes(value[k]))throw Error('Ungültige Charakterfarbe: '+k);p[k]=value[k]}for(const [k,options] of Object.entries(PROFILE_OPTIONS)){const v=value[k]??PROFILE_DEFAULT[k];if(!options.includes(v))throw Error('Ungültiges Charaktermerkmal: '+k);p[k]=v}return p}
 export const SITES=Object.freeze({work:{x:296,z:300,w:15,d:11,door:{x:296,z:306.6},name:'Werkstatt'},meal:{x:344,z:303,w:14,d:11,door:{x:344,z:309.6},name:'Markt'}});
 export function siteNear(x,z){for(const [type,s] of Object.entries(SITES))if(Math.hypot(x-s.door.x,z-s.door.z)<=3.2)return type;return null}
 export function inRect(r,x,z,pad=0){return x>=r.x-pad&&x<=r.x+r.w+pad&&z>=r.z-pad&&z<=r.z+r.d+pad}
@@ -10,5 +11,22 @@ export function worldGround(x,z,seed){ // Same 8-m grid and diagonal as rendered
  const gx=Math.floor(x/8)*8,gz=Math.floor(z/8)*8,u=(x-gx)/8,v=(z-gz)/8,a=height(gx,gz,seed),b=height(gx+8,gz,seed),c=height(gx,gz+8,seed),d=height(gx+8,gz+8,seed);
  return u+v<=1?a+(b-a)*u+(c-a)*v:d+(c-d)*(1-u)+(b-d)*(1-v)}
 export function worldPassable(x,z,seed,ownPlot,trees=[]){if(!Number.isFinite(x)||!Number.isFinite(z)||x<.3||z<.3||x>1023.7||z>1023.7)return false;if(Math.hypot((x-760)/71,(z-390)/49)<=1||worldGround(x,z,seed)<-.25&&Math.hypot((x-760)/105,(z-390)/80)<1)return false;for(const s of Object.values(SITES))if(inRect({x:s.x-s.w/2,z:s.z-s.d/2,w:s.w,d:s.d},x,z,.23))return false;for(const h of HOMES)if(inRect({x:h.x-h.w/2,z:h.z-h.d/2,w:h.w,d:h.d},x,z,.23))return false;for(const p of plots())if(p.id!==ownPlot&&inRect(p.reserve,x,z,.15))return false;for(const t of trees)if(Math.hypot(x-t.x,z-t.z)<.42)return false;return true}
+export function nearPrivateProperty(x,z,ownPlot){for(const h of HOMES)if(Math.hypot(x-h.door.x,z-h.door.z)<=2)return 'Privathaus';for(const p of plots())if(p.id!==ownPlot&&inRect(p.reserve,x,z,1.3))return 'Privatgrundstück';return null}
 export function daylight(minute){const a=(minute-360)/1440*Math.PI*2,s=Math.sin(a),day=Math.max(0,s);return {day,brightness:.12+day*.88,angle:a}}
 export function poseFor(label){if(label==='Schlafen')return 'sleep';if(label==='Entspannen'||label==='Toilette benutzen')return 'sit';if(['Essen','Waschen','Duschen','Baden'].includes(label))return 'use';return 'idle'}
+
+// Six original looks inspired by the Valley Craft visual reference. All values use existing save fields.
+export const CHARACTER_PRESETS=Object.freeze([
+ {name:'Mila · Landhaus',profile:{...PROFILE_DEFAULT,skin:'#f2c4a0',hair:'#805739',hairStyle:'bun',shirt:'#64784d',pants:'#80674d',build:'slim',outfit:'cardigan',shoes:'brown',shoeStyle:'loafer',eyes:'green',bottom:'chinos'}},
+ {name:'Lina · Outdoor',profile:{...PROFILE_DEFAULT,skin:'#d9a076',hair:'#c49c54',hairStyle:'ponytail',shirt:'#a84f55',pants:'#38383e',build:'athletic',outfit:'sport',accessory:'watch',shoes:'white',eyes:'blue',bottom:'joggers'}},
+ {name:'Noah · Abenteurer',profile:{...PROFILE_DEFAULT,skin:'#d9a076',hair:'#332924',hairStyle:'wavy',shirt:'#64784d',pants:'#80674d',build:'regular',outfit:'jacket',accessory:'watch',shoes:'brown',shoeStyle:'boot',face:'angular',bottom:'chinos'}},
+ {name:'Leon · Handwerker',profile:{...PROFILE_DEFAULT,skin:'#c68c65',hair:'#c49c54',hairStyle:'sidepart',shirt:'#ece2d3',pants:'#344457',build:'stocky',outfit:'casual',shoes:'brown',shoeStyle:'boot',face:'angular'}},
+ {name:'Sam · Streetwear',profile:{...PROFILE_DEFAULT,skin:'#f2c4a0',hair:'#332924',hairStyle:'fringe',shirt:'#476ca8',pants:'#64808b',build:'slim',outfit:'hoodie',shoes:'white',eyes:'green'}},
+ {name:'Ava · Elegant',profile:{...PROFILE_DEFAULT,skin:'#a66f50',hair:'#231f20',hairStyle:'bun',shirt:'#a84f55',pants:'#38383e',build:'slim',outfit:'coat',accessory:'glasses',shoes:'dark',shoeStyle:'loafer',bottom:'chinos'}}
+].map(x=>Object.freeze({name:x.name,profile:Object.freeze(profile(x.profile))})));
+
+export function randomCharacter(random=Math.random){
+ const pick=values=>values[Math.min(values.length-1,Math.max(0,Math.floor((Number(random())||0)*values.length)))];
+ const out={...PROFILE_DEFAULT};for(const [key,colors] of Object.entries(PROFILE_COLORS))out[key]=pick(colors);
+ for(const [key,options] of Object.entries(PROFILE_OPTIONS))if(key!=='style')out[key]=pick(options);return profile(out);
+}

@@ -1,0 +1,3 @@
+# Android 16 — RC43
+
+Target and compile SDK 36, AGP 8.9.1 / Gradle 8.11.1. Immersive native activity with transient system gestures; no permanent system bar suppression. Full-window 3D rendering with native cutout/caption/mandatory-gesture insets applied only to HUD. Gameplay defaults to sensor landscape and keep-screen-on, with Auto orientation in Grafik. Planner orientation remains flexible. Android Back opens dashboard or dismisses overlays. Background rendering is suspended. Debug and signed-release CI use API 36. Browser landscape smoke test and APK target check added. Physical Android 16 and device-specific cutout/IME/orientation testing remain required. Existing package ID and save schema unchanged.

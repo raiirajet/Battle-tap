@@ -1,0 +1,2 @@
+# RC49 — character visual refinement
+Six configurable original wardrobe presets, interpolated garment/limb contours, denser layered hair strands, 128-pixel textile maps, subtle skin grain on both procedural and GLB skin, stitched hems, pocket and sport zipper detail. Existing saved profile fields and movement rig retained; cartoon style remains available. Procedural assets are not an exact reproduction of the reference concept. New regression tests included; visual QA, on-device performance and release build must be verified before production.

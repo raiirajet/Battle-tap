@@ -1,0 +1,6 @@
+// RC20/21. Pure planning and rendering policy; no DOM or shared mutable state.
+const roles=new Set(['all','unspecified','exterior','interior','partition']);
+export function wallHeightPreview(level,role,height){if(!roles.has(role)||!Number.isFinite(height)||height<.1||height>30)throw Error('Ungültige Wandhöhe oder Wandgruppe.');const walls=level.walls.filter(w=>role==='all'||(w.role||'unspecified')===role);const blocked=[];let areaBefore=0,areaAfter=0;for(const w of walls){const len=Math.hypot(w.b.x-w.a.x,w.b.y-w.a.y),holes=w.openings.reduce((a,o)=>{if(o.bottom+o.height>height+1e-8)blocked.push(o.id);return a+o.width*o.height},0);areaBefore+=Math.max(0,len*w.height-holes);areaAfter+=Math.max(0,len*height-holes)}return {role,height,count:walls.length,blocked,areaBefore,areaAfter}}
+export function applyWallHeight(level,role,height){const r=wallHeightPreview(level,role,height);if(!r.count||r.blocked.length)throw Error('Keine passenden Wände oder Öffnungen passen nicht.');for(const w of level.walls)if(role==='all'||(w.role||'unspecified')===role)w.height=height;return r}
+// Eco caps the render loop at approximately 30 fps; other modes unchanged.
+export function frameDue(now,last,quality){return quality!=='low'||now<last||now-last>=1000/30-1}

@@ -20,3 +20,70 @@
 .valley-playing .valley-head{display:none}.valley-playing #vLifeHud{display:block;padding:0;inset:0}.valley-playing .vLifeTop{position:absolute;top:8px;left:8px;right:8px;width:auto;padding:5px 8px;gap:8px;align-items:center;font-size:12px;border-radius:11px;background:#162e2be3}.valley-playing .vLifeTop #vLifeLocation{max-width:30%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.valley-playing #vDashboard{pointer-events:auto;min-height:44px;padding:6px 10px;border:0;background:#d9efdf;color:#173c37;font-weight:750;font-size:12px}.valley-playing #vLifeBalance{margin-left:auto;white-space:nowrap;font-size:12px}.valley-playing #vClimateHud{position:absolute;top:66px;left:8px;max-width:calc(100% - 130px);font-size:10px;padding:5px 8px}.valley-playing #vLifeHud #vNeeds{position:absolute;top:96px;left:8px;width:210px;max-width:calc(100% - 130px);min-width:0;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 9px;padding:6px 8px;border-radius:8px}.valley-playing .vNeed{font-size:9px;gap:2px}.valley-playing .vNeed progress{height:5px}.valley-playing #vMiniWrap{top:66px;right:8px;width:112px}.valley-playing #vCarHud,.valley-playing #vJobHud{position:absolute;bottom:126px;right:8px;max-width:calc(100% - 150px);font-size:10px;padding:6px 8px}.valley-playing #vJobHud{bottom:156px}.valley-playing .vLifeControls{position:absolute;left:12px;right:12px;bottom:12px;margin:0;pointer-events:none}.valley-playing #vJoystick{width:clamp(76px,18vmin,106px);height:clamp(76px,18vmin,106px)}.valley-playing #vStick{width:38%;height:38%}.valley-playing #vInteract{min-height:44px;min-width:100px;max-width:48%;font-size:12px}.valley-playing .vContextActions{position:absolute;right:12px;bottom:65px;max-width:calc(100% - 146px)!important;justify-content:flex-end;background:transparent;padding:0;gap:5px}.valley-playing .vContextActions button{background:#173c37ed;color:#fff;border:1px solid #afc7b7;min-height:44px;padding:5px 8px}.valley-playing #vLifeNotice{position:absolute;left:8px;bottom:124px;max-width:calc(100% - 135px);font-size:10px;padding:5px 7px;pointer-events:none}.valley-playing #vLifeNotice:empty{display:none}.valley-playing #vEndLife:not([hidden]){position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:8}.valley-playing #vDashboardPanel{position:absolute;inset:0;z-index:9;overflow:auto;overscroll-behavior:contain;pointer-events:auto;background:#f2f6ef;color:#173c37;padding:clamp(12px,3vw,28px);font-family:Arial,system-ui,sans-serif}.vDashHeader{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}.vDashHeader h2{margin:4px 0 0;font-size:clamp(20px,4vw,30px)}.vDashHeader small{font-size:10px;letter-spacing:1.4px;color:#53745d}.vDashHeader button{min-height:44px}.valley #vDashStats{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px;margin-bottom:14px}.valley #vDashStats div{padding:12px;background:#fff;border:1px solid #dce6d9;border-radius:12px;display:grid;gap:5px}.valley #vDashStats small{font-size:10px;color:#63796a}.valley #vDashStats strong{font-size:16px;overflow-wrap:anywhere}.valley #vStarterCard{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#dcebd9;border:1px solid #a8c7a1;border-radius:14px;padding:14px;margin-bottom:14px}.valley #vStarterCard small{display:block;font-size:11px;margin-top:5px;line-height:1.4}.valley #vStarterCard button{background:#245b47;color:white;min-width:100px}.vDashGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px}.valley .vDashGrid button{text-align:left;display:flex;flex-direction:column;gap:5px;padding:12px;min-height:94px;background:#fff;border:1px solid #dce6d9;border-radius:12px}.vDashGrid b{font-size:23px;line-height:1;color:#47795b}.vDashGrid strong{font-size:14px}.vDashGrid small{font-size:10px;color:#63796a;font-weight:400}.valley #vDashBuild{width:100%;margin-top:14px}.valley #vProfilePreview{height:110px;background:#e5eee1;border-radius:12px;display:grid;place-items:center;margin:8px 0}.vProfileFigure{position:relative;width:58px;height:99px}.vProfileFigure i{position:absolute;display:block}.vProfileFigure .head{top:4px;left:16px;width:26px;height:30px;background:var(--skin);border-radius:45%}.vProfileFigure .hair{top:1px;left:14px;width:30px;height:13px;background:var(--hair);border-radius:12px 12px 3px 3px}.vProfileFigure[data-hair=long] .hair{height:32px;clip-path:polygon(0 0,100% 0,100% 100%,75% 100%,75% 32%,25% 32%,25% 100%,0 100%)}.vProfileFigure[data-hair=bald] .hair{display:none}.vProfileFigure .body{top:35px;left:6px;width:46px;height:31px;border-radius:8px 8px 4px 4px;background:var(--shirt)}.vProfileFigure .legs{top:66px;left:14px;width:30px;height:30px;background:var(--pants);clip-path:polygon(0 0,100% 0,100% 100%,57% 100%,57% 40%,43% 40%,43% 100%,0 100%)}.valley .vAvatarToggle{display:flex;align-items:center;gap:8px;font-size:13px}.valley .vAvatarToggle input{width:20px;min-height:20px;margin:0}.valley-playing #vEconomyPanel,.valley-playing #vCharacterPanel{top:8px;bottom:auto;max-height:calc(100% - 16px);z-index:10}.valley-dashboard-open .vLifeControls,.valley-dashboard-open .vContextActions{visibility:hidden}@media(orientation:landscape) and (max-height:550px){.valley-playing #vLifeHud #vNeeds{top:90px;width:240px;grid-template-columns:repeat(4,minmax(0,1fr))}.valley-playing #vMiniWrap{top:65px;width:100px}.valley-playing #vClimateHud{top:63px}.valley-playing #vLifeNotice{bottom:100px}.valley-playing #vJobHud{bottom:114px}.valley-playing #vCarHud{bottom:90px}.valley-playing #vDashboardPanel{padding:12px 20px}.vDashGrid{grid-template-columns:repeat(5,minmax(100px,1fr))}.valley .vDashGrid button{min-height:74px;padding:8px}.valley #vDashStats div{padding:8px}.valley #vStarterCard{padding:8px 12px}}
 
 .valley .vGift{background:#e1efd9;color:#245b47;border-color:#abcba1}.valley-submenu-open .vLifeControls,.valley-submenu-open .vContextActions{visibility:hidden}.valley #vEconomyDashboard{margin-top:6px;background:#e1efd9;color:#245b47}.valley-playing #vLifeHud{font-family:Arial,system-ui,sans-serif}.valley-playing #vDashboardPanel{padding-bottom:24px}.valley-playing #vLifeNotice:not(:empty){max-width:calc(100% - 140px)}
+
+.valley .vContextActions #vWalkCamera,.valley .vContextActions #vRun,.valley .vContextActions #vJump{min-height:44px;touch-action:manipulation}.valley .vContextActions{max-width:calc(100% - 12px);flex-wrap:wrap}.valley #vProfileFields select{width:100%;min-height:44px}
+
+.valley #vProfilePreview canvas{width:220px;max-width:100%;height:auto;touch-action:none;cursor:grab}.valley #vProfilePreview{min-height:188px;display:grid;place-items:center}
+
+.valley #vActivityHud{position:absolute;bottom:188px;right:8px;max-width:calc(100% - 24px);padding:8px 10px;border-radius:9px;background:#233d35e8;font-size:12px;color:#ffe6ab}.valley #vPhotoPanel{pointer-events:auto;position:absolute;bottom:12px;left:50%;transform:translateX(-50%);width:min(420px,94%);z-index:10;background:#172d2de8;color:white;border-radius:14px;padding:12px;display:grid;gap:8px}.valley #vPhotoPanel[hidden]{display:none}.valley #vPhotoPanel label{display:grid;grid-template-columns:1fr 1fr;align-items:center}.valley-photo #vLifeHud> :not(#vPhotoPanel){visibility:hidden}.valley-photo #vPhotoPanel button{min-height:44px}
+
+/* The 3D canvas covers the entire window; only interactive HUD is inset. */
+.valley{padding:var(--safe-top,0px) var(--safe-right,0px) var(--safe-bottom,0px) var(--safe-left,0px);height:100dvh;overscroll-behavior:none}
+.valley.valley-playing{padding:0;user-select:none;-webkit-user-select:none}
+.valley-playing #vScene{position:absolute;inset:0}
+.valley-playing #vLifeHud{inset:var(--safe-top,0px) var(--safe-right,0px) var(--safe-bottom,0px) var(--safe-left,0px)}
+.valley-playing #vLifeHud input,.valley-playing #vLifeHud select{user-select:auto;-webkit-user-select:auto}
+.valley-playing #vJoystick,.valley-playing .vContextActions button,.valley-playing #vInteract{touch-action:none;-webkit-tap-highlight-color:transparent}
+.valley-playing #vDashboardPanel,.valley-playing #vEconomyPanel,.valley-playing #vCharacterPanel{overscroll-behavior:contain;touch-action:pan-y}
+@media(orientation:landscape) and (max-height:550px){
+ .valley-playing .vLifeTop{top:6px;left:8px;right:8px}
+ .valley-playing #vClimateHud{top:60px}
+ .valley-playing #vLifeHud #vNeeds{top:85px}
+ .valley-playing .vLifeControls{bottom:8px;left:12px;right:12px}
+ .valley-playing .vContextActions{bottom:62px;right:12px;max-width:min(65%,520px)!important}
+ .valley-playing #vActivityHud{bottom:118px;max-width:40%;font-size:10px}
+ .valley-playing #vJobHud{bottom:145px;max-width:40%}
+ .valley-playing #vCarHud{bottom:118px;max-width:40%}
+ .valley-playing #vLifeNotice{bottom:105px;max-width:38%}
+ .valley-playing .vDashGrid{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
+}
+
+.valley #vProfilePreview{height:auto;min-height:260px;padding:8px;gap:4px;background:radial-gradient(ellipse at 50% 30%,#dfeee4,#8ca99c)}.valley #vProfilePreview canvas{width:300px;max-width:100%;height:auto}.valley #vProfilePreview button{margin:0;min-height:44px;font-size:12px}
+
+.valley #vProfileFields{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px}.valley #vProfileFields label{margin:2px 0;font-size:12px}.valley #vProfileFields select{font-size:13px}.valley #vProfilePreview{background:radial-gradient(ellipse at 50% 26%,#edf0ed,#738c8e)}
+
+.valley #vProfileFields .vPresetActions{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-self:end}.valley #vCharacterPanel .vPresetActions button{margin:0;min-height:44px;padding:6px;font-size:12px}.valley #vProfilePreview canvas{width:min(360px,100%);height:auto}
+
+.valley #vConversation {
+ position:absolute;
+ inset:auto calc(12px + var(--safe-right,0px)) calc(12px + var(--safe-bottom,0px)) calc(12px + var(--safe-left,0px));
+ width:auto;
+ max-width:560px;
+ max-height:48%;
+ max-height:min(48dvh,360px);
+ margin:0 auto;
+ padding:clamp(10px,2.2vmin,18px);
+ overflow:auto;
+ overscroll-behavior:contain;
+ color:#f5fbf5;
+ background:#172f2bf7;
+ border:1px solid #7c9e8d;
+ border-radius:16px;
+ box-shadow:0 12px 36px #0d211d66;
+ pointer-events:auto;
+}
+.valley #vConversation::backdrop { background:linear-gradient(transparent 55%,#09181449); }
+.valley #vConversation header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.valley #vConversationName { display:block; font-size:1.125rem; }
+.valley #vConversationRole,.valley #vConversationStatus { color:#c4dbca; font-size:.8rem; }
+.valley #vConversationStatus:empty { display:none; }
+.valley #vConversationLines { max-height:clamp(48px,17dvh,130px); overflow:auto; margin:8px 0; }
+.valley #vConversationLines p { margin:0 0 5px; font-size:.92rem; line-height:1.45; }
+.valley #vConversationLines strong { display:inline-block; margin-right:8px; color:#c8ead2; }
+.valley #vConversationChoices { display:flex; flex-wrap:wrap; gap:6px; }
+.valley #vConversation button { min-height:44px; padding:6px 10px; font-size:.85rem; }
+.valley #vConversationClose { background:#dceee0; }
+.valley:has(#vConversation[open]) :is(.vLifeControls,.vContextActions,#vLifeNotice) { visibility:hidden; }
+@media(max-height:370px) {
+ .valley #vConversation { inset-block-end:calc(6px + var(--safe-bottom,0px)); max-height:58dvh; }
+}

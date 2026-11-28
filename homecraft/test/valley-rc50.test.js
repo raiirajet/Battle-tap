@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import * as T from 'three';
+import {faceRelief,faceTint} from '../src/valley-anatomy.js';
+import {faceGeometry} from '../src/valley-character-assets.js';
+import {silhouette,taperedLock} from '../src/valley-character-model.js';
+import {avatarMesh} from '../src/valley-avatar.js';
+import {CHARACTER_PRESETS,PROFILE_DEFAULT} from '../src/valley-world-life.js';
+import {disposeHouse} from '../src/valley-house-render.js';
+test('shared anatomy is symmetric, finite and shapes the nose and chin',()=>{for(let i=0;i<25;i++){const x=i*.004;for(let j=0;j<35;j++){const y=-.14+j*.008;assert.equal(faceRelief(x,y),faceRelief(-x,y));assert.ok(Number.isFinite(faceRelief(x,y)));assert.ok(faceTint(x,y,1).every(v=>v>0&&v<=1))}}assert.ok(faceRelief(0,-.04)>.02)});
+test('UV seam normals match on face, clothing and hair',()=>{const pairs=[[faceGeometry('soft',true),80],[silhouette([[0,.05,.04],[.5,.1,.08],[1,.06,.04]],24),24],[taperedLock([[0,0,0],[.1,.1,.02],[.2,.2,.04]],.03,12,6),6]];for(const [g,segments] of pairs){const n=g.attributes.normal;for(let i=0;i<n.count;i+=segments+1){const a=new T.Vector3().fromBufferAttribute(n,i),b=new T.Vector3().fromBufferAttribute(n,i+segments);assert.ok(a.distanceTo(b)<1e-6)}g.dispose()}});
+test('high-detail presets and all shoe styles are finite and animate',()=>{for(const preset of CHARACTER_PRESETS){const actor=avatarMesh(preset.profile);for(const action of [null,'Essen','Schlafen']){actor.update({x:0,z:0,height:0},1,0,true,.05,action,{run:true});actor.root.updateMatrixWorld(true);actor.root.traverse(o=>{assert.ok(o.matrixWorld.elements.every(Number.isFinite));if(o.isMesh)assert.ok(o.geometry.attributes.position.array.every(Number.isFinite))})}disposeHouse(actor.root)}for(const shoeStyle of ['sneaker','boot','loafer','sandal']){const actor=avatarMesh({...PROFILE_DEFAULT,shoeStyle});assert.ok(new T.Box3().setFromObject(actor.root).max.y<2.1);disposeHouse(actor.root)}});

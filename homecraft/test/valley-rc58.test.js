@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {playerDetail,npcInterval} from '../src/valley-character-quality.js';
+test('quality reduces distant animation work while preserving near animation',()=>{assert.equal(playerDetail('low'),false);assert.equal(playerDetail('medium'),true);for(const quality of ['low','medium','high','ultra'])assert.equal(npcInterval(5,quality),0);assert.equal(npcInterval(100,'low'),.1);assert.equal(npcInterval(30,'ultra'),0)});

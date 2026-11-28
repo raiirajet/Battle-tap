@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {characterExpression,characterSeed} from '../src/valley-character-motion.js';
+test('facial animation is deterministic and bounded',()=>{const seed=characterSeed('Mila');for(let i=0;i<500;i++){const e=characterExpression(i*.03,{seed,pose:'use'});assert.deepEqual(e,characterExpression(i*.03,{seed,pose:'use'}));assert.ok(e.blink>=0&&e.blink<=1&&e.jaw>=0&&e.jaw<=.2)}assert.equal(characterExpression(0,{pose:'sleep'}).blink,1);assert.notEqual(characterSeed('Mila'),characterSeed('Noah'))});

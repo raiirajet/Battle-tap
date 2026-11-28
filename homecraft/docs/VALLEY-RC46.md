@@ -1,0 +1,3 @@
+# RC46 – Character art only
+
+Sculpted face with interpolated cross sections, cheek/nose/orbital relief, vertex skin tint, radial iris detail, moving gaze and lashes. Three articulated finger sections per digit, palm creases, nails. Eleven hairstyle variants and extra locks, braids, bob, sidepart and spiky variants. Eight outfits, four lower garment options, four shoe geometries, four body widths and three face shapes. Fabric and leather maps generated offline for detailed player/preview, cheaper NPC materials. Existing saves migrate via profile defaults. Three preview framing options. No environment, gameplay, or ownership changes. Procedural rigid bone models with local mesh parts, not seamless skinned artist-made GLB; visual/device QA still required.
