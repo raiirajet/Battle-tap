@@ -1,3 +1,4 @@
+import {characterContactShadow} from './valley-character-light.js';
 import {createCharacterLOD} from './characters/characterLod.js';
 import {faceTarget,createConversationMotion} from './characters/leaNpc.js';
 import * as T from 'three';
@@ -38,20 +39,20 @@ export function turnToward(root, target, dt) {
 export function townActors(scene,seed){
  const root=new T.Group();
  scene.add(root);
- const people=RESIDENTS.map(r=>({r,elapsed:0,avatar:createCharacterLOD(r.profile,{identity:r.id})}));
+ const people=RESIDENTS.map(r=>({r,elapsed:0,avatar:createCharacterLOD(r.profile,{identity:r.id}),contact:characterContactShadow(scene)}));
  for(const p of people)root.add(p.avatar.root);
  const cars=CARS.map(c=>({c,mesh:carMesh(c.color)}));
  for(const c of cars)root.add(c.mesh);
  root.visible=false;
  return {
-  show(on){root.visible=on;for(const p of people)p.elapsed=0},
+  show(on){root.visible=on;for(const p of people){p.elapsed=0;if(!on)p.contact.update(null)}},
   speaker(id,minute,save){
    const entry=people.find(p=>p.r.id===id);
    if(!root.visible||!entry?.avatar.root.visible)return null;
    const p=residentAt(entry.r,minute);
    if(!guestPositionAllowed(save,'npc:'+id,p.x,p.z))return null;
    const state={...p,height:worldGround(p.x,p.z,seed)};
-   const {avatar}=entry;avatar.forceNear();
+   const {avatar}=entry;avatar.forceNear();entry.contact.update(state,{visible:true,day:minute>=420&&minute<=1140?1:.2});
    const motion=createConversationMotion();return {state,speak:motion.speak,update(player,dt){
     const gaze=faceTarget(avatar.root,player,dt);avatar.update(state,0,0,false,dt,null,{...motion.update(dt),gaze});
    }};
@@ -61,8 +62,8 @@ export function townActors(scene,seed){
    for(const entry of people){
     const {r,avatar}=entry,p=residentAt(r,minute);
     avatar.root.visible=r.id!==excluded&&guestPositionAllowed(privateSave,'npc:'+r.id,p.x,p.z);
-    if(!avatar.root.visible)continue;
-    const state={...p,height:worldGround(p.x,p.z,seed)},distance=observer?Math.hypot(observer.x-p.x,observer.z-p.z):Infinity,interval=npcInterval(distance,quality);avatar.setDistance(distance,quality);
+    if(!avatar.root.visible){entry.contact.update(null);continue;}
+    const state={...p,height:worldGround(p.x,p.z,seed)},distance=observer?Math.hypot(observer.x-p.x,observer.z-p.z):Infinity,interval=npcInterval(distance,quality);avatar.setDistance(distance,quality);entry.contact.update(state,{visible:distance<35,day:minute>=420&&minute<=1140?1:.2,shadows:quality!=='low'});
     entry.elapsed=Math.min(.1,entry.elapsed+Math.max(0,dt));
     if(dt>0&&entry.elapsed+1e-6<interval){avatar.root.position.set(p.x,state.height,p.z);continue}
     avatar.update(state,p.dx,p.dz,p.moving&&dt>0,entry.elapsed);
@@ -76,6 +77,6 @@ export function townActors(scene,seed){
     carLights(mesh,{night:minute<420||minute>1140?1:0});
    }
   },
-  destroy(){disposeHouse(root)}
+  destroy(){for(const p of people)p.contact.dispose();disposeHouse(root)}
  };
 }

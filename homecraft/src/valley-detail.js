@@ -29,4 +29,4 @@ return {
  }
 };
 }
-export function lakeSurface(water){const canvas=document.createElement('canvas');canvas.width=canvas.height=128;const ctx=canvas.getContext('2d'),data=ctx.createImageData(128,128);for(let y=0;y<128;y++)for(let x=0;x<128;x++){const i=(y*128+x)*4,v=128+Math.sin(x*.39+y*.14)*28+Math.sin(y*.49-x*.22)*20;data.data.set([v,v,v,255],i)}ctx.putImageData(data,0,0);const t=new T.CanvasTexture(canvas);t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(12,9);water.material.bumpMap=t;water.material.bumpScale=.19;water.material.roughness=.18;water.material.metalness=.20;water.material.envMapIntensity=.65;water.material.needsUpdate=true;return {update(dt,wind,day=1){t.offset.x=(t.offset.x+dt*.016*wind)%1;t.offset.y=(t.offset.y+dt*.009)%1;water.material.bumpScale=.09+wind*.13;water.material.roughness=.14+wind*.10;water.material.color.set(0x18364d).lerp(new T.Color(0x508e9e),day)},destroy(){t.dispose()}}}
+export {lakeWater as lakeSurface} from './environment/waterQuality.js';
