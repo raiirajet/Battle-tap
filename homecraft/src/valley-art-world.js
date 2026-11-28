@@ -1,4 +1,4 @@
-import {PARK_LAMP_POSITIONS} from './environment/props.js';
+import {PARK_LAMP_POSITIONS,parkDetailClear} from './environment/props.js';
 import {createMeadowChunks} from './environment/meadowChunks.js';
 import * as T from 'three';
 import {roads,plots} from './valley-core.js';
@@ -11,7 +11,7 @@ function seedRand(seed){let n=seed>>>0;return()=>((n=(Math.imul(n,1664525)+10139
 const graph=roads(),nodes=Object.fromEntries(graph.nodes.map(p=>[p.id,p])),reserves=plots().map(p=>p.reserve);
 function distance(x,z,a,b){const dx=b.x-a.x,dz=b.z-a.z,t=T.MathUtils.clamp(((x-a.x)*dx+(z-a.z)*dz)/(dx*dx+dz*dz),0,1);return Math.hypot(x-a.x-dx*t,z-a.z-dz*t)}
 export function meadowEligible(x,z,seed){
- if(!worldPassable(x,z,seed,null)||reserves.some(r=>inRect(r,x,z,1)))return false;
+ if(!parkDetailClear(x,z,.25)||!worldPassable(x,z,seed,null)||reserves.some(r=>inRect(r,x,z,1)))return false;
  if(graph.edges.some(e=>distance(x,z,nodes[e.a],nodes[e.b])<5.3))return false;
  if(x>305&&x<336&&z>301&&z<329)return false;
  if(x>270&&x<307&&z>326&&z<380&&(Math.abs(x-288)<1.65||Math.abs(z-345.5)<1.65||x<285&&z>365))return false;
