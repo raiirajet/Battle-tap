@@ -1,3 +1,6 @@
+import {fingerPose} from './characters/poseQuality.js';
+import {shapeCloth} from './characters/clothShape.js';
+import {torsoProportions} from './valley-body-shape.js';
 import {createMouth,applyHairSurface} from './characters/faceDetails.js';
 import {smoothRingSeam} from './valley-anatomy.js';
 import {springStep} from './valley-secondary-motion.js';
@@ -29,7 +32,7 @@ export function curveDetail(parent,mat,points,r=.003,steps=12){return mesh(paren
 function bone(parent,x,y,z){const b=new T.Bone();b.position.set(x,y,z);parent.add(b);return b}
 export function makeHand(parent,skin,side,detail=true){
  const hand=bone(parent,0,-.205,0),nail=material(new T.Color(skin.color).lerp(new T.Color(0xffe0ca),.26),{roughness:.38});hand.userData.hand=true;hand.name=sideKey(side)+'Hand';
- const crease=material(new T.Color(skin.color).multiplyScalar(.87));
+ const crease=material(new T.Color(skin.color).multiplyScalar(.87));const nailEdge=detail?material(new T.Color(skin.color).lerp(new T.Color(0xffeee1),.56),{roughness:.44}):null;
  mesh(hand,silhouette([[-.046,.027,.013,.002],[-.034,.035,.018,0],[-.012,.035,.021,0],[.012,.026,.019,0],[.027,.020,.018,0]],detail?24:16),skin);
  ell(hand,skin,-side*.022,-.009,.011,.018,.031,.013);
  if(detail){curveDetail(hand,crease,[[-side*.020,.008,-.018],[0,-.008,-.021],[side*.022,-.023,-.015]],.0011);curveDetail(hand,crease,[[side*.018,.002,-.018],[side*.004,-.016,-.023],[-side*.012,-.030,-.017]],.001)}
@@ -38,11 +41,11 @@ export function makeHand(parent,skin,side,detail=true){
  const r=thumb?.0095:.008;const l1=l*(thumb?.52:.43),l2=l*(thumb?.24:.32),l3=l-l1-l2;
  function part(parent,len,rad,last=false){mesh(parent,silhouette([[-len-.002,last?.001:rad*.70,last?.001:rad*.71],[-len*.76,rad*.84,rad*.80],[-len*.18,rad,rad*.93],[.003,rad*.74,rad*.73]],detail?14:8),skin)}
  part(finger,l1,r);const middle=bone(finger,0,-l1,0);part(middle,l2,r*.88);const tip=bone(middle,0,-l2,0);middle.name=finger.name+'Mid';tip.name=finger.name+'Tip';part(tip,l3,r*.76,true);
- if(detail){ell(tip,nail,0,-l3*.43,r*.67,r*.56,l3*.36,.0014);ell(finger,skin,0,-l1*.93,0,r*.84,.005,r*.88);curveDetail(middle,crease,[[-r*.55,-l2*.65,-r*.69],[0,-l2*.69,-r*.81],[r*.55,-l2*.65,-r*.69]],.0006,5)}
- bake(finger);bake(middle);bake(tip);digits.push({finger,middle,tip,thumb});
+ if(detail){ell(tip,nail,0,-l3*.43,r*.67,r*.56,l3*.36,.0014);ell(tip,nailEdge,0,-l3*.69,r*.69,r*.49,l3*.09,.0011);ell(finger,skin,0,-l1*.93,0,r*.84,.005,r*.88);curveDetail(middle,crease,[[-r*.55,-l2*.65,-r*.69],[0,-l2*.69,-r*.81],[r*.55,-l2*.65,-r*.69]],.0006,5)}
+ bake(finger);bake(middle);bake(tip);digits.push({finger,middle,tip,thumb,index:i,rest:finger.rotation.z});
  }
  if(!detail){nail.dispose();crease.dispose()}bake(hand);
- return {hand,digits,update(grip,phase){hand.rotation.x=-.06+grip*.15;for(const {finger,middle,tip,thumb} of digits){finger.rotation.x=grip*(thumb?.32:.72)+.025*Math.sin(phase);middle.rotation.x=grip*(thumb?.25:.90);tip.rotation.x=grip*(thumb?.18:.52)}}};
+ return {hand,digits,update(grip,phase,greeting=false){hand.rotation.x=-.06+grip*.15;for(const {finger,middle,tip,index,rest} of digits){const p=fingerPose(grip,phase,index,greeting);finger.rotation.x=p.base;middle.rotation.x=p.mid;tip.rotation.x=p.tip;finger.rotation.z=rest+p.spread}}};
 }
 export function makeFace(head,p,skin,hair,detail=true){
  const faceMat=skin.clone();faceMat.vertexColors=true;faceMat.roughness=.60;faceMat.userData.valleyFace=true;mesh(head,faceGeometry(p.face,detail),faceMat);
@@ -86,7 +89,7 @@ export function makeHair(head,p,hair,detail=true){
 }
 export function garment(parent,shirt,seam,p,detail){
  const lining=material(new T.Color(p.shirt).lerp(new T.Color(0xe6ded0),.55),{roughness:.94}),button=material(0x827465,{roughness:.55});shirt.roughness=.94;
- const waist=p.build==='athletic'?.148:p.build==='slim'?.146:p.build==='stocky'?.162:.155;mesh(parent,silhouette([[.832,.151,.103],[.87,.165,.112],[.95,waist,.111],[1.07,.168,.117],[1.18,.198,.117],[1.255,.208,.101],[1.30,.161,.087],[1.344,.080,.066]],detail?32:20),shirt);
+ const {waist,chest,shoulder,depth}=torsoProportions(p.build),segments=detail?32:20;const torso=silhouette([[.832,.151,.103],[.87,.165,.112],[.95,waist,.111*depth],[1.07,.168,.117*depth],[1.18,chest,.117*depth],[1.255,shoulder,.101],[1.30,.161,.087],[1.344,.080,.066]],segments);mesh(parent,detail?shapeCloth(torso,p.outfit,segments):torso,shirt);
  const jacket=['jacket','cardigan','hoodie','coat','blouse'].includes(p.outfit);
  if(jacket){mesh(parent,silhouette([[.84,.107,.103],[.95,.103,.118],[1.14,.111,.121],[1.27,.085,.092],[1.32,.065,.07]],20),lining);for(const side of [-1,1]){curveDetail(parent,seam,[[side*.11,1.30,.065],[side*.065,1.17,.121],[side*.09,1.04,.119],[side*.087,.86,.108]],.009);box(parent,seam,side*.12,.96,.103,.082,.067,.012);curveDetail(parent,lining,[[side*.08,.995,.116],[side*.158,.995,.099]],.003);for(let i=0;i<4;i++)ell(parent,button,side*.075,.91+i*.09,.121,.006,.006,.003)}}else{curveDetail(parent,seam,[[-.08,1.33,.065],[0,1.294,.089],[.08,1.33,.065]],.007);if(p.outfit==='sport')for(const s of [-1,1])curveDetail(parent,lining,[[s*.165,1.23,.064],[s*.15,1.1,.095],[s*.13,.87,.09]],.012)}
  if(p.outfit==='hoodie'){ell(parent,shirt,0,1.27,-.094,.116,.113,.066);for(const s of [-1,1])curveDetail(parent,lining,[[s*.050,1.31,.073],[s*.044,1.19,.120],[s*.038,1.13,.122]],.004);box(parent,seam,0,.94,.113,.18,.075,.016)}

@@ -1,3 +1,4 @@
+import {gaitStep,applyFootIK} from './characters/poseQuality.js';
 import {wardrobeLayers} from './valley-wardrobe.js';
 import {bodyShape} from './valley-body-shape.js';
 import {characterSeed} from './valley-character-motion.js';
@@ -37,17 +38,17 @@ export function avatarMesh(input,{detail=true,identity=''}={}){
  ell(hip,pocket,s*.055,-.153,.061,.038,.025,.012);
  curveDetail(hip,denim,[[s*.025,-.162,.075],[s*.047,-.178,.076],[s*.073,-.163,.066]],.0016,10);
  }
- shoeAsset(knee,p.shoeStyle,shoe,sole,skin,detail); legs.push({hip,knee});
+ const ankle=new T.Group();ankle.position.y=-.36;knee.add(ankle);const footwear=shoeAsset(ankle,p.shoeStyle,shoe,sole,skin,detail);footwear.position.y=.36;legs.push({hip,knee,ankle});
  bake(a);bake(elbow);bake(hip);bake(knee);
  }
  if(p.bottom==='shorts')denim.dispose();bake(body);root.userData.rig='articulated-bones';root.userData.style='semi-realistic-anime';root.userData.hands=arms.map(a=>a.hand.hand);
- let phase=0,weight=0,clock=0,glb=null;const legacySkin=[];root.traverse(o=>{if(o.isMesh&&(o.material===skin&&o.parent!==head||o.material?.userData?.valleyFace))legacySkin.push(o)});function useRig(src){if(src&&!glb&&!root.userData.disposed){glb=attachValleyRig(root,src,p,legacySkin);if(glb)root.userData.disposeRig=()=>glb.dispose()}}if(typeof document!=='undefined'){const src=getValleyRig(detail);if(src)useRig(src);else preloadValleyRig(detail).then(useRig)}
+ let phase=0,weight=0,clock=0,glb=null,lastPosition=null;const legacySkin=[];root.traverse(o=>{if(o.isMesh&&(o.material===skin&&o.parent!==head||o.material?.userData?.valleyFace))legacySkin.push(o)});function useRig(src){if(src&&!glb&&!root.userData.disposed){glb=attachValleyRig(root,src,p,legacySkin);if(glb)root.userData.disposeRig=()=>glb.dispose()}}if(typeof document!=='undefined'){const src=getValleyRig(detail);if(src)useRig(src);else preloadValleyRig(detail).then(useRig)}
  return {root,update(state,dx,dz,moving,dt,action=null,motion={}){
  dt=Math.max(0,Math.min(.1,Number.isFinite(dt)?dt:0));root.position.set(state.x,state.height+.025,state.z);
- if(moving&&Math.hypot(dx,dz)>.001){const target=Math.atan2(dx,dz),delta=Math.atan2(Math.sin(target-root.rotation.y),Math.cos(target-root.rotation.y));root.rotation.y+=delta*(1-Math.exp(-dt*14))}phase+=dt*(motion.run?14:9.5)*Math.max(weight,moving?.35:0);
+ if(moving&&Math.hypot(dx,dz)>.001){const target=Math.atan2(dx,dz),delta=Math.atan2(Math.sin(target-root.rotation.y),Math.cos(target-root.rotation.y));root.rotation.y+=delta*(1-Math.exp(-dt*14))}const distance=lastPosition?Math.hypot(state.x-lastPosition.x,state.z-lastPosition.z):NaN;lastPosition={x:state.x,z:state.z};phase=gaitStep(phase,dt,distance,motion.run,moving);
  weight+=(Number(moving)-weight)*(1-Math.exp(-dt*12));const pose=poseFor(action),walk=pose==='idle'?weight:0;clock+=dt;const jump=Math.max(0,motion.jump||0),run=motion.run?1.28:1;
  body.rotation.x=pose==='sleep'?-Math.PI/2:0;body.rotation.z=walk*Math.sin(phase)*.027;body.rotation.y=walk*Math.sin(phase)*.035;body.position.y=pose==='sleep'?.31:pose==='sit'?-.32:Math.abs(Math.sin(phase))*walk*.034+(1-walk)*Math.sin(clock*2)*.006+jump;
  head.rotation.y=walk*Math.sin(phase*.5)*.045+T.MathUtils.clamp(Number(motion.gaze)||0,-.38,.38);head.rotation.z=-body.rotation.z*.55;face.update(clock,{pose,jump,moving,speaking:!!motion.speaking,gaze:motion.gaze,seed:root.userData.expressionSeed});hairstyle.update(clock,walk,dt,Number(motion.wind)||0);
- for(let i=0;i<2;i++){const t=phase+i*Math.PI,s=Math.sin(t),{hip,knee}=legs[i],{a,elbow,hand}=arms[i];hip.rotation.x=pose==='sit'?-Math.PI/2:walk*s*.51*run-jump*.6;knee.rotation.x=pose==='sit'?Math.PI/2:Math.max(0,-s)*walk*.65+jump*1.3;a.rotation.x=pose==='use'?-.82:pose==='sit'?-.35:-walk*s*.40*run-jump*.5;elbow.rotation.x=pose==='use'?-1.05:pose==='sit'?-.35:-.12-Math.max(0,s)*walk*.37;a.rotation.z=(i?1:-1)*.055;hand.update(pose==='use'?.78:pose==='sit'?.22:.16+walk*(motion.run?.48:.16),t)}if(motion.greeting&&!glb){arms[1].a.rotation.x=-1.15;arms[1].a.rotation.z=.48;arms[1].elbow.rotation.x=-1;arms[1].elbow.rotation.y=Math.sin(clock*10)*.28}else if(!glb){arms[1].elbow.rotation.y=0}wardrobe.userData.updateSecondary?.(clock,walk,dt,Number(motion.wind)||0);glb?.update(dt,{moving,run:motion.run,jump,pose,speaking:!!motion.speaking,greeting:!!motion.greeting});
+ for(let i=0;i<2;i++){const t=phase+i*Math.PI,s=Math.sin(t),{hip,knee,ankle}=legs[i],{a,elbow,hand}=arms[i];hip.rotation.x=pose==='sit'?-Math.PI/2:walk*s*.51*run-jump*.6;knee.rotation.x=pose==='sit'?Math.PI/2:Math.max(0,-s)*walk*.65+jump*1.3;a.rotation.x=pose==='use'?-.82:pose==='sit'?-.35:-walk*s*.40*run-jump*.5;elbow.rotation.x=pose==='use'?-1.05:pose==='sit'?-.35:-.12-Math.max(0,s)*walk*.37;a.rotation.z=(i?1:-1)*.055;ankle.rotation.x=0;hand.update(motion.greeting&&i===1?.05:pose==='use'?.78:pose==='sit'?.22:.16+walk*(motion.run?.48:.16),t,!!motion.greeting&&i===1)}if(motion.greeting&&!glb){arms[1].a.rotation.x=-1.15;arms[1].a.rotation.z=.48;arms[1].elbow.rotation.x=-1;arms[1].elbow.rotation.y=Math.sin(clock*10)*.28}else if(!glb){arms[1].elbow.rotation.y=0}wardrobe.userData.updateSecondary?.(clock,walk,dt,Number(motion.wind)||0);glb?.update(dt,{moving,run:motion.run,jump,pose,speaking:!!motion.speaking,greeting:!!motion.greeting});if(detail)applyFootIK(body,legs,root,state,phase,walk,motion,pose,jump);
  }};
 }
