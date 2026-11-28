@@ -29,4 +29,55 @@ export function carMesh(color,model='city'){
 export function rollCar(root,x,z,heading,steer=0){for(const g of root.userData.steering||[])g.rotation.y=T.MathUtils.clamp(steer,-1,1)*.40;const p=root.userData.lastWheelPosition;if(p){const dx=x-p.x,dz=z-p.z,d=Math.hypot(dx,dz);if(d<8){const signed=dx*Math.sin(heading)+dz*Math.cos(heading);for(const g of root.userData.wheels)g.rotation.x+=signed/.35}}root.userData.lastWheelPosition={x,z}}
 export function cockpitView(root,on){if(!root)return;root.userData.cabin.visible=!!on;for(const o of root.userData.shell)o.visible=!on}
 export function carLights(root,{night=0,braking=false,beams=false}={}){const m=root.userData.lamps;if(!m)return;m.lamp.emissiveIntensity=.14+Math.max(0,Math.min(1,night))*2.1;m.rear.emissiveIntensity=braking?2.7:.15+night*.65;if(beams&&!root.userData.beams){const group=new T.Group();for(const x of [-.48,.48]){const light=new T.SpotLight(0xffedc8,0,26,.31,.55,2);light.position.set(x,.80,1.9);light.target.position.set(x,.12,15);group.add(light,light.target)}root.add(group);root.userData.beams=group}if(root.userData.beams){root.userData.beams.visible=beams&&night>.35;for(const o of root.userData.beams.children)if(o.isSpotLight)o.intensity=beams?night*85:0}}
-export function townActors(scene,seed){const root=new T.Group();scene.add(root);const people=RESIDENTS.map(r=>({r,elapsed:0,avatar:avatarMesh(r.profile,{detail:false,identity:r.id})}));for(const p of people)root.add(p.avatar.root);const cars=CARS.map(c=>({c,mesh:carMesh(c.color)}));for(const c of cars)root.add(c.mesh);root.visible=false;return {show(on){root.visible=on;for(const p of people)p.elapsed=0},update(minute,dt,excluded=null,privateSave=null,observer=null,quality='medium'){if(!root.visible)return;for(const entry of people){const {r,avatar}=entry;avatar.root.visible=r.id!==excluded;if(!avatar.root.visible)continue;const p=residentAt(r,minute);if(!guestPositionAllowed(privateSave,'npc:'+r.id,p.x,p.z)){avatar.root.visible=false;continue}const state={...p,height:worldGround(p.x,p.z,seed)},interval=npcInterval(observer?Math.hypot(observer.x-p.x,observer.z-p.z):0,quality);entry.elapsed=Math.min(.1,entry.elapsed+Math.max(0,dt));if(dt>0&&entry.elapsed+1e-6<interval){avatar.root.position.set(p.x,state.height+.025,p.z);continue}avatar.update(state,p.dx,p.dz,p.moving&&dt>0,entry.elapsed);entry.elapsed=0}for(const {c,mesh} of cars){const p=carAt(c,minute);mesh.position.set(p.x,worldGround(p.x,p.z,seed)+.12,p.z);mesh.rotation.y=Math.atan2(p.dx,p.dz);rollCar(mesh,p.x,p.z,mesh.rotation.y);carLights(mesh,{night:minute<420||minute>1140?1:0})}},destroy(){disposeHouse(root)}}}
+export function turnToward(root, target, dt) {
+ const dx=target.x-root.position.x,dz=target.z-root.position.z;
+ if(Math.hypot(dx,dz)<.001)return;
+ const delta=Math.atan2(dx,dz)-root.rotation.y;
+ root.rotation.y+=Math.atan2(Math.sin(delta),Math.cos(delta))*(1-Math.exp(-dt*10));
+}
+
+export function townActors(scene,seed){
+ const root=new T.Group();
+ scene.add(root);
+ const people=RESIDENTS.map(r=>({r,elapsed:0,avatar:avatarMesh(r.profile,{detail:false,identity:r.id})}));
+ for(const p of people)root.add(p.avatar.root);
+ const cars=CARS.map(c=>({c,mesh:carMesh(c.color)}));
+ for(const c of cars)root.add(c.mesh);
+ root.visible=false;
+ return {
+  show(on){root.visible=on;for(const p of people)p.elapsed=0},
+  speaker(id,minute,save){
+   const entry=people.find(p=>p.r.id===id);
+   if(!root.visible||!entry?.avatar.root.visible)return null;
+   const p=residentAt(entry.r,minute);
+   if(!guestPositionAllowed(save,'npc:'+id,p.x,p.z))return null;
+   const state={...p,height:worldGround(p.x,p.z,seed)};
+   const {avatar}=entry;
+   return {state,update(player,dt){
+    avatar.update(state,0,0,false,dt);
+    turnToward(avatar.root,player,dt);
+   }};
+  },
+  update(minute,dt,excluded=null,privateSave=null,observer=null,quality='medium'){
+   if(!root.visible)return;
+   for(const entry of people){
+    const {r,avatar}=entry,p=residentAt(r,minute);
+    avatar.root.visible=r.id!==excluded&&guestPositionAllowed(privateSave,'npc:'+r.id,p.x,p.z);
+    if(!avatar.root.visible)continue;
+    const state={...p,height:worldGround(p.x,p.z,seed)},interval=npcInterval(observer?Math.hypot(observer.x-p.x,observer.z-p.z):0,quality);
+    entry.elapsed=Math.min(.1,entry.elapsed+Math.max(0,dt));
+    if(dt>0&&entry.elapsed+1e-6<interval){avatar.root.position.set(p.x,state.height+.025,p.z);continue}
+    avatar.update(state,p.dx,p.dz,p.moving&&dt>0,entry.elapsed);
+    entry.elapsed=0;
+   }
+   for(const {c,mesh} of cars){
+    const p=carAt(c,minute);
+    mesh.position.set(p.x,worldGround(p.x,p.z,seed)+.12,p.z);
+    mesh.rotation.y=Math.atan2(p.dx,p.dz);
+    rollCar(mesh,p.x,p.z,mesh.rotation.y);
+    carLights(mesh,{night:minute<420||minute>1140?1:0});
+   }
+  },
+  destroy(){disposeHouse(root)}
+ };
+}

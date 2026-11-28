@@ -53,3 +53,37 @@
 .valley #vProfileFields{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px}.valley #vProfileFields label{margin:2px 0;font-size:12px}.valley #vProfileFields select{font-size:13px}.valley #vProfilePreview{background:radial-gradient(ellipse at 50% 26%,#edf0ed,#738c8e)}
 
 .valley #vProfileFields .vPresetActions{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-self:end}.valley #vCharacterPanel .vPresetActions button{margin:0;min-height:44px;padding:6px;font-size:12px}.valley #vProfilePreview canvas{width:min(360px,100%);height:auto}
+
+.valley #vConversation {
+ position:absolute;
+ inset:auto calc(12px + var(--safe-right,0px)) calc(12px + var(--safe-bottom,0px)) calc(12px + var(--safe-left,0px));
+ width:auto;
+ max-width:560px;
+ max-height:48%;
+ max-height:min(48dvh,360px);
+ margin:0 auto;
+ padding:clamp(10px,2.2vmin,18px);
+ overflow:auto;
+ overscroll-behavior:contain;
+ color:#f5fbf5;
+ background:#172f2bf7;
+ border:1px solid #7c9e8d;
+ border-radius:16px;
+ box-shadow:0 12px 36px #0d211d66;
+ pointer-events:auto;
+}
+.valley #vConversation::backdrop { background:linear-gradient(transparent 55%,#09181449); }
+.valley #vConversation header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.valley #vConversationName { display:block; font-size:1.125rem; }
+.valley #vConversationRole,.valley #vConversationStatus { color:#c4dbca; font-size:.8rem; }
+.valley #vConversationStatus:empty { display:none; }
+.valley #vConversationLines { max-height:clamp(48px,17dvh,130px); overflow:auto; margin:8px 0; }
+.valley #vConversationLines p { margin:0 0 5px; font-size:.92rem; line-height:1.45; }
+.valley #vConversationLines strong { display:inline-block; margin-right:8px; color:#c8ead2; }
+.valley #vConversationChoices { display:flex; flex-wrap:wrap; gap:6px; }
+.valley #vConversation button { min-height:44px; padding:6px 10px; font-size:.85rem; }
+.valley #vConversationClose { background:#dceee0; }
+.valley:has(#vConversation[open]) :is(.vLifeControls,.vContextActions,#vLifeNotice) { visibility:hidden; }
+@media(max-height:370px) {
+ .valley #vConversation { inset-block-end:calc(6px + var(--safe-bottom,0px)); max-height:58dvh; }
+}

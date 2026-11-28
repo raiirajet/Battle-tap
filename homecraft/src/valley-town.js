@@ -29,3 +29,24 @@ export const CARS=Object.freeze([0,1,2,3].map((i)=>Object.freeze({id:'car-'+i,z:
 export function carAt(car,minute){const t=((minute+car.offset)%240+240)%240/240;const z=car.z,a=330,b=534,lane=1.45; // Each car has its own residential road; turn within the road at each end.
  const path=[point(a,z-lane),point(b,z-lane),point(b+1.45,z),point(b,z+lane),point(a,z+lane),point(a-1.45,z),point(a,z-lane)];
  return pathAt(path,t)}
+
+const residentTopics=Object.freeze({
+ lea:'Ich kümmere mich um die Beete im Park. Im Frühling halte ich Ausschau nach den ersten Wildblumen.',
+ noah:'In der Werkstatt ist einiges los. Heute nehme ich mir noch Zeit für eine Probefahrt.',
+ mia:'Am Markt treffe ich jeden Tag andere Leute. Morgens mag ich es dort am liebsten.',
+ elias:'Als Kurier bin ich ständig unterwegs. Am Dorfplatz mache ich gern eine kurze Pause.',
+ sara:'Ich sammle im Park Ideen für neue Blumensträusse. Die Farben ändern sich mit der Jahreszeit.',
+ luca:'Ich bin oft am Markt. Dort hört man immer zuerst, was im Dorf los ist.'
+});
+
+export function residentDialogue(resident,minute,score=0){
+ const greeting=minute<600?'Guten Morgen!':minute>=1080?'Guten Abend!':'Hoi!';
+ const opening=greeting+' '+(score>=40?'Schön, dass du wieder da bist.':score>=10?'Schön, dich wiederzusehen.':'Ich bin '+resident.name+'.');
+ const chat=({
+  'Unterwegs zur Arbeit':'Ich bin gerade auf dem Weg zur Arbeit. Ein kurzer Schwatz geht aber.',
+  'Auf dem Heimweg':'Ich mache mich langsam auf den Heimweg. Schön, dich noch zu treffen.',
+  'Zuhause / Nachtruhe':'Hier draussen ist es jetzt schön ruhig. Ich bleibe nur noch kurz.',
+  'Feierabend':'Für heute habe ich Feierabend. Jetzt nehme ich mir etwas Zeit für mich.'
+ })[resident.activity]??residentTopics[resident.id];
+ return {opening,greet:'Freut mich auch. Wir sehen uns bestimmt wieder im Tal.',chat};
+}

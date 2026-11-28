@@ -14,6 +14,10 @@ export function surfaceMaps(kind='grass',size=128){
   if(kind==='plaster')value=.5+n*.09+.035*Math.sin(u*12+v*7)+.028*Math.cos(u*17-v*11);
   if(kind==='grass')value=.47+.12*Math.sin(u*6+v*3)+.08*Math.cos(u*13-v*9)+n*.18;
   if(kind==='stone'){const row=Math.floor(y/24),xx=(x+(row%2)*24)%48,yy=y%24,edge=Math.min(xx,48-xx,yy,24-yy);value=edge<2?.19:.62+n*.16+.055*Math.cos(u*17+v*13)}
+  if(kind==='bark'){
+   const grooves=Math.sin(u*13+Math.sin(v*2)*.55+Math.sin(v*5)*.14);
+   value=.47+.21*grooves+.075*Math.sin(u*29+v*2)+n*.13;
+  }
   if(kind==='asphalt')value=.5+n*.28+.025*Math.sin(u*4+v*6);
   h[at(x,y)]=value;
  }
