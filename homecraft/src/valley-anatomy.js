@@ -4,10 +4,10 @@ const g=(x,s)=>Math.exp(-((x/s)**2));
 export function faceRelief(x,y){
  const ax=Math.abs(x);
  const bridge=g(x,.014)*g(y+.008,.046)*.018;
- const tip=g(x,.018)*g(y+.040,.015)*.023;
+ const tip=g(x,.016)*g(y+.040,.015)*.025;
  const wings=g(ax-.016,.009)*g(y+.043,.011)*.005;
- const cheek=g(ax-.062,.026)*g(y+.035,.029)*.009;
- const socket=g(ax-.044,.025)*g(y-.018,.018)*.011;
+ const cheek=g(ax-.062,.026)*g(y+.035,.029)*.012;
+ const socket=g(ax-.044,.024)*g(y-.018,.017)*.013;
  const brow=g(ax-.045,.030)*g(y-.048,.017)*.004;
  const lips=g(x,.034)*g(y+.078,.014)*.004;
  const philtrum=g(x,.006)*g(y+.062,.009)*.0018;
