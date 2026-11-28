@@ -4,10 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node scripts/build-valley-glb.mjs && vite --host 0.0.0.0",
-    "build": "node scripts/build-valley-glb.mjs && python3 scripts/icons.py public && vite build && node scripts/cache-assets.mjs",
+    "dev": "node scripts/build-park-assets.mjs && node scripts/build-valley-glb.mjs && vite --host 0.0.0.0",
+    "build": "node scripts/build-park-assets.mjs && node scripts/build-valley-glb.mjs && python3 scripts/icons.py public && vite build && node scripts/cache-assets.mjs",
     "test": "node --test",
-    "preview": "vite preview --host 0.0.0.0"
+    "preview": "vite preview --host 0.0.0.0",
+    "assets:park": "node scripts/build-park-assets.mjs"
   },
   "dependencies": {
     "three": "0.170.0",
